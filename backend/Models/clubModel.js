@@ -15,6 +15,7 @@ const clubSchema = new mongoose.Schema(
     president:{
         type:String,
         required:true
+<<<<<<< HEAD
     },
 
     category:{
@@ -35,6 +36,8 @@ const clubSchema = new mongoose.Schema(
     image:{
         type:String,
         required:false
+=======
+>>>>>>> c2a0ea9ca9cdbaf69a3c34f73ada06cf37320e24
     }
 
 },

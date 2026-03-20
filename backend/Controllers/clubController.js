@@ -5,12 +5,17 @@ const Club = require("../Models/clubModel");
 exports.createClub = async (req,res) => {
 
     try{
+<<<<<<< HEAD
         const clubData = req.body;
         if (req.file) {
             clubData.image = `/uploads/${req.file.filename}`;
         }
 
         const club = new Club(clubData);
+=======
+
+        const club = new Club(req.body);
+>>>>>>> c2a0ea9ca9cdbaf69a3c34f73ada06cf37320e24
         const savedClub = await club.save();
 
         res.status(201).json(savedClub);

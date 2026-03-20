@@ -5,6 +5,9 @@ require("dotenv").config();
 
 const app = express();
 
+// Import Routes
+const clubRoutes = require("./Routes/clubRoutes");
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -19,6 +22,9 @@ app.use('/api/clubs', clubRoutes);
 app.get("/", (req, res) => {
   res.send("Eventra Backend is running 🚀");
 });
+
+// Use Routes
+app.use("/api/clubs", clubRoutes);
 
 // MongoDB connection
 mongoose
