@@ -1,3 +1,4 @@
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -16,6 +17,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Eventra Backend is running 🚀");
 });
+
 
 // Use Routes
 app.use("/api/events", eventRoutes);
