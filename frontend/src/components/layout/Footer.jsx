@@ -3,54 +3,76 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="bg-[#111827] text-white mt-auto">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-
+    <footer className="bg-slate-900 text-slate-300 mt-auto border-t border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* About Section */}
-          <div>
-            <h3 className="font-bold text-lg mb-4 text-[#F59E0B]">EventaCore</h3>
-            <p className="text-gray-400 text-sm">
+          <div className="space-y-4">
+            <h3 className="font-bold text-2xl text-white tracking-tight">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6]">Eventa</span>Core
+            </h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
               Your one-stop platform for university clubs and event management.
-              Connect, collaborate, and create memories!
+              Connect, collaborate, and create memories that last a lifetime!
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4 text-[#F59E0B]">Quick Links</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/about" className="text-gray-400 hover:text-[#F59E0B] transition">About Us</Link></li>
-              <li><Link to="/contact" className="text-gray-400 hover:text-[#F59E0B] transition">Contact</Link></li>
-              <li><Link to="/faq" className="text-gray-400 hover:text-[#F59E0B] transition">FAQ</Link></li>
+            <h3 className="font-semibold text-lg mb-4 text-white">Quick Links</h3>
+            <ul className="space-y-3 text-sm">
+              <li><Link to="/about" className="hover:text-white hover:translate-x-1 inline-block transition-transform duration-200">About Us</Link></li>
+              <li><Link to="/contact" className="hover:text-white hover:translate-x-1 inline-block transition-transform duration-200">Contact</Link></li>
+              <li><Link to="/faq" className="hover:text-white hover:translate-x-1 inline-block transition-transform duration-200">FAQ</Link></li>
             </ul>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h3 className="font-bold text-lg mb-4 text-[#F59E0B]">Contact Us</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li>📍 SLIIT, Malabe</li>
-              <li>📞 +94 11 234 5678</li>
-              <li>✉️ info@eventacore.com</li>
+            <h3 className="font-semibold text-lg mb-4 text-white">Contact Us</h3>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-start space-x-3">
+                <span className="text-[#8b5cf6]">📍</span>
+                <span>SLIIT, Malabe Campus<br/>New Kandy Rd, Malabe</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <span className="text-[#8b5cf6]">📞</span>
+                <span>+94 11 234 5678</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <span className="text-[#8b5cf6]">✉️</span>
+                <span>info@eventacore.com</span>
+              </li>
             </ul>
           </div>
 
           {/* Social Media */}
           <div>
-            <h3 className="font-bold text-lg mb-4 text-[#F59E0B]">Follow Us</h3>
+            <h3 className="font-semibold text-lg mb-4 text-white">Follow Us</h3>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-[#F59E0B] transition">FB</a>
-              <a href="#" className="text-gray-400 hover:text-[#F59E0B] transition">TW</a>
-              <a href="#" className="text-gray-400 hover:text-[#F59E0B] transition">IG</a>
-              <a href="#" className="text-gray-400 hover:text-[#F59E0B] transition">LI</a>
+              <a href="#" className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-[#3b82f6] hover:text-white transition-colors duration-300">
+                FB
+              </a>
+              <a href="#" className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-[#1da1f2] hover:text-white transition-colors duration-300">
+                TW
+              </a>
+              <a href="#" className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-[#e1306c] hover:text-white transition-colors duration-300">
+                IG
+              </a>
+              <a href="#" className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-[#0077b5] hover:text-white transition-colors duration-300">
+                LI
+              </a>
             </div>
           </div>
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-gray-800 mt-8 pt-6 text-center text-sm text-gray-400">
-          <p>&copy; 2024 EventaCore. All rights reserved.</p>
+        <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
+          <p>&copy; {new Date().getFullYear()} EventaCore. All rights reserved.</p>
+          <div className="space-x-4 mt-4 md:mt-0">
+            <Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-white transition">Terms of Service</Link>
+          </div>
         </div>
       </div>
     </footer>
