@@ -2,27 +2,18 @@ const Club = require("../Models/clubModel");
 
 
 // Create Club
-exports.createClub = async (req,res) => {
+exports.createClub = async (req, res) => {
 
-    try{
-<<<<<<< HEAD
-        const clubData = req.body;
-        if (req.file) {
-            clubData.image = `/uploads/${req.file.filename}`;
-        }
-
-        const club = new Club(clubData);
-=======
+    try {
 
         const club = new Club(req.body);
->>>>>>> c2a0ea9ca9cdbaf69a3c34f73ada06cf37320e24
         const savedClub = await club.save();
 
         res.status(201).json(savedClub);
 
-    }catch(error){
+    } catch (error) {
 
-        res.status(500).json({message:error.message});
+        res.status(500).json({ message: error.message });
 
     }
 };
@@ -30,16 +21,16 @@ exports.createClub = async (req,res) => {
 
 
 // Get All Clubs
-exports.getAllClubs = async (req,res) => {
+exports.getAllClubs = async (req, res) => {
 
-    try{
+    try {
 
         const clubs = await Club.find();
         res.status(200).json(clubs);
 
-    }catch(error){
+    } catch (error) {
 
-        res.status(500).json({message:error.message});
+        res.status(500).json({ message: error.message });
 
     }
 };
@@ -47,16 +38,16 @@ exports.getAllClubs = async (req,res) => {
 
 
 // Get Single Club
-exports.getClubById = async (req,res) => {
+exports.getClubById = async (req, res) => {
 
-    try{
+    try {
 
         const club = await Club.findById(req.params.id);
         res.status(200).json(club);
 
-    }catch(error){
+    } catch (error) {
 
-        res.status(500).json({message:error.message});
+        res.status(500).json({ message: error.message });
 
     }
 };
@@ -64,21 +55,21 @@ exports.getClubById = async (req,res) => {
 
 
 // Update Club
-exports.updateClub = async (req,res) => {
+exports.updateClub = async (req, res) => {
 
-    try{
+    try {
 
         const updatedClub = await Club.findByIdAndUpdate(
             req.params.id,
             req.body,
-            {new:true}
+            { new: true }
         );
 
         res.status(200).json(updatedClub);
 
-    }catch(error){
+    } catch (error) {
 
-        res.status(500).json({message:error.message});
+        res.status(500).json({ message: error.message });
 
     }
 };
@@ -86,17 +77,17 @@ exports.updateClub = async (req,res) => {
 
 
 // Delete Club
-exports.deleteClub = async (req,res) => {
+exports.deleteClub = async (req, res) => {
 
-    try{
+    try {
 
         await Club.findByIdAndDelete(req.params.id);
 
-        res.status(200).json({message:"Club deleted successfully"});
+        res.status(200).json({ message: "Club deleted successfully" });
 
-    }catch(error){
+    } catch (error) {
 
-        res.status(500).json({message:error.message});
+        res.status(500).json({ message: error.message });
 
     }
 };

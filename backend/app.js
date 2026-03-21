@@ -14,9 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
-// Routes
-const clubRoutes = require('./Routes/clubRoutes');
-app.use('/api/clubs', clubRoutes);
+
 
 // Test route
 app.get("/", (req, res) => {
