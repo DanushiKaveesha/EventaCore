@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  HomeIcon, 
-  UserGroupIcon, 
-  CalendarIcon, 
+import logo from '../../assets/logo.png';
+import {
+  HomeIcon,
+  UserGroupIcon,
+  CalendarIcon,
   BellIcon,
-  UserCircleIcon 
+  UserCircleIcon
 } from '@heroicons/react/24/outline';
 
 const Header = () => {
@@ -15,7 +16,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <CalendarIcon className="h-8 w-8" />
+            <img src={logo} alt="EventaCore Logo" className="h-8 w-8 object-contain rounded" />
             <span className="font-bold text-xl">EventaCore</span>
           </Link>
 
@@ -43,7 +44,7 @@ const Header = () => {
                 3
               </span>
             </button>
-            
+
             <div className="flex items-center space-x-2">
               <UserCircleIcon className="h-8 w-8" />
               <span className="hidden md:block">John Doe</span>

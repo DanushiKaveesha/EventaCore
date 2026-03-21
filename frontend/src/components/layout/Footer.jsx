@@ -6,7 +6,7 @@ const Footer = () => {
     <footer className="bg-[#111827] text-white mt-auto">
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          
+
           {/* About Section */}
           <div>
             <h3 className="font-bold text-lg mb-4 text-[#F59E0B]">EventaCore</h3>
