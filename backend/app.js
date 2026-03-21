@@ -6,6 +6,8 @@ require("dotenv").config();
 
 // Import Routes
 const eventRoutes = require("./Routes/EventRoute");
+const bookingRoutes = require("./Routes/BookingRoute");
+const userRoutes = require("./Routes/UserRoute");
 
 const app = express();
 
@@ -21,6 +23,8 @@ app.get("/", (req, res) => {
 
 // Use Routes
 app.use("/api/events", eventRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/users", userRoutes);
 
 // Serve static uploads folder
 const path = require("path");
