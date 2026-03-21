@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logoImg from '../../assets/logo.png.jpeg';
 
 const Footer = () => {
   return (
@@ -9,7 +10,10 @@ const Footer = () => {
           
           {/* About Section */}
           <div>
-            <h3 className="font-bold text-lg mb-4 text-[#F59E0B]">EventaCore</h3>
+            <div className="flex items-center gap-3 mb-4">
+              <img src={logoImg} alt="EventaCore Logo" className="h-10 w-10 object-cover object-top rounded-xl bg-white p-0.5" />
+              <h3 className="font-bold text-xl tracking-tight text-[#F59E0B]">EventaCore</h3>
+            </div>
             <p className="text-gray-400 text-sm">
               Your one-stop platform for university clubs and event management.
               Connect, collaborate, and create memories!

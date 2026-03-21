@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import logoImg from '../../assets/logo.png.jpeg';
 import { 
   HomeIcon, 
   UserGroupIcon, 
@@ -20,8 +21,8 @@ const Header = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 sm:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition">
-            <CalendarIcon className="h-8 w-8 sm:h-9 sm:w-9" />
+          <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition">
+            <img src={logoImg} alt="EventaCore Logo" className="h-10 w-10 sm:h-12 sm:w-12 object-cover object-top rounded-xl bg-white shadow-sm border border-white/20" />
             <span className="font-bold text-xl sm:text-2xl tracking-tight">EventaCore</span>
           </Link>
 
@@ -31,6 +32,7 @@ const Header = () => {
               <HomeIcon className="h-5 w-5" />
               <span>Home</span>
             </Link>
+
             <Link to="/clubs" className="hover:text-[#F59E0B] transition flex items-center space-x-1 font-medium">
               <UserGroupIcon className="h-5 w-5" />
               <span>Clubs</span>
@@ -84,6 +86,7 @@ const Header = () => {
           <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-4 rounded-md text-base font-medium hover:text-blue-600 hover:bg-blue-50 transition">
             <div className="flex items-center space-x-3"><HomeIcon className="h-6 w-6" /><span>Home</span></div>
           </Link>
+
           <Link to="/clubs" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-4 rounded-md text-base font-medium hover:text-blue-600 hover:bg-blue-50 transition">
              <div className="flex items-center space-x-3"><UserGroupIcon className="h-6 w-6" /><span>Clubs</span></div>
           </Link>

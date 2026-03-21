@@ -10,13 +10,13 @@ const CreateEvent = () => {
     date: '',
     time: '',
   });
-  
+
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  
+
   const [tickets, setTickets] = useState([]);
   const [promotions, setPromotions] = useState([]);
-  
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 
@@ -61,9 +61,35 @@ const CreateEvent = () => {
   };
 
   const validateForm = () => {
-    if(!formData.name || !formData.date || !formData.time || !formData.location || !formData.description) return "Please fill in all basic event details.";
-    if(tickets.some(t => !t.price || !t.quantity)) return "Please ensure all ticket types have a price and quantity.";
-    if(promotions.some(p => !p.code || !p.discountPercentage)) return "Please complete all promotion fields.";
+    if (!formData.name.trim()) return "Event name is required.";
+    if (!formData.date) return "Event date is required.";
+    
+    // Check if date is in the past
+    // Ensure we parse the date correctly by splitting the YYYY-MM-DD string to avoid timezone shifts
+    const [year, month, day] = formData.date.split('-');
+    const selectedDate = new Date(year, month - 1, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) return "Event date cannot be in the past.";
+    
+    if (!formData.time) return "Event time is required.";
+    if (!formData.location.trim()) return "Location is required.";
+    if (!formData.description.trim()) return "Description is required.";
+
+    if (tickets.length === 0) return "At least one ticket type is required.";
+    
+    for (const t of tickets) {
+      if (t.price === '' || isNaN(t.price) || Number(t.price) < 0) return `Price for ${t.type} ticket must be a valid number (0 or greater).`;
+      if (t.quantity === '' || isNaN(t.quantity) || Number(t.quantity) <= 0) return `Quantity for ${t.type} ticket must be greater than 0.`;
+    }
+
+    for (const p of promotions) {
+      if (!p.code.trim()) return "Promotion code cannot be empty.";
+      if (p.discountPercentage === '' || isNaN(p.discountPercentage) || Number(p.discountPercentage) <= 0 || Number(p.discountPercentage) > 100) {
+        return `Discount percentage for code ${p.code} must be between 1 and 100.`;
+      }
+    }
+    
     return null;
   };
 
@@ -74,7 +100,7 @@ const CreateEvent = () => {
 
     setLoading(true);
     setMessage({ text: '', type: '' });
-    
+
     try {
       const data = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -86,7 +112,7 @@ const CreateEvent = () => {
 
       await createEvent(data);
       setMessage({ text: 'Event created successfully!', type: 'success' });
-      
+
       // reset form optionally
       setFormData({ name: '', description: '', location: '', date: '', time: '' });
       setImage(null); setImagePreview(null);
@@ -115,14 +141,14 @@ const CreateEvent = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-10">
-          
+
           {/* Basic Information */}
           <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
             <h3 className="text-xl font-bold text-gray-800 border-b pb-3 mb-6 flex items-center">
               <span className="bg-blue-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center mr-3 text-sm">1</span>
               Basic Information
             </h3>
-            
+
             <div className="grid grid-cols-1 gap-y-6 gap-x-6 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Event Name</label>
@@ -162,7 +188,7 @@ const CreateEvent = () => {
                 <div className="relative group w-full max-w-md rounded-2xl overflow-hidden shadow-lg border-2 border-gray-200">
                   <img src={imagePreview} alt="Preview" className="w-full object-cover h-64 transition duration-300 group-hover:opacity-75" />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                     <button type="button" onClick={() => {setImage(null); setImagePreview(null);}} className="bg-red-500 text-white px-4 py-2 rounded-full font-bold shadow-lg hover:bg-red-600 transition">Remove Image</button>
+                    <button type="button" onClick={() => { setImage(null); setImagePreview(null); }} className="bg-red-500 text-white px-4 py-2 rounded-full font-bold shadow-lg hover:bg-red-600 transition">Remove Image</button>
                   </div>
                 </div>
               ) : (
@@ -186,9 +212,9 @@ const CreateEvent = () => {
                 <PlusIcon className="w-4 h-4 mr-1" /> Add Ticket
               </button>
             </div>
-            
+
             {tickets.length === 0 ? (
-               <p className="text-gray-400 text-center py-4 bg-white rounded-xl border border-dashed border-gray-300">No tickets added yet. Click 'Add Ticket' to create tiers.</p>
+              <p className="text-gray-400 text-center py-4 bg-white rounded-xl border border-dashed border-gray-300">No tickets added yet. Click 'Add Ticket' to create tiers.</p>
             ) : (
               <div className="space-y-4">
                 {tickets.map((ticket, index) => (
@@ -231,7 +257,7 @@ const CreateEvent = () => {
             </div>
 
             {promotions.length === 0 ? (
-               <p className="text-gray-400 text-center py-4 bg-white rounded-xl border border-dashed border-gray-300">No promotions added. Click 'Add Promo' to create discounts.</p>
+              <p className="text-gray-400 text-center py-4 bg-white rounded-xl border border-dashed border-gray-300">No promotions added. Click 'Add Promo' to create discounts.</p>
             ) : (
               <div className="space-y-4">
                 {promotions.map((promo, index) => (

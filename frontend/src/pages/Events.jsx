@@ -139,9 +139,9 @@ const Events = () => {
 
                 {/* Footer Action */}
                 <div className="mt-auto pt-6 border-t border-gray-100">
-                  <button className="w-full bg-gray-50 hover:bg-blue-50 text-blue-600 font-bold py-3 px-4 rounded-xl border border-gray-200 hover:border-blue-200 transition-colors duration-200 group-hover:bg-blue-600 group-hover:text-white">
+                  <Link to={`/event/${event._id}`} className="w-full bg-gray-50 hover:bg-blue-50 text-blue-600 font-bold py-3 px-4 rounded-xl border border-gray-200 hover:border-blue-200 transition-colors duration-200 group-hover:bg-blue-600 group-hover:text-white flex justify-center items-center">
                     Book Tickets
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
