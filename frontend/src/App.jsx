@@ -1,8 +1,15 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Link } from 'react-router-dom';
+import { UserGroupIcon, CalendarIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import CreateClub from './pages/CreateClub';
+import Clubs from './pages/Clubs';
+import EditClub from './pages/EditClub';
+import AdminDashboard from './pages/AdminDashboard';
+import ClubsGallery from './pages/ClubsGallery';
+import ClubDetails from './pages/ClubDetails';
+import AdminClubDetails from './pages/AdminClubDetails';
 
 function App() {
   return (
@@ -18,9 +25,28 @@ function App() {
               <p className="text-gray-600">
                 Header and Footer Demo
               </p>
+              <div className="mt-8 flex justify-center space-x-4">
+                <Link to="/clubs" className="px-6 py-3 bg-[#2563EB] text-white rounded-full text-sm font-bold shadow-lg hover:bg-blue-700 transition-all flex items-center space-x-2">
+                  <UserGroupIcon className="h-4 w-4" />
+                  <span>Browse Clubs</span>
+                </Link>
+                <Link to="/admin/clubs" className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-bold shadow-sm hover:shadow-md hover:bg-gray-50 transition-all flex items-center space-x-2">
+                  <UserCircleIcon className="h-4 w-4 text-blue-500" />
+                  <span>Admin Panel</span>
+                </Link>
+              </div>
             </div>
           } />
+          {/* Club Management Routes */}
+          <Route path="/admin/clubs" element={<Clubs />} />
+          <Route path="/clubs" element={<ClubsGallery />} />
+          <Route path="/clubs/:id" element={<ClubDetails />} />
+          <Route path="/admin/clubs/:id" element={<AdminClubDetails />} />
           <Route path="/create-club" element={<CreateClub />} />
+          <Route path="/clubs/:id/edit" element={<EditClub />} />
+          {/* Admin Dashboard / Event Management Route */}
+          <Route path="/admin/events" element={<AdminDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} /> {/* Default admin route */}
         </Routes>
       </main>
       <Footer />

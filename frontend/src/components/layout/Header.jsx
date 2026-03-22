@@ -4,7 +4,6 @@ import logo from '../../assets/logo.png';
 import { 
   HomeIcon, 
   UserGroupIcon, 
-  CalendarIcon,
   BellIcon,
   UserCircleIcon
 } from '@heroicons/react/24/outline';
@@ -28,12 +27,13 @@ const Header = () => {
             </Link>
             <Link to="/clubs" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1">
               <UserGroupIcon className="h-5 w-5" />
-              <span>Clubs</span>
+              <span>Explore Clubs</span>
             </Link>
-            <Link to="/events" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1">
-              <CalendarIcon className="h-5 w-5" />
-              <span>Events</span>
+            <Link to="/admin/clubs" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1">
+              <UserCircleIcon className="h-5 w-5" />
+              <span>Manage Clubs</span>
             </Link>
+
           </div>
 
           {/* Right Side Icons */}
