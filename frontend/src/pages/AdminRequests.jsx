@@ -8,8 +8,10 @@ import {
   InboxIcon,
   ChevronRightIcon,
   FunnelIcon,
-  MagnifyingGlassIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  BuildingLibraryIcon,
+  DocumentArrowUpIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 
 const AdminRequests = () => {
@@ -239,6 +241,7 @@ const AdminRequests = () => {
                                 <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Student</th>
                                 <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Club / Date</th>
                                 <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Motivation</th>
+                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Payment</th>
                                 <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Status</th>
                                 <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em] text-center">Action</th>
                             </tr>
@@ -288,6 +291,35 @@ const AdminRequests = () => {
                                             <p className="text-xs text-slate-500 truncate font-medium bg-slate-50/50 px-3 py-2 rounded-xl border border-slate-100 italic">
                                                 "{req.message || 'No message provided'}"
                                             </p>
+                                        </td>
+                                        <td className="px-4 py-6">
+                                            <div className="flex flex-col gap-2 max-w-[140px]">
+                                                {req.bankName ? (
+                                                    <>
+                                                        <div className="flex items-center text-xs font-black text-slate-700 truncate" title={`${req.bankName} - ${req.branchName}`}>
+                                                            <BuildingLibraryIcon className="w-4 h-4 mr-1.5 text-blue-500 shrink-0" />
+                                                            <span className="truncate">{req.bankName}</span>
+                                                        </div>
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-5.5 truncate block" title={req.branchName}>
+                                                            {req.branchName}
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-xs text-slate-400 italic">No details</span>
+                                                )}
+                                                
+                                                {req.paymentSlip && (
+                                                    <a 
+                                                        href={`http://localhost:5000/${req.paymentSlip}`} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center px-2 py-1 text-[9px] font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-md hover:bg-blue-100 transition-colors w-fit mt-1 shadow-sm"
+                                                    >
+                                                        <DocumentArrowUpIcon className="w-3 h-3 mr-1" />
+                                                        View Slip
+                                                    </a>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="px-4 py-6">
                                             <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${

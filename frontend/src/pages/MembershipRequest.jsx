@@ -7,7 +7,10 @@ import {
   UserGroupIcon,
   CheckBadgeIcon,
   SparklesIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  BuildingLibraryIcon,
+  DocumentArrowUpIcon,
+  MapPinIcon
 } from '@heroicons/react/24/outline';
 
 const MembershipRequest = () => {
@@ -21,6 +24,12 @@ const MembershipRequest = () => {
         email: 'john@example.com',
         message: ''
     });
+    const [paymentDetails, setPaymentDetails] = useState({
+        bankName: '',
+        branchName: '',
+        paymentSlip: null
+    });
+    const [debouncedBankName, setDebouncedBankName] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null);
 
@@ -31,17 +40,44 @@ const MembershipRequest = () => {
             .finally(() => setLoading(false));
     }, [id]);
 
+    // Debounce bank name for the live map to prevent iframe flashing while typing
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedBankName(paymentDetails.bankName);
+        }, 800);
+        return () => clearTimeout(timer);
+    }, [paymentDetails.bankName]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!paymentDetails.paymentSlip) {
+            setSubmitStatus({ type: 'error', message: 'Please upload a payment slip.' });
+            return;
+        }
+
         setSubmitting(true);
+        setSubmitStatus({ type: 'processing', message: 'Uploading your application and payment receipt...' });
+        
         try {
-            await requestMembership({ ...formData, clubId: id });
-            setSubmitStatus({ type: 'success', message: 'Request submitted successfully!' });
+            const formDataToSubmit = new FormData();
+            formDataToSubmit.append('studentName', formData.studentName);
+            formDataToSubmit.append('studentId', formData.studentId);
+            formDataToSubmit.append('email', formData.email);
+            formDataToSubmit.append('message', formData.message);
+            formDataToSubmit.append('clubId', id);
+            formDataToSubmit.append('bankName', paymentDetails.bankName);
+            formDataToSubmit.append('branchName', paymentDetails.branchName);
+            formDataToSubmit.append('paymentSlip', paymentDetails.paymentSlip);
+
+            await requestMembership(formDataToSubmit);
+            
+            setSubmitStatus({ type: 'success', message: 'Application submitted successfully!' });
             setTimeout(() => {
                 navigate('/my-requests');
-            }, 2000);
+            }, 2500);
         } catch (err) {
-            setSubmitStatus({ type: 'error', message: err || 'Failed to submit request' });
+            setSubmitStatus({ type: 'error', message: err || 'Payment failed. Please try again.' });
         } finally {
             setSubmitting(false);
         }
@@ -164,12 +200,98 @@ const MembershipRequest = () => {
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Why do you want to join?</label>
                             <textarea 
                                 required
-                                rows="5"
+                                rows="3"
                                 placeholder="Share your motivation and skills..."
                                 className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all resize-none placeholder:text-slate-300"
                                 value={formData.message}
                                 onChange={(e) => setFormData({...formData, message: e.target.value})}
                             />
+                        </div>
+
+                        {/* Payment Details Section */}
+                        <div className="pt-6 mt-6 border-t border-slate-100">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 className="text-lg font-black text-slate-900 flex items-center">
+                                        <BuildingLibraryIcon className="h-5 w-5 mr-2 text-blue-600" />
+                                        Bank Transfer Details
+                                    </h3>
+                                    <p className="text-xs font-bold text-slate-400 mt-1">Please transfer the fee and upload your bank slip.</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Bank Name</label>
+                                        <input 
+                                            type="text" 
+                                            required
+                                            placeholder="e.g. Bank of Ceylon"
+                                            className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                            value={paymentDetails.bankName}
+                                            onChange={(e) => setPaymentDetails({...paymentDetails, bankName: e.target.value})}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Branch Name</label>
+                                        <input 
+                                            type="text" 
+                                            required
+                                            placeholder="e.g. City Branch"
+                                            className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                            value={paymentDetails.branchName}
+                                            onChange={(e) => setPaymentDetails({...paymentDetails, branchName: e.target.value})}
+                                        />
+                                    </div>
+                                </div>
+                                
+                                {/* Dynamic Map Section */}
+                                {debouncedBankName.length > 2 && (
+                                    <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2 flex items-center">
+                                            <MapPinIcon className="h-4 w-4 mr-1 text-slate-400" />
+                                            Find Nearest {debouncedBankName} Branches
+                                        </label>
+                                        <div className="w-full h-64 rounded-3xl overflow-hidden border border-slate-200 shadow-inner bg-slate-100 relative group">
+                                            <div className="absolute inset-0 flex items-center justify-center bg-slate-100 animate-pulse">
+                                                <MapPinIcon className="h-8 w-8 text-slate-300" />
+                                            </div>
+                                            <iframe 
+                                                width="100%" 
+                                                height="100%" 
+                                                style={{ border: 0 }} 
+                                                loading="lazy"
+                                                className="relative z-10"
+                                                src={`https://maps.google.com/maps?q=${encodeURIComponent(debouncedBankName + ' branches')}&t=&z=12&ie=UTF8&iwloc=&output=embed`} 
+                                            />
+                                            {/* Premium Overlay Shadow */}
+                                            <div className="absolute inset-0 rounded-3xl shadow-[inset_0_2px_20px_rgba(0,0,0,0.05)] pointer-events-none z-20 transition-opacity duration-300"></div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Upload Payment Slip</label>
+                                    <div className="relative border-2 border-dashed border-slate-200 rounded-2xl bg-white hover:bg-slate-50 transition-colors p-6 text-center cursor-pointer">
+                                        <input 
+                                            type="file" 
+                                            required
+                                            accept="image/*"
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            onChange={(e) => setPaymentDetails({...paymentDetails, paymentSlip: e.target.files[0]})}
+                                        />
+                                        <div className="pointer-events-none">
+                                            <DocumentArrowUpIcon className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+                                            {paymentDetails.paymentSlip ? (
+                                                <span className="text-sm font-black text-blue-600 block truncate">{paymentDetails.paymentSlip.name}</span>
+                                            ) : (
+                                                <span className="text-sm font-bold text-slate-400">Click to upload or drag and drop<br/><span className="text-xs font-medium text-slate-300">PNG, JPG up to 5MB</span></span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="pt-4 flex flex-col sm:flex-row items-center gap-4">
