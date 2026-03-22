@@ -35,7 +35,16 @@ const clubSchema = new mongoose.Schema(
         image: {
             type: String,
             required: false
-        }
+        },
+        
+        events: [
+            {
+                name: { type: String, required: true },
+                date: { type: Date, required: true },
+                description: { type: String, required: true },
+                location: { type: String, required: false }
+            }
+        ]
 
     },
     { timestamps: true }
