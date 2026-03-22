@@ -8,6 +8,8 @@ const app = express();
 
 // Import Routes
 const clubRoutes = require("./Routes/clubRoutes");
+const membershipRoutes = require("./Routes/membershipRoutes");
+const notificationRoutes = require("./Routes/notificationRoutes");
 
 // Middleware
 app.use(cors());
@@ -24,6 +26,8 @@ app.get("/", (req, res) => {
 
 // Use Routes
 app.use("/api/clubs", clubRoutes);
+app.use("/api/memberships", membershipRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // MongoDB connection
 mongoose
