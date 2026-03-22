@@ -1,12 +1,22 @@
 const Membership = require("../Models/membershipModel");
 const notificationController = require("./notificationController");
+const path = require("path");
 
 // Request Membership
 exports.requestMembership = async (req, res) => {
     try {
-        const membership = new Membership(req.body);
-        const savedMembership = await membership.save();
+        const membershipData = { ...req.body };
         
+        if (req.file) {
+            membershipData.paymentSlip = path.relative(
+                path.join(__dirname, '..'),
+                req.file.path
+            ).replace(/\\/g, '/');
+        }
+
+        const membership = new Membership(membershipData);
+        const savedMembership = await membership.save();
+
         // Notify Admin
         await notificationController.createNotification(
             'admin',
@@ -43,7 +53,7 @@ exports.updateRequest = async (req, res) => {
             { new: true, runValidators: true }
         );
         if (!updatedRequest) return res.status(404).json({ message: "Request not found" });
-        
+
         // Notify Student if status changed
         if (req.body.status && (req.body.status === 'approved' || req.body.status === 'rejected')) {
             await notificationController.createNotification(
