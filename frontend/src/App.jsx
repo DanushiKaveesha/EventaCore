@@ -12,6 +12,7 @@ import ClubDetails from './pages/ClubDetails';
 import AdminClubDetails from './pages/AdminClubDetails';
 import MyRequests from './pages/MyRequests';
 import MyEventRequests from './pages/MyEventRequests';
+import MyBookmarks from './pages/MyBookmarks';
 import MembershipRequest from './pages/MembershipRequest';
 import AdminRequests from './pages/AdminRequests';
 import AdminPayments from './pages/AdminPayments';
@@ -58,6 +59,7 @@ function App() {
           <Route path="/clubs/:id/edit" element={<EditClub />} />
           <Route path="/my-requests" element={<MyRequests />} />
           <Route path="/my-events" element={<MyEventRequests />} />
+          <Route path="/my-bookmarks" element={<MyBookmarks />} />
           {/* Admin Dashboard / Event Management Route */}
           <Route path="/admin/events" element={<AdminDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} /> {/* Default admin route */}

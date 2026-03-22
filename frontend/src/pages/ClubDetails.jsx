@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getClubById } from '../services/clubService';
+import { getMyBookmarks, toggleBookmark } from '../services/bookmarkService';
+import { BookmarkIcon as BookmarkSolid } from '@heroicons/react/24/solid';
 import {
   MapPinIcon, UserIcon, CalendarIcon, ArrowLeftIcon,
   EnvelopeIcon, PhoneIcon, UserGroupIcon, ClockIcon,
   CheckBadgeIcon, SparklesIcon,
+  BookmarkIcon as BookmarkOutline
 } from '@heroicons/react/24/outline';
 
 const categoryMeta = {
@@ -27,10 +30,26 @@ export default function ClubDetails() {
   const [club, setClub] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('about');
+  const [isBookmarked, setIsBookmarked] = useState(false);
   
   useEffect(() => {
-    getClubById(id).then(setClub).catch(console.error).finally(() => setLoading(false));
+    Promise.all([getClubById(id), getMyBookmarks()])
+      .then(([clubData, bookmarks]) => {
+         setClub(clubData);
+         setIsBookmarked(bookmarks.some(b => (b.clubId._id || b.clubId) === id));
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [id]);
+
+  const handleToggleBookmark = async () => {
+      try {
+          const res = await toggleBookmark(id);
+          setIsBookmarked(res.bookmarked);
+      } catch (e) {
+          console.error(e);
+      }
+  };
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-[60vh]">
@@ -122,13 +141,22 @@ export default function ClubDetails() {
             </div>
 
             {/* Join button */}
-            <Link 
-              to={`/clubs/${id}/request`}
-              className="shrink-0 px-8 py-3.5 bg-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-xl hover:-translate-y-0.5 hover:shadow-2xl transition-all" 
-              style={{ color: meta.from }}
-            >
-              Join Club
-            </Link>
+            <div className="shrink-0 flex items-center space-x-3">
+              <button 
+                onClick={handleToggleBookmark}
+                className="p-3.5 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 transition-all duration-300"
+                title={isBookmarked ? "Remove Bookmark" : "Bookmark Club"}
+              >
+                {isBookmarked ? <BookmarkSolid className="w-5 h-5 text-rose-300" /> : <BookmarkOutline className="w-5 h-5 text-white" />}
+              </button>
+              <Link 
+                to={`/clubs/${id}/request`}
+                className="px-8 py-3.5 bg-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-xl hover:-translate-y-0.5 hover:shadow-2xl transition-all" 
+                style={{ color: meta.from }}
+              >
+                Join Club
+              </Link>
+            </div>
           </div>
         </div>
       </div>

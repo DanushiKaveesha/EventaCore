@@ -7,7 +7,8 @@ import {
   UserCircleIcon,
   ClipboardDocumentListIcon,
   CurrencyDollarIcon,
-  CalendarDaysIcon
+  CalendarDaysIcon,
+  BookmarkSquareIcon
 } from '@heroicons/react/24/outline';
 import { getNotifications, markAsRead } from '../../services/notificationService';
 
@@ -91,9 +92,13 @@ const Header = () => {
               <ClipboardDocumentListIcon className="h-5 w-5" />
               <span>My Applications</span>
             </Link>
-            <Link to="/my-events" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1">
+            <Link to="/my-events" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1 border-r border-slate-200 pr-4">
               <CalendarDaysIcon className="h-5 w-5 text-purple-600" />
               <span>My RSVPs</span>
+            </Link>
+            <Link to="/my-bookmarks" className="text-gray-600 hover:text-rose-500 font-medium transition flex items-center space-x-1">
+              <BookmarkSquareIcon className="h-5 w-5 text-rose-500" />
+              <span>Saved Clubs</span>
             </Link>
           </nav>
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllClubs } from '../services/clubService';
+import { getMyBookmarks, toggleBookmark } from '../services/bookmarkService';
+import { BookmarkIcon as BookmarkSolid } from '@heroicons/react/24/solid';
 import {
   MagnifyingGlassIcon,
   MapPinIcon,
@@ -9,6 +11,7 @@ import {
   ArrowRightIcon,
   UserGroupIcon,
   BuildingOfficeIcon,
+  BookmarkIcon as BookmarkOutline
 } from '@heroicons/react/24/outline';
 
 const categoryColors = {
@@ -33,7 +36,7 @@ const fallbackImages = [
   'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&q=80&w=800',
 ];
 
-const ClubCard = ({ club, index }) => {
+const ClubCard = ({ club, index, isBookmarked, onToggleBookmark }) => {
   const colors = categoryColors[club.category] || categoryColors.Other;
   const emoji  = categoryEmoji[club.category]  || '🎯';
   const imgSrc = club.image
@@ -54,9 +57,21 @@ const ClubCard = ({ club, index }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
         {/* Category badge */}
-        <span className={`absolute top-3 right-3 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-white ${colors.bg} shadow-lg`}>
+        <span className={`absolute bottom-3 right-3 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-white ${colors.bg} shadow-lg z-10`}>
           {club.category || 'General'}
         </span>
+
+        {/* Bookmark Button */}
+        <button 
+          onClick={(e) => { e.preventDefault(); onToggleBookmark(club._id); }}
+          className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:scale-110 transition-transform z-10 border border-slate-100/50"
+        >
+          {isBookmarked ? (
+            <BookmarkSolid className="w-4 h-4 text-rose-500" />
+          ) : (
+            <BookmarkOutline className="w-4 h-4 text-gray-400 hover:text-rose-500 transition-colors" />
+          )}
+        </button>
 
         {/* Event count pill */}
         {club.events?.length > 0 && (
@@ -124,16 +139,32 @@ const ClubCard = ({ club, index }) => {
 
 const ClubsGallery = () => {
   const [clubs, setClubs]       = useState([]);
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
   useEffect(() => {
-    getAllClubs()
-      .then(setClubs)
+    Promise.all([getAllClubs(), getMyBookmarks()])
+      .then(([clubsData, bookmarksData]) => {
+        setClubs(clubsData);
+        setBookmarkedIds(new Set(bookmarksData.map(b => b.clubId._id || b.clubId)));
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  const handleToggleBookmark = async (clubId) => {
+    try {
+        const result = await toggleBookmark(clubId);
+        const newSet = new Set(bookmarkedIds);
+        if (result.bookmarked) newSet.add(clubId);
+        else newSet.delete(clubId);
+        setBookmarkedIds(newSet);
+    } catch (error) {
+        console.error("Failed to toggle bookmark", error);
+    }
+  };
 
   const allCategories = ['All', ...Object.keys(categoryColors)];
 
@@ -224,7 +255,13 @@ const ClubsGallery = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((club, i) => (
-              <ClubCard key={club._id} club={club} index={i} />
+              <ClubCard 
+                key={club._id} 
+                club={club} 
+                index={i} 
+                isBookmarked={bookmarkedIds.has(club._id)}
+                onToggleBookmark={handleToggleBookmark}
+              />
             ))}
           </div>
         )}
