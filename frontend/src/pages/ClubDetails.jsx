@@ -27,7 +27,7 @@ export default function ClubDetails() {
   const [club, setClub] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('about');
-
+  
   useEffect(() => {
     getClubById(id).then(setClub).catch(console.error).finally(() => setLoading(false));
   }, [id]);
@@ -122,9 +122,13 @@ export default function ClubDetails() {
             </div>
 
             {/* Join button */}
-            <button className="shrink-0 px-8 py-3.5 bg-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-xl hover:-translate-y-0.5 hover:shadow-2xl transition-all" style={{ color: meta.from }}>
+            <Link 
+              to={`/clubs/${id}/request`}
+              className="shrink-0 px-8 py-3.5 bg-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-xl hover:-translate-y-0.5 hover:shadow-2xl transition-all" 
+              style={{ color: meta.from }}
+            >
               Join Club
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -188,9 +192,9 @@ export default function ClubDetails() {
             <div className="rounded-3xl p-6 text-white text-center shadow-xl" style={{ background: `linear-gradient(135deg, ${meta.from}, ${meta.to})` }}>
               <p className="font-black text-lg mb-1">Interested?</p>
               <p className="text-white/80 text-xs mb-4">Join {club.name} today.</p>
-              <button className="w-full py-3 bg-white rounded-2xl font-black text-sm hover:shadow-lg hover:-translate-y-0.5 transition-all" style={{ color: meta.from }}>
+              <Link to={`/clubs/${id}/request`} className="w-full inline-block py-3 bg-white rounded-2xl font-black text-sm hover:shadow-lg hover:-translate-y-0.5 transition-all text-center" style={{ color: meta.from }}>
                 Get in Touch
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -274,9 +278,9 @@ export default function ClubDetails() {
             <div className="text-4xl mb-3">{meta.emoji}</div>
             <h3 className="text-xl font-black mb-2">Ready to join {club.name}?</h3>
             <p className="text-white/80 text-sm mb-5">Reach out to the president or contact via email to get started.</p>
-            <button className="bg-white font-black px-8 py-3 rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all text-sm uppercase tracking-wider" style={{ color: meta.from }}>
+            <Link to={`/clubs/${id}/request`} className="bg-white inline-block font-black px-8 py-3 rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all text-sm uppercase tracking-wider" style={{ color: meta.from }}>
               Contact Us
-            </button>
+            </Link>
           </div>
         </div>
       )}
