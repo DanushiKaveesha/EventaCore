@@ -39,6 +39,11 @@ const membershipSchema = new mongoose.Schema(
         paymentSlip: {
             type: String,
             required: true
+        },
+        paymentStatus: {
+            type: String,
+            enum: ['pending', 'verified', 'rejected'],
+            default: 'pending'
         }
     },
     { timestamps: true }

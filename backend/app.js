@@ -10,6 +10,7 @@ const app = express();
 const clubRoutes = require("./Routes/clubRoutes");
 const membershipRoutes = require("./Routes/membershipRoutes");
 const notificationRoutes = require("./Routes/notificationRoutes");
+const eventRegistrationRoutes = require("./Routes/eventRegistrationRoutes");
 
 // Middleware
 app.use(cors());
@@ -28,6 +29,7 @@ app.get("/", (req, res) => {
 app.use("/api/clubs", clubRoutes);
 app.use("/api/memberships", membershipRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/event-registrations", eventRegistrationRoutes);
 
 // MongoDB connection
 mongoose
