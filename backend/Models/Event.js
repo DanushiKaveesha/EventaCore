@@ -5,15 +5,15 @@ const ticketSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: ["VIP", "Regular", "Early Bird"],
-    required: true,
+    required: false,
   },
   price: {
     type: Number,
-    required: true,
+    required: false,
   },
   quantity: {
     type: Number,
-    required: true,
+    required: false,
   },
 });
 
@@ -21,11 +21,11 @@ const ticketSchema = new mongoose.Schema({
 const promotionSchema = new mongoose.Schema({
   code: {
     type: String,
-    required: true,
+    required: false,
   },
   discountPercentage: {
     type: Number,
-    required: true,
+    required: false,
   },
 });
 

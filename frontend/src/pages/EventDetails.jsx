@@ -204,12 +204,12 @@ const EventDetails = () => {
                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Available Offers</span>
                   )}
                 </div>
-                
+
                 {event.promotions && event.promotions.length > 0 && (
                   <div className="mb-4 flex flex-wrap gap-2">
                     {event.promotions.map((p, idx) => (
-                      <button 
-                        key={idx} 
+                      <button
+                        key={idx}
                         onClick={() => setPromotionCode(p.code)}
                         className="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-emerald-100 hover:-translate-y-0.5 transition-all border border-emerald-100/50 flex items-center gap-1.5 shadow-sm"
                         title="Click to apply code"

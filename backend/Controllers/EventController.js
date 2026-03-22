@@ -4,7 +4,7 @@ const Event = require("../Models/Event");
 exports.createEvent = async (req, res) => {
   try {
     let { name, description, location, date, time, status, tickets, promotions } = req.body;
-    
+
     // Handle JSON parsing for multipart/form-data
     if (typeof tickets === "string") tickets = JSON.parse(tickets);
     if (typeof promotions === "string") promotions = JSON.parse(promotions);

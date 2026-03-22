@@ -76,19 +76,6 @@ const CreateEvent = () => {
     if (!formData.location.trim()) return "Location is required.";
     if (!formData.description.trim()) return "Description is required.";
 
-    if (tickets.length === 0) return "At least one ticket type is required.";
-    
-    for (const t of tickets) {
-      if (t.price === '' || isNaN(t.price) || Number(t.price) < 0) return `Price for ${t.type} ticket must be a valid number (0 or greater).`;
-      if (t.quantity === '' || isNaN(t.quantity) || Number(t.quantity) <= 0) return `Quantity for ${t.type} ticket must be greater than 0.`;
-    }
-
-    for (const p of promotions) {
-      if (!p.code.trim()) return "Promotion code cannot be empty.";
-      if (p.discountPercentage === '' || isNaN(p.discountPercentage) || Number(p.discountPercentage) <= 0 || Number(p.discountPercentage) > 100) {
-        return `Discount percentage for code ${p.code} must be between 1 and 100.`;
-      }
-    }
     
     return null;
   };

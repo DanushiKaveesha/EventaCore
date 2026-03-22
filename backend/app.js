@@ -38,7 +38,7 @@ cron.schedule("0 * * * *", async () => {
   try {
     const events = await Event.find({ status: { $ne: "completed" } });
     const now = new Date();
-    
+
     for (const event of events) {
       // Basic check: if event date is strictly before today's date, mark completed.
       // E.g., comparing midnight UTC date. For a more robust app, time parsing is needed.
@@ -47,8 +47,8 @@ cron.schedule("0 * * * *", async () => {
         event.status = "completed";
         await event.save();
       } else if (now.toDateString() === eventDate.toDateString()) {
-         event.status = "ongoing";
-         await event.save();
+        event.status = "ongoing";
+        await event.save();
       }
     }
   } catch (err) {
