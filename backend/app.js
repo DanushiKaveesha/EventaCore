@@ -1,7 +1,7 @@
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 // Import Routes
@@ -9,28 +9,39 @@ const eventRoutes = require("./Routes/EventRoute");
 const bookingRoutes = require("./Routes/BookingRoute");
 const userRoutes = require("./Routes/UserRoute");
 
+const clubRoutes = require("./Routes/clubRoutes");
+const membershipRoutes = require("./Routes/membershipRoutes");
+const notificationRoutes = require("./Routes/notificationRoutes");
+const eventRegistrationRoutes = require("./Routes/eventRegistrationRoutes");
+const bookmarkRoutes = require("./Routes/bookmarkRoutes");
+
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static uploads folder
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Test route
 app.get("/", (req, res) => {
   res.send("Eventra Backend is running 🚀");
 });
 
-
-// Use Routes
+// ✅ All Routes (merged)
 app.use("/api/events", eventRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/users", userRoutes);
 
-// Serve static uploads folder
-const path = require("path");
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/clubs", clubRoutes);
+app.use("/api/memberships", membershipRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/event-registrations", eventRegistrationRoutes);
+app.use("/api/bookmarks", bookmarkRoutes);
 
-// Cron job to auto-update event status
+// ✅ Cron job
 const cron = require("node-cron");
 const Event = require("./Models/Event");
 
@@ -40,9 +51,8 @@ cron.schedule("0 * * * *", async () => {
     const now = new Date();
 
     for (const event of events) {
-      // Basic check: if event date is strictly before today's date, mark completed.
-      // E.g., comparing midnight UTC date. For a more robust app, time parsing is needed.
       const eventDate = new Date(event.date);
+
       if (now.getTime() > eventDate.getTime() + 24 * 60 * 60 * 1000) {
         event.status = "completed";
         await event.save();
