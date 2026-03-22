@@ -8,7 +8,13 @@
     "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["club-management", "event-management", "mern", "express", "mongoose"],
+  "keywords": [
+    "club-management",
+    "event-management",
+    "mern",
+    "express",
+    "mongoose"
+  ],
   "author": "Danushi Kaveesha",
   "license": "ISC",
   "dependencies": {

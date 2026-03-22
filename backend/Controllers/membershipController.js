@@ -81,3 +81,39 @@ exports.deleteRequest = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Get All Memberships (Admin)
+exports.getAllMemberships = async (req, res) => {
+    try {
+        const memberships = await Membership.find().populate('clubId', 'name image').sort({ createdAt: -1 });
+        res.status(200).json(memberships);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Update Payment Status (Admin)
+exports.updatePaymentStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { paymentStatus } = req.body;
+        const updated = await Membership.findByIdAndUpdate(
+            id,
+            { paymentStatus },
+            { new: true }
+        ).populate('clubId', 'name');
+        if (!updated) return res.status(404).json({ message: 'Membership not found' });
+
+        // Notify the student
+        await notificationController.createNotification(
+            updated.studentId,
+            `Your payment for ${updated.clubId?.name || 'the club'} has been ${paymentStatus}.`,
+            paymentStatus === 'verified' ? 'payment_verified' : 'payment_rejected',
+            updated._id
+        );
+
+        res.status(200).json(updated);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
