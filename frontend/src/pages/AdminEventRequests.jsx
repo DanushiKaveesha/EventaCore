@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { getMyRequests, updateMembershipRequest } from '../services/membershipService';
+import { getAdminEventRequests, updateEventRequestStatus } from '../services/eventRegistrationService';
 import { 
   ClipboardDocumentListIcon, 
   CheckIcon, 
   XMarkIcon, 
-  EyeIcon,
   InboxIcon,
-  ChevronRightIcon,
-  FunnelIcon,
   ArrowPathIcon,
-  MagnifyingGlassIcon,
-  CurrencyDollarIcon
+  CalendarDaysIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 
-const AdminRequests = () => {
+const AdminEventRequests = () => {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -28,9 +25,9 @@ const AdminRequests = () => {
 
     const fetchRequests = async () => {
         try {
-            const data = await getMyRequests();
+            const data = await getAdminEventRequests();
             setRequests(data);
-            setSelectedIds(new Set()); // Reset selection on fetch
+            setSelectedIds(new Set());
         } catch (err) {
             setError(err);
         } finally {
@@ -70,38 +67,37 @@ const AdminRequests = () => {
             show: true, 
             ids: Array.from(selectedIds), 
             status, 
-            name: `${selectedIds.size} selected requests` 
+            name: `${selectedIds.size} selected event RSVPs` 
         });
     };
 
     const processAction = async () => {
         const { ids, status } = confirmModal;
         try {
-            // Process all in parallel
-            await Promise.all(ids.map(id => updateMembershipRequest(id, { status })));
+            await Promise.all(ids.map(id => updateEventRequestStatus(id, { status })));
             
             setRequests(requests.map(req => 
                 ids.includes(req._id) ? { ...req, status } : req
             ));
             
             setConfirmModal({ show: false, ids: [], status: null, name: '' });
-            setSelectedIds(new Set()); // Clear selection after action
+            setSelectedIds(new Set()); 
         } catch (err) {
-            alert('Failed to update requests: ' + err);
+            alert('Failed to update event requests: ' + err);
         }
     };
 
     const filteredRequests = requests.filter(req => {
         const matchesFilter = filter === 'all' || req.status === filter;
         const matchesSearch = req.studentName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              req.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              (req.clubId?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+                              req.eventName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                              req.studentId.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
     if (loading) return (
         <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600" />
         </div>
     );
 
@@ -113,7 +109,7 @@ const AdminRequests = () => {
                     <div className="bg-white rounded-[32px] shadow-2xl border border-slate-100 p-10 max-w-md w-full animate-in zoom-in-95 duration-200">
                         <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 mx-auto ${
                             confirmModal.status === 'approved' ? 'bg-emerald-50 text-emerald-600' : 
-                            confirmModal.status === 'rejected' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
+                            confirmModal.status === 'rejected' ? 'bg-red-50 text-red-600' : 'bg-purple-50 text-purple-600'
                         }`}>
                             {confirmModal.status === 'approved' ? <CheckIcon className="h-8 w-8" /> : 
                              confirmModal.status === 'rejected' ? <XMarkIcon className="h-8 w-8" /> : <ArrowPathIcon className="h-8 w-8 shrink-0" />}
@@ -122,7 +118,7 @@ const AdminRequests = () => {
                             Confirm {confirmModal.status === 'pending' ? 'Rollback' : confirmModal.status}
                         </h3>
                         <p className="text-slate-500 text-center font-medium mb-8">
-                            Are you sure you want to <span className="font-bold text-slate-700">{confirmModal.status === 'pending' ? 'reset to pending' : confirmModal.status}</span> the {confirmModal.ids.length > 1 ? `${confirmModal.ids.length} selected requests` : `request from ${confirmModal.name}`}?
+                            Are you sure you want to <span className="font-bold text-slate-700">{confirmModal.status === 'pending' ? 'reset to pending' : confirmModal.status}</span> the {confirmModal.ids.length > 1 ? `${confirmModal.ids.length} selected event RSVPs` : `event RSVP from ${confirmModal.name}`}?
                         </p>
                         <div className="flex gap-4">
                             <button 
@@ -135,7 +131,7 @@ const AdminRequests = () => {
                                 onClick={processAction}
                                 className={`flex-1 py-4 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${
                                     confirmModal.status === 'approved' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' : 
-                                    confirmModal.status === 'rejected' ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
+                                    confirmModal.status === 'rejected' ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-purple-600 hover:bg-purple-700 shadow-purple-200'
                                 }`}
                             >
                                 Confirm {confirmModal.status === 'pending' ? 'Rollback' : confirmModal.status}
@@ -149,10 +145,10 @@ const AdminRequests = () => {
             {selectedIds.size > 1 && (
                 <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white rounded-[32px] px-8 py-5 flex items-center gap-10 shadow-2xl animate-in slide-in-from-bottom-10 duration-500 border border-slate-800">
                     <div className="flex items-center gap-4 border-r border-slate-700 pr-10">
-                        <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center font-black text-xs">
+                        <div className="w-10 h-10 bg-purple-600 rounded-2xl flex items-center justify-center font-black text-xs">
                             {selectedIds.size}
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Selected Applications</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Selected RSVPs</span>
                     </div>
                     
                     <div className="flex gap-4">
@@ -184,20 +180,20 @@ const AdminRequests = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-6 bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center mb-1">
-                        <ClipboardDocumentListIcon className="h-7 w-7 mr-3 text-blue-600" />
-                        Management Requests
+                        <CalendarDaysIcon className="h-7 w-7 mr-3 text-purple-600" />
+                        Event Attendees
                     </h1>
-                    <p className="text-slate-400 text-sm font-medium">Manage and review all incoming club membership applications.</p>
+                    <p className="text-slate-400 text-sm font-medium">Manage and review incoming event registrations.</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
                     {/* Search Bar */}
                     <div className="relative group">
-                        <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                        <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-purple-500 transition-colors" />
                         <input 
                             type="text" 
-                            placeholder="Search requests..."
-                            className="pl-11 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-200 transition-all w-full sm:w-64"
+                            placeholder="Search attendees..."
+                            className="pl-11 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-purple-50 focus:border-purple-200 transition-all w-full sm:w-64"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -233,14 +229,13 @@ const AdminRequests = () => {
                                         type="checkbox" 
                                         onChange={toggleSelectAll}
                                         checked={selectedIds.size > 0 && selectedIds.size === filteredRequests.filter(r => r.status === 'pending').length}
-                                        className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer" 
+                                        className="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 transition-all cursor-pointer" 
                                     />
                                 </th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Request #</th>
+                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">RSVP #</th>
                                 <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Student</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Club / Date</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Motivation</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Payment</th>
+                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Event & Club</th>
+                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Message</th>
                                 <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Status</th>
                                 <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em] text-center">Action</th>
                             </tr>
@@ -252,11 +247,11 @@ const AdminRequests = () => {
                                         <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                             <InboxIcon className="h-8 w-8 text-slate-300" />
                                         </div>
-                                        <p className="text-slate-400 font-bold text-sm">No applications found.</p>
+                                        <p className="text-slate-400 font-bold text-sm">No event registrations found.</p>
                                     </td>
                                 </tr>
                             ) : (
-                                filteredRequests.map((req, idx) => (
+                                filteredRequests.map((req) => (
                                     <tr key={req._id} className="group hover:bg-slate-50/50 transition-colors border-b border-slate-50 last:border-0">
                                         <td className="px-8 py-6">
                                             <input 
@@ -264,12 +259,12 @@ const AdminRequests = () => {
                                                 disabled={req.status !== 'pending'}
                                                 checked={selectedIds.has(req._id)}
                                                 onChange={() => toggleSelectOne(req._id)}
-                                                className={`w-4 h-4 rounded border-slate-200 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer ${req.status !== 'pending' ? 'opacity-20 cursor-not-allowed' : ''}`} 
+                                                className={`w-4 h-4 rounded border-slate-200 text-purple-600 focus:ring-purple-500 transition-all cursor-pointer ${req.status !== 'pending' ? 'opacity-20 cursor-not-allowed' : ''}`} 
                                             />
                                         </td>
                                         <td className="px-4 py-6">
                                             <span className="text-xs font-black text-slate-900 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
-                                                REQ-{req._id.slice(-4).toUpperCase()}
+                                                RSVP-{req._id.slice(-4).toUpperCase()}
                                             </span>
                                         </td>
                                         <td className="px-4 py-6">
@@ -280,9 +275,9 @@ const AdminRequests = () => {
                                         </td>
                                         <td className="px-4 py-6">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-slate-700">{req.clubId?.name || 'Club'}</span>
+                                                <span className="text-sm font-bold text-purple-700">{req.eventName}</span>
                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
-                                                    {new Date(req.createdAt).toLocaleDateString()}
+                                                    {req.clubId?.name || 'Club'}
                                                 </span>
                                             </div>
                                         </td>
@@ -290,21 +285,6 @@ const AdminRequests = () => {
                                             <p className="text-xs text-slate-500 truncate font-medium bg-slate-50/50 px-3 py-2 rounded-xl border border-slate-100 italic">
                                                 "{req.message || 'No message provided'}"
                                             </p>
-                                        </td>
-                                        <td className="px-4 py-6">
-                                            <div className="flex flex-col gap-1.5">
-                                                <span className="text-[10px] font-black uppercase tracking-widest flex items-center text-slate-400 mb-1">
-                                                    <CurrencyDollarIcon className="h-3 w-3 mr-1" />
-                                                    Payment
-                                                </span>
-                                                <div className={`inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest w-fit ${
-                                                    req.paymentStatus === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-200' :
-                                                    req.paymentStatus === 'verified' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 
-                                                    'bg-red-50 text-red-600 border border-red-200'
-                                                }`}>
-                                                    {req.paymentStatus || 'pending'}
-                                                </div>
-                                            </div>
                                         </td>
                                         <td className="px-4 py-6">
                                             <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
@@ -321,7 +301,6 @@ const AdminRequests = () => {
                                         </td>
                                         <td className="px-4 py-6 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                {/* Rollback Action (Visible for non-pending) */}
                                                 {req.status !== 'pending' && (
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'pending', req.studentName)}
@@ -332,7 +311,6 @@ const AdminRequests = () => {
                                                     </button>
                                                 )}
 
-                                                {/* Approve Action */}
                                                 {req.status === 'pending' && (
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'approved', req.studentName)}
@@ -343,7 +321,6 @@ const AdminRequests = () => {
                                                     </button>
                                                 )}
 
-                                                {/* Reject Action */}
                                                 {req.status === 'pending' && (
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'rejected', req.studentName)}
@@ -361,20 +338,9 @@ const AdminRequests = () => {
                         </tbody>
                     </table>
                 </div>
-                
-                {/* Footer Section */}
-                <div className="px-8 py-5 bg-slate-50/30 border-t border-slate-100 flex items-center justify-between">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Showing {filteredRequests.length} of {requests.length} total entries
-                    </p>
-                    <div className="flex gap-2">
-                        <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors disabled:opacity-50" disabled>Previous</button>
-                        <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors disabled:opacity-50" disabled>Next</button>
-                    </div>
-                </div>
             </div>
         </div>
     );
 };
 
-export default AdminRequests;
+export default AdminEventRequests;

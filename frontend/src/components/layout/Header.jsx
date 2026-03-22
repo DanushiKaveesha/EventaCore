@@ -5,7 +5,9 @@ import {
   UserGroupIcon, 
   BellIcon,
   UserCircleIcon,
-  ClipboardDocumentListIcon
+  ClipboardDocumentListIcon,
+  CurrencyDollarIcon,
+  CalendarDaysIcon
 } from '@heroicons/react/24/outline';
 import { getNotifications, markAsRead } from '../../services/notificationService';
 
@@ -73,13 +75,25 @@ const Header = () => {
               <UserCircleIcon className="h-5 w-5" />
               <span>Manage Clubs</span>
             </Link>
-            <Link to="/admin/requests" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1">
+            <Link to="/admin/requests" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1 border-r border-slate-200 pr-4">
               <ClipboardDocumentListIcon className="h-5 w-5" />
-              <span>Manage Requests</span>
+              <span>Applications</span>
             </Link>
-            <Link to="/my-requests" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1">
+            <Link to="/admin/payments" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1 border-r border-slate-200 pr-4">
+              <CurrencyDollarIcon className="h-5 w-5 text-emerald-600" />
+              <span>Payments</span>
+            </Link>
+            <Link to="/admin/event-requests" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1">
+              <CalendarDaysIcon className="h-5 w-5 text-purple-600" />
+              <span>Event RSVPs</span>
+            </Link>
+            <Link to="/my-requests" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1 pl-4 border-l border-slate-200">
               <ClipboardDocumentListIcon className="h-5 w-5" />
-              <span>My Requests</span>
+              <span>My Applications</span>
+            </Link>
+            <Link to="/my-events" className="text-gray-600 hover:text-[#7C3AED] font-medium transition flex items-center space-x-1">
+              <CalendarDaysIcon className="h-5 w-5 text-purple-600" />
+              <span>My RSVPs</span>
             </Link>
           </nav>
 

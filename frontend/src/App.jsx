@@ -11,8 +11,12 @@ import ClubsGallery from './pages/ClubsGallery';
 import ClubDetails from './pages/ClubDetails';
 import AdminClubDetails from './pages/AdminClubDetails';
 import MyRequests from './pages/MyRequests';
+import MyEventRequests from './pages/MyEventRequests';
 import MembershipRequest from './pages/MembershipRequest';
 import AdminRequests from './pages/AdminRequests';
+import AdminPayments from './pages/AdminPayments';
+import EventRegistration from './pages/EventRegistration';
+import AdminEventRequests from './pages/AdminEventRequests';
 
 function App() {
   return (
@@ -43,13 +47,17 @@ function App() {
           {/* Club Management Routes */}
           <Route path="/admin/clubs" element={<Clubs />} />
           <Route path="/admin/requests" element={<AdminRequests />} />
+          <Route path="/admin/payments" element={<AdminPayments />} />
+          <Route path="/admin/event-requests" element={<AdminEventRequests />} />
           <Route path="/clubs" element={<ClubsGallery />} />
           <Route path="/clubs/:id" element={<ClubDetails />} />
           <Route path="/clubs/:id/request" element={<MembershipRequest />} />
+          <Route path="/clubs/:clubId/events/:eventId/register" element={<EventRegistration />} />
           <Route path="/admin/clubs/:id" element={<AdminClubDetails />} />
           <Route path="/create-club" element={<CreateClub />} />
           <Route path="/clubs/:id/edit" element={<EditClub />} />
           <Route path="/my-requests" element={<MyRequests />} />
+          <Route path="/my-events" element={<MyEventRequests />} />
           {/* Admin Dashboard / Event Management Route */}
           <Route path="/admin/events" element={<AdminDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} /> {/* Default admin route */}

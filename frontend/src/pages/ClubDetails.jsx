@@ -245,6 +245,17 @@ export default function ClubDetails() {
                         <span className="flex items-center space-x-1"><MapPinIcon className="w-3 h-3" /><span>{ev.location || 'TBA'}</span></span>
                       </div>
                       {ev.description && <p className="mt-2 text-xs text-gray-400 line-clamp-2">{ev.description}</p>}
+                      {!isPast && (
+                        <div className="mt-4 flex justify-end">
+                           <Link 
+                             to={`/clubs/${id}/events/${ev._id}/register`}
+                             className="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-white shadow-md shadow-slate-200 hover:-translate-y-0.5 hover:shadow-lg transition-all"
+                             style={{ background: `linear-gradient(135deg, ${meta.from}, ${meta.to})` }}
+                           >
+                              RSVP / Register
+                           </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

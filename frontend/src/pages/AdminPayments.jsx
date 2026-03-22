@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { getMyRequests, updateMembershipRequest } from '../services/membershipService';
 import { 
-  ClipboardDocumentListIcon, 
+  CurrencyDollarIcon, 
   CheckIcon, 
   XMarkIcon, 
   EyeIcon,
   InboxIcon,
-  ChevronRightIcon,
   FunnelIcon,
   ArrowPathIcon,
-  MagnifyingGlassIcon,
-  CurrencyDollarIcon
+  BuildingLibraryIcon,
+  DocumentArrowUpIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 
-const AdminRequests = () => {
+const AdminPayments = () => {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -30,7 +30,7 @@ const AdminRequests = () => {
         try {
             const data = await getMyRequests();
             setRequests(data);
-            setSelectedIds(new Set()); // Reset selection on fetch
+            setSelectedIds(new Set()); 
         } catch (err) {
             setError(err);
         } finally {
@@ -40,7 +40,7 @@ const AdminRequests = () => {
 
     const toggleSelectAll = () => {
         const pendingIds = filteredRequests
-            .filter(req => req.status === 'pending')
+            .filter(req => req.paymentStatus === 'pending')
             .map(req => req._id);
         
         if (selectedIds.size === pendingIds.length && pendingIds.length > 0) {
@@ -70,32 +70,31 @@ const AdminRequests = () => {
             show: true, 
             ids: Array.from(selectedIds), 
             status, 
-            name: `${selectedIds.size} selected requests` 
+            name: `${selectedIds.size} selected payments` 
         });
     };
 
     const processAction = async () => {
         const { ids, status } = confirmModal;
         try {
-            // Process all in parallel
-            await Promise.all(ids.map(id => updateMembershipRequest(id, { status })));
+            await Promise.all(ids.map(id => updateMembershipRequest(id, { paymentStatus: status })));
             
             setRequests(requests.map(req => 
-                ids.includes(req._id) ? { ...req, status } : req
+                ids.includes(req._id) ? { ...req, paymentStatus: status } : req
             ));
             
             setConfirmModal({ show: false, ids: [], status: null, name: '' });
-            setSelectedIds(new Set()); // Clear selection after action
+            setSelectedIds(new Set()); 
         } catch (err) {
-            alert('Failed to update requests: ' + err);
+            alert('Failed to update payments: ' + err);
         }
     };
 
     const filteredRequests = requests.filter(req => {
-        const matchesFilter = filter === 'all' || req.status === filter;
+        const matchesFilter = filter === 'all' || req.paymentStatus === filter;
         const matchesSearch = req.studentName.toLowerCase().includes(searchTerm.toLowerCase()) || 
                               req.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              (req.clubId?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+                              (req.bankName || '').toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
@@ -112,17 +111,17 @@ const AdminRequests = () => {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-white rounded-[32px] shadow-2xl border border-slate-100 p-10 max-w-md w-full animate-in zoom-in-95 duration-200">
                         <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 mx-auto ${
-                            confirmModal.status === 'approved' ? 'bg-emerald-50 text-emerald-600' : 
+                            confirmModal.status === 'verified' ? 'bg-emerald-50 text-emerald-600' : 
                             confirmModal.status === 'rejected' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
                         }`}>
-                            {confirmModal.status === 'approved' ? <CheckIcon className="h-8 w-8" /> : 
+                            {confirmModal.status === 'verified' ? <CheckIcon className="h-8 w-8" /> : 
                              confirmModal.status === 'rejected' ? <XMarkIcon className="h-8 w-8" /> : <ArrowPathIcon className="h-8 w-8 shrink-0" />}
                         </div>
                         <h3 className="text-xl font-black text-center text-slate-900 mb-2 capitalize">
                             Confirm {confirmModal.status === 'pending' ? 'Rollback' : confirmModal.status}
                         </h3>
                         <p className="text-slate-500 text-center font-medium mb-8">
-                            Are you sure you want to <span className="font-bold text-slate-700">{confirmModal.status === 'pending' ? 'reset to pending' : confirmModal.status}</span> the {confirmModal.ids.length > 1 ? `${confirmModal.ids.length} selected requests` : `request from ${confirmModal.name}`}?
+                            Are you sure you want to <span className="font-bold text-slate-700">{confirmModal.status === 'pending' ? 'reset to pending' : confirmModal.status}</span> the payment from {confirmModal.ids.length > 1 ? `${confirmModal.ids.length} selected students` : confirmModal.name}?
                         </p>
                         <div className="flex gap-4">
                             <button 
@@ -134,7 +133,7 @@ const AdminRequests = () => {
                             <button 
                                 onClick={processAction}
                                 className={`flex-1 py-4 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${
-                                    confirmModal.status === 'approved' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' : 
+                                    confirmModal.status === 'verified' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' : 
                                     confirmModal.status === 'rejected' ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
                                 }`}
                             >
@@ -152,16 +151,16 @@ const AdminRequests = () => {
                         <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center font-black text-xs">
                             {selectedIds.size}
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Selected Applications</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Selected Payments</span>
                     </div>
                     
                     <div className="flex gap-4">
                         <button 
-                            onClick={() => handleBulkAction('approved')}
+                            onClick={() => handleBulkAction('verified')}
                             className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-900/20"
                         >
                             <CheckIcon className="h-4 w-4" />
-                            Bulk Approve
+                            Bulk Verify
                         </button>
                         <button 
                             onClick={() => handleBulkAction('rejected')}
@@ -184,10 +183,10 @@ const AdminRequests = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-6 bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center mb-1">
-                        <ClipboardDocumentListIcon className="h-7 w-7 mr-3 text-blue-600" />
-                        Management Requests
+                        <CurrencyDollarIcon className="h-7 w-7 mr-3 text-emerald-600" />
+                        Payment Verification
                     </h1>
-                    <p className="text-slate-400 text-sm font-medium">Manage and review all incoming club membership applications.</p>
+                    <p className="text-slate-400 text-sm font-medium">Verify uploaded bank transfer slips for membership requests.</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
@@ -196,7 +195,7 @@ const AdminRequests = () => {
                         <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                         <input 
                             type="text" 
-                            placeholder="Search requests..."
+                            placeholder="Search payments..."
                             className="pl-11 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-200 transition-all w-full sm:w-64"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -205,7 +204,7 @@ const AdminRequests = () => {
 
                     {/* Filter Pills */}
                     <div className="bg-slate-50 p-1.5 rounded-2xl flex space-x-1 border border-slate-100">
-                        {['pending', 'approved', 'rejected', 'all'].map((s) => (
+                        {['pending', 'verified', 'rejected', 'all'].map((s) => (
                             <button
                                 key={s}
                                 onClick={() => setFilter(s)}
@@ -232,27 +231,27 @@ const AdminRequests = () => {
                                     <input 
                                         type="checkbox" 
                                         onChange={toggleSelectAll}
-                                        checked={selectedIds.size > 0 && selectedIds.size === filteredRequests.filter(r => r.status === 'pending').length}
-                                        className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer" 
+                                        checked={selectedIds.size > 0 && selectedIds.size === filteredRequests.filter(r => r.paymentStatus === 'pending').length}
+                                        className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 transition-all cursor-pointer" 
                                     />
                                 </th>
                                 <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Request #</th>
                                 <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Student</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Club / Date</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Motivation</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Payment</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Club</th>
+                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Bank & Branch</th>
+                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Payment Slip</th>
+                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Payment Status</th>
                                 <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em] text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredRequests.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="py-24 text-center">
+                                    <td colSpan="8" className="py-24 text-center">
                                         <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                            <InboxIcon className="h-8 w-8 text-slate-300" />
+                                            <CurrencyDollarIcon className="h-8 w-8 text-slate-300" />
                                         </div>
-                                        <p className="text-slate-400 font-bold text-sm">No applications found.</p>
+                                        <p className="text-slate-400 font-bold text-sm">No payment records found.</p>
                                     </td>
                                 </tr>
                             ) : (
@@ -261,10 +260,10 @@ const AdminRequests = () => {
                                         <td className="px-8 py-6">
                                             <input 
                                                 type="checkbox" 
-                                                disabled={req.status !== 'pending'}
+                                                disabled={req.paymentStatus !== 'pending'}
                                                 checked={selectedIds.has(req._id)}
                                                 onChange={() => toggleSelectOne(req._id)}
-                                                className={`w-4 h-4 rounded border-slate-200 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer ${req.status !== 'pending' ? 'opacity-20 cursor-not-allowed' : ''}`} 
+                                                className={`w-4 h-4 rounded border-slate-200 text-emerald-600 focus:ring-emerald-500 transition-all cursor-pointer ${req.paymentStatus !== 'pending' ? 'opacity-20 cursor-not-allowed' : ''}`} 
                                             />
                                         </td>
                                         <td className="px-4 py-6">
@@ -279,50 +278,57 @@ const AdminRequests = () => {
                                             </div>
                                         </td>
                                         <td className="px-4 py-6">
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-slate-700">{req.clubId?.name || 'Club'}</span>
-                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
-                                                    {new Date(req.createdAt).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-6 max-w-xs">
-                                            <p className="text-xs text-slate-500 truncate font-medium bg-slate-50/50 px-3 py-2 rounded-xl border border-slate-100 italic">
-                                                "{req.message || 'No message provided'}"
-                                            </p>
+                                            <span className="text-sm font-bold text-slate-700">{req.clubId?.name || 'Club'}</span>
                                         </td>
                                         <td className="px-4 py-6">
-                                            <div className="flex flex-col gap-1.5">
-                                                <span className="text-[10px] font-black uppercase tracking-widest flex items-center text-slate-400 mb-1">
-                                                    <CurrencyDollarIcon className="h-3 w-3 mr-1" />
-                                                    Payment
-                                                </span>
-                                                <div className={`inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest w-fit ${
-                                                    req.paymentStatus === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-200' :
-                                                    req.paymentStatus === 'verified' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 
-                                                    'bg-red-50 text-red-600 border border-red-200'
-                                                }`}>
-                                                    {req.paymentStatus || 'pending'}
-                                                </div>
+                                            <div className="flex flex-col gap-1.5 max-w-[140px]">
+                                                {req.bankName ? (
+                                                    <>
+                                                        <div className="flex items-center text-xs font-black text-slate-700 truncate" title={req.bankName}>
+                                                            <BuildingLibraryIcon className="w-4 h-4 mr-1.5 text-blue-500 shrink-0" />
+                                                            <span className="truncate">{req.bankName}</span>
+                                                        </div>
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-5.5 truncate block" title={req.branchName}>
+                                                            {req.branchName}
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-xs text-slate-400 italic">No details</span>
+                                                )}
                                             </div>
+                                        </td>
+                                        <td className="px-4 py-6">
+                                            {req.paymentSlip ? (
+                                                <a 
+                                                    href={`http://localhost:5000/${req.paymentSlip}`} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center px-3 py-2 text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 border border-blue-100 rounded-xl hover:bg-blue-100 transition-colors shadow-sm"
+                                                >
+                                                    <DocumentArrowUpIcon className="w-4 h-4 mr-1.5 border-r border-blue-200 pr-1.5" />
+                                                    View Receipt
+                                                </a>
+                                            ) : (
+                                                <span className="text-sm text-slate-400">N/A</span>
+                                            )}
                                         </td>
                                         <td className="px-4 py-6">
                                             <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                                req.status === 'pending' ? 'bg-amber-100 text-amber-700 border border-amber-200/50 shadow-sm shadow-amber-100/50' :
-                                                req.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200/50 shadow-sm shadow-emerald-100/50' : 
+                                                req.paymentStatus === 'pending' ? 'bg-amber-100 text-amber-700 border border-amber-200/50 shadow-sm shadow-amber-100/50' :
+                                                req.paymentStatus === 'verified' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200/50 shadow-sm shadow-emerald-100/50' : 
                                                 'bg-red-100 text-red-700 border border-red-200/50 shadow-sm shadow-red-100/50'
                                             }`}>
                                                 <span className={`w-1.5 h-1.5 rounded-full mr-2 ${
-                                                    req.status === 'pending' ? 'bg-amber-500' :
-                                                    req.status === 'approved' ? 'bg-emerald-500' : 'bg-red-500'
+                                                    req.paymentStatus === 'pending' ? 'bg-amber-500' :
+                                                    req.paymentStatus === 'verified' ? 'bg-emerald-500' : 'bg-red-500'
                                                 }`}></span>
-                                                {req.status}
+                                                {req.paymentStatus}
                                             </div>
                                         </td>
                                         <td className="px-4 py-6 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                {/* Rollback Action (Visible for non-pending) */}
-                                                {req.status !== 'pending' && (
+                                                {/* Rollback Action */}
+                                                {req.paymentStatus !== 'pending' && (
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'pending', req.studentName)}
                                                         title="Rollback to Pending"
@@ -332,11 +338,11 @@ const AdminRequests = () => {
                                                     </button>
                                                 )}
 
-                                                {/* Approve Action */}
-                                                {req.status === 'pending' && (
+                                                {/* Verify Action */}
+                                                {req.paymentStatus === 'pending' && (
                                                     <button 
-                                                        onClick={() => handleActionClick(req._id, 'approved', req.studentName)}
-                                                        title="Approve Request"
+                                                        onClick={() => handleActionClick(req._id, 'verified', req.studentName)}
+                                                        title="Verify Payment"
                                                         className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-100 shadow-sm shadow-emerald-100/50"
                                                     >
                                                         <CheckIcon className="h-3.5 w-3.5 stroke-[3px]" />
@@ -344,10 +350,10 @@ const AdminRequests = () => {
                                                 )}
 
                                                 {/* Reject Action */}
-                                                {req.status === 'pending' && (
+                                                {req.paymentStatus === 'pending' && (
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'rejected', req.studentName)}
-                                                        title="Reject Request"
+                                                        title="Reject Payment"
                                                         className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all duration-300 border border-red-100 shadow-sm shadow-red-100/50"
                                                     >
                                                         <XMarkIcon className="h-3.5 w-3.5 stroke-[3px]" />
@@ -361,20 +367,9 @@ const AdminRequests = () => {
                         </tbody>
                     </table>
                 </div>
-                
-                {/* Footer Section */}
-                <div className="px-8 py-5 bg-slate-50/30 border-t border-slate-100 flex items-center justify-between">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Showing {filteredRequests.length} of {requests.length} total entries
-                    </p>
-                    <div className="flex gap-2">
-                        <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors disabled:opacity-50" disabled>Previous</button>
-                        <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors disabled:opacity-50" disabled>Next</button>
-                    </div>
-                </div>
             </div>
         </div>
     );
 };
 
-export default AdminRequests;
+export default AdminPayments;
