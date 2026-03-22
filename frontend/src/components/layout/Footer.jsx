@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logoImg from '../../assets/logo.png.jpeg';
 
 const Footer = () => {
   return (
@@ -7,13 +8,18 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* About Section */}
-          <div className="space-y-4">
-            <h3 className="font-bold text-2xl text-white tracking-tight">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6]">Eventa</span>Core
-            </h3>
+          <div className="space-y-6">
+            <div className="flex items-center space-x-3 group">
+              <div className="bg-white p-2 rounded-xl shadow-sm group-hover:shadow-md transition-shadow">
+                <img src={logoImg} alt="EventaCore Logo" className="h-10 w-10 object-contain" />
+              </div>
+              <h3 className="text-2xl font-bold tracking-tight">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6]">Eventa</span>
+                <span className="text-white">Core</span>
+              </h3>
+            </div>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Your one-stop platform for university clubs and event management.
-              Connect, collaborate, and create memories that last a lifetime!
+              Empowering students and clubs to create, manage, and discover extraordinary events. Your central hub for campus life.
             </p>
           </div>
 
