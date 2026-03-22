@@ -11,6 +11,7 @@ const clubRoutes = require("./Routes/clubRoutes");
 const membershipRoutes = require("./Routes/membershipRoutes");
 const notificationRoutes = require("./Routes/notificationRoutes");
 const eventRegistrationRoutes = require("./Routes/eventRegistrationRoutes");
+const bookmarkRoutes = require("./Routes/bookmarkRoutes");
 
 // Middleware
 app.use(cors());
@@ -30,6 +31,7 @@ app.use("/api/clubs", clubRoutes);
 app.use("/api/memberships", membershipRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/event-registrations", eventRegistrationRoutes);
+app.use("/api/bookmarks", bookmarkRoutes);
 
 // MongoDB connection
 mongoose
