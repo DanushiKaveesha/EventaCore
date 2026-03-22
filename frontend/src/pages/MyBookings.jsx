@@ -1,118 +1,112 @@
-import React, { useEffect, useState } from 'react';
-    import { getMyBookings } from '../services/bookingService';
-    import { TicketIcon, ClockIcon, CheckCircleIcon, XCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
+import React from 'react';
+import { useBookings } from '../hooks/useBookings';
+import BookingCard from '../components/bookings/BookingCard';
+import { 
+  TicketIcon, 
+  ArrowRightIcon, 
+  SparklesIcon,
+  ShoppingBagIcon
+} from '@heroicons/react/24/outline';
+import { Link } from 'react-router-dom';
 
-    const MyBookings = () => {
-      const [bookings, setBookings] = useState([]);
-      const [loading, setLoading] = useState(true);
-      const [error, setError] = useState(null);
+const MyBookings = () => {
+  const { bookings, loading, error } = useBookings();
 
-      // Mock User ID for demonstration - in real app, get from Auth context
-      const userId = "67d94e7732d84d1234567890";
+  if (loading) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center">
+        <div className="relative">
+          <div className="h-20 w-20 rounded-full border-4 border-blue-50 border-t-blue-600 animate-spin"></div>
+          <SparklesIcon className="h-8 w-8 text-blue-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+        </div>
+        <p className="mt-4 text-gray-400 font-bold tracking-widest uppercase text-xs">Fetching your tickets...</p>
+      </div>
+    );
+  }
 
-      useEffect(() => {
-        const fetchBookings = async () => {
-          try {
-            const data = await getMyBookings(userId);
-            setBookings(data);
-          } catch (err) {
-            setError('Failed to load your bookings history.');
-          } finally {
-            setLoading(false);
-          }
-        };
-        fetchBookings();
-      }, [userId]);
-
-      const getStatusIcon = (status) => {
-        switch(status) {
-          case 'pending': return <ClockIcon className="h-6 w-6 text-amber-500" />;
-          case 'confirmed': return <CheckCircleIcon className="h-6 w-6 text-emerald-500" />;
-          case 'rejected': return <XCircleIcon className="h-6 w-6 text-red-500" />;
-          case 'cancelled': return <XCircleIcon className="h-6 w-6 text-gray-500" />;
-          default: return <ClockIcon className="h-6 w-6 text-gray-500" />;
-        }
-      };
-
-      const getStatusStyles = (status) => {
-        switch(status) {
-          case 'pending': return 'bg-amber-50 text-amber-700 border-amber-200';
-          case 'confirmed': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-          case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
-          default: return 'bg-gray-50 text-gray-700 border-gray-200';
-        }
-      };
-
-      if (loading) return <div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>;
-      
-      return (
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">My Bookings</h1>
-              <p className="text-gray-500 mt-2">Manage your tickets and track verification status.</p>
+  return (
+    <div className="max-w-[1400px] mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div className="animate-fade-in-up">
+            <div className="flex items-center gap-2 mb-3">
+                <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100">
+                    Your Purchases
+                </span>
             </div>
-            <div className="bg-blue-600 p-4 rounded-3xl shadow-xl shadow-blue-100 flex items-center">
-               <TicketIcon className="h-8 w-8 text-white" />
-               <span className="ml-3 text-white font-black text-2xl">{bookings.length}</span>
+          <h1 className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tight leading-none mb-4">
+            My <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Bookings</span>
+          </h1>
+          <p className="text-gray-500 font-medium text-lg max-w-xl">
+            Track your event entries, download tickets, and manage your reservation history in one place.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4 bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm animate-fade-in-right">
+            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-200">
+                <ShoppingBagIcon className="h-7 w-7 text-white" />
+            </div>
+            <div>
+                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Total Bookings</p>
+                <p className="text-2xl font-black text-gray-900">{bookings.length}</p>
+            </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-100 p-6 rounded-3xl flex items-center gap-4 mb-8 animate-shake">
+          <div className="h-12 w-12 rounded-2xl bg-red-100 flex items-center justify-center text-red-600">
+            <SparklesIcon className="h-6 w-6" />
+          </div>
+          <div>
+            <h4 className="font-bold text-red-900">Something went wrong</h4>
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {bookings.length === 0 ? (
+        <div className="text-center py-24 bg-white rounded-[3rem] border border-dashed border-gray-200 animate-fade-in">
+          <div className="relative inline-block mb-8">
+            <div className="h-24 w-24 rounded-[2.5rem] bg-gray-50 flex items-center justify-center mx-auto">
+                <TicketIcon className="h-12 w-12 text-gray-200" />
+            </div>
+            <div className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center animate-bounce">
+                <SparklesIcon className="h-4 w-4 text-blue-600" />
             </div>
           </div>
-
-          {error && <div className="bg-red-50 text-red-600 p-6 rounded-2xl border border-red-100 mb-8">{error}</div>}
-
-          {bookings.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300">
-              <TicketIcon className="mx-auto h-16 w-16 text-gray-200 mb-4" />
-              <h3 className="text-xl font-bold text-gray-700">No bookings yet</h3>
-              <p className="text-gray-500 mt-2 mb-6">Explore events and start your adventure.</p>
-              <a href="/events" className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">Browse Events</a>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {bookings.map((booking) => (
-                <div key={booking._id} className="bg-white rounded-3xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all overflow-hidden flex flex-col group">
-                  <div className="relative h-48 bg-gray-200 overflow-hidden">
-                    <img 
-                      src={booking.event?.imageUrl ? `http://localhost:5000/${booking.event.imageUrl}` : 'https://via.placeholder.com/800x600?text=Event+Poster'} 
-                      alt={booking.event?.name} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute top-4 right-4">
-                      <span className={`flex items-center px-4 py-2 rounded-full font-bold text-sm shadow-md border ${getStatusStyles(booking.status)}`}>
-                        {getStatusIcon(booking.status)}
-                        <span className="ml-2 uppercase tracking-wider">{booking.status}</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-8 flex-1 flex flex-col">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-1">{booking.event?.name || 'Unknown Event'}</h3>
-                    
-                    <div className="space-y-3 mb-8">
-                      <div className="flex items-center text-sm text-gray-500 font-medium">
-                        <CalendarIcon className="h-5 w-5 mr-3 text-blue-400" />
-                        {booking.event?.date ? new Date(booking.event.date).toLocaleDateString() : 'TBA'}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500 font-medium">
-                        <TicketIcon className="h-5 w-5 mr-3 text-purple-400" />
-                        {booking.tickets.map(t => `${t.quantity}x ${t.type}`).join(', ')}
-                      </div>
-                    </div>
-
-                    <div className="mt-auto flex justify-between items-center pt-6 border-t border-gray-50">
-                      <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">Total Paid</p>
-                        <p className="text-2xl font-black text-gray-900">${booking.totalAmount.toFixed(2)}</p>
-                      </div>
-                      <button className="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-xl font-bold transition-colors">Details</button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <h3 className="text-2xl font-black text-gray-900 mb-3">No Bookings Found</h3>
+          <p className="text-gray-500 font-medium mb-10 max-w-sm mx-auto">
+            You haven't booked any events yet. Check out the latest events and get your tickets today!
+          </p>
+          <Link 
+            to="/events" 
+            className="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-2xl font-black hover:bg-blue-600 transition-all shadow-xl hover:shadow-blue-200 active:scale-95 group"
+          >
+            Explore Events
+            <ArrowRightIcon className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
-      );
-    };
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+          {bookings.map((booking, idx) => (
+            <div key={booking._id} style={{ animationDelay: `${idx * 100}ms` }} className="animate-fade-in-up">
+                <BookingCard booking={booking} />
+            </div>
+          ))}
+        </div>
+      )}
 
-    export default MyBookings;
+      {/* Footer Info */}
+      {bookings.length > 0 && (
+          <div className="mt-16 text-center border-t border-gray-100 pt-10">
+              <p className="text-gray-400 text-sm font-medium">
+                  Need help with your bookings? <a href="#" className="text-blue-600 font-bold hover:underline underline-offset-4">Contact Support</a>
+              </p>
+          </div>
+      )}
+    </div>
+  );
+};
+
+export default MyBookings;

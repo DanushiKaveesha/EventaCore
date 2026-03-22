@@ -7,15 +7,6 @@ const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all'); // all, free, paid
-
-  const filteredEvents = events.filter(event => {
-    if (filter === 'all') return true;
-    const isFree = event.tickets && event.tickets.some(t => t.price === 0);
-    if (filter === 'free') return isFree;
-    if (filter === 'paid') return !isFree;
-    return true;
-  });
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -64,41 +55,22 @@ const Events = () => {
 
   return (
     <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-        <div>
-          <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-sm font-black tracking-widest uppercase mb-4 border border-blue-100 shadow-sm animate-pulse">
-            Explore Campus Drops
-          </span>
-          <h2 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 tracking-tight">
-            Upcoming Events
-          </h2>
-          <p className="mt-4 text-xl text-gray-500 font-medium max-w-2xl">
-            Join the most happening clubs and activities around the campus.
-          </p>
+      <div className="text-center mb-16 mt-8">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-blue-100 shadow-sm">
+          <span>Explore Campus Drops</span>
         </div>
-
-        {/* Filter Tabs */}
-        <div className="flex bg-gray-100/80 p-1.5 rounded-2xl border border-gray-200 shadow-inner backdrop-blur-sm self-end">
-          {['all', 'free', 'paid'].map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-8 py-3 rounded-[1.25rem] text-sm font-black tracking-wider uppercase transition-all duration-300 ${
-                filter === f
-                  ? 'bg-white text-blue-600 shadow-md transform scale-105'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
+        <h2 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-800 to-purple-900 tracking-tight pb-2 leading-tight drop-shadow-sm">
+          Upcoming Events
+        </h2>
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto font-medium leading-relaxed">
+          Discover and explore the latest activities, workshops, and meetups organized by your favorite clubs.
+        </p>
       </div>
 
-      {filteredEvents.length === 0 ? (
+      {events.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300 shadow-sm">
           <CalendarIcon className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-          <h3 className="text-2xl font-bold text-gray-700 mb-2">No {filter !== 'all' ? filter : ''} events found</h3>
+          <h3 className="text-2xl font-bold text-gray-700 mb-2">No events found</h3>
           <p className="text-gray-500 mb-6">There are currently no events published in the system.</p>
           <a href="/create-event" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700">
             Create First Event
@@ -106,7 +78,7 @@ const Events = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {filteredEvents.map((event) => (
+          {events.map((event) => (
             <div key={event._id} className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col group border border-gray-100">
 
               {/* Event Image */}
@@ -155,7 +127,7 @@ const Events = () => {
                     <div className="flex items-center text-gray-700">
                       <CurrencyDollarIcon className="h-5 w-5 mr-3 text-emerald-500" />
                       <span className="font-medium text-sm">
-                        Starting from ${Math.min(...event.tickets.map(t => t.price)).toFixed(2)}
+                        Starting from RS. {Math.min(...event.tickets.map(t => t.price)).toFixed(2)}
                       </span>
                     </div>
                   )}

@@ -244,7 +244,7 @@ const EditEvent = () => {
                       </select>
                     </div>
                     <div className="flex-1 w-full">
-                      <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Price ($)</label>
+                      <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Price (RS.)</label>
                       <input type="number" value={ticket.price} onChange={(e) => updateTicket(index, 'price', e.target.value)} className={inputStyles} min="0" step="0.01" placeholder="0.00" />
                     </div>
                     <div className="flex-1 w-full">

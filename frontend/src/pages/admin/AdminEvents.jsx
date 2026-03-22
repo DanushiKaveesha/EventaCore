@@ -70,9 +70,18 @@ const AdminEvents = () => {
       {/* Main Content Area */}
       <div className="flex-1 w-full lg:max-w-[calc(100%-320px)] overflow-x-hidden min-h-screen p-4 sm:p-8 lg:p-12">
 
-        <div className="mb-8 lg:mb-12">
-          <h1 className="text-3xl lg:text-4xl xl:text-5xl font-black text-gray-900 capitalize tracking-tight">Events Management</h1>
-          <p className="text-gray-500 font-medium mt-2 lg:mt-3 text-base lg:text-lg">Monitor, update, and control your platform's events.</p>
+        <div className="mb-8 lg:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h1 className="text-3xl lg:text-4xl xl:text-5xl font-black text-gray-900 capitalize tracking-tight">Events Management</h1>
+            <p className="text-gray-500 font-medium mt-2 lg:mt-3 text-base lg:text-lg">Monitor, update, and control your platform's events.</p>
+          </div>
+          <Link 
+            to="/create-event" 
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-sky-500 text-white rounded-2xl font-bold shadow-lg shadow-sky-200 hover:bg-sky-600 transition-all transform hover:-translate-y-0.5"
+          >
+            <PlusIcon className="h-5 w-5" />
+            Launch New Event
+          </Link>
         </div>
 
         <div className="animate-fade-in space-y-6 lg:space-y-8">

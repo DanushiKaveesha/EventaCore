@@ -166,10 +166,10 @@ const AdminEventPayments = () => {
                       )}
                     </td>
                     <td className="px-8 py-6">
-                      <p className="font-black text-gray-900 text-lg">${(booking.totalAmount || 0).toFixed(2)}</p>
+                      <p className="font-black text-gray-900 text-lg">RS. {(booking.totalAmount || 0).toFixed(2)}</p>
                       {booking.discountAmount > 0 && (
                         <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">
-                          Promo Applied (-${booking.discountAmount.toFixed(2)})
+                          Promo Applied (-RS. {booking.discountAmount.toFixed(2)})
                         </p>
                       )}
                     </td>

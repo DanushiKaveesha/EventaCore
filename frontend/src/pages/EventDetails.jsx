@@ -184,7 +184,7 @@ const EventDetails = () => {
                   <div key={ticket._id} className="p-5 rounded-2xl border-2 border-gray-100 hover:border-blue-200 transition-all bg-white shadow-sm flex items-center justify-between">
                     <div>
                       <p className="font-bold text-lg text-gray-800">{ticket.type}</p>
-                      <p className="text-blue-600 font-black text-xl">${ticket.price.toFixed(2)}</p>
+                      <p className="text-blue-600 font-black text-xl">RS. {ticket.price.toFixed(2)}</p>
                       <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest">{ticket.quantity} Left</p>
                     </div>
                     <div className="flex items-center space-x-4 bg-gray-50 p-2 rounded-xl">
@@ -237,10 +237,10 @@ const EventDetails = () => {
               <div className="bg-blue-50 p-8 rounded-3xl border border-blue-100 mb-8">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-blue-600 font-bold uppercase tracking-wider text-sm">Amount to Pay</span>
-                  <span className="text-gray-400 text-xs line-through">{promoApplied ? `$${calculateSubtotal().toFixed(2)}` : ''}</span>
+                  <span className="text-gray-400 text-xs line-through">{promoApplied ? `RS. ${calculateSubtotal().toFixed(2)}` : ''}</span>
                 </div>
                 <div className="flex justify-between items-end">
-                  <span className="text-4xl font-black text-blue-900">${calculateTotal().toFixed(2)}</span>
+                  <span className="text-4xl font-black text-blue-900">RS. {calculateTotal().toFixed(2)}</span>
                   <span className="text-blue-600/50 text-xs">Final Price</span>
                 </div>
               </div>

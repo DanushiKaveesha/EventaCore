@@ -1,24 +1,27 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logoImg from '../../assets/logo.png.jpeg';
-import { 
-  HomeIcon, 
-  UserGroupIcon, 
-  CalendarIcon, 
+import {
+  HomeIcon,
+  UserGroupIcon,
+  CalendarIcon,
   BellIcon,
   UserCircleIcon,
   Bars3Icon,
   XMarkIcon,
   PlusCircleIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  ShoppingBagIcon
 } from '@heroicons/react/24/outline';
+import { useAuth } from '../../hooks/useAuth';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <nav className="bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm sticky top-0 z-50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1400px] mx-auto px-1 sm:px-3 lg:px-4">
         <div className="flex justify-between items-center h-16 sm:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group shrink-0">
@@ -44,15 +47,20 @@ const Header = () => {
               <ShieldCheckIcon className="h-5 w-5" />
               <span>Admin Portal</span>
             </Link>
+            {user && (
+              <Link to="/my-bookings" className="text-gray-600 hover:text-[#7C3AED] font-semibold transition flex items-center space-x-1 p-2">
+                <ShoppingBagIcon className="h-5 w-5" />
+                <span>My Bookings</span>
+              </Link>
+            )}
           </div>
 
           {/* Right Side Icons / Auth */}
-          <div className="flex items-center space-x-6">
-            <button className="hidden sm:block text-gray-500 hover:text-[#7C3AED] transition group">
+          <div className="flex items-center">
+            {/* Notifications */}
+            <button className="hidden sm:block p-2 text-gray-400 hover:text-blue-600 transition-colors relative mr-4">
               <BellIcon className="h-6 w-6" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-white">
-                3
-              </span>
+              <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
 
             <div className="hidden lg:flex items-center space-x-4">
@@ -70,8 +78,8 @@ const Header = () => {
 
           {/* Mobile menu button */}
           <div className="flex items-center lg:hidden">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="inline-flex items-center justify-center p-2 rounded-md hover:text-[#7C3AED] focus:outline-none transition"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
@@ -94,14 +102,19 @@ const Header = () => {
           </Link>
 
           <Link to="/clubs" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-4 rounded-md text-base font-medium hover:text-blue-600 hover:bg-blue-50 transition">
-             <div className="flex items-center space-x-3"><UserGroupIcon className="h-6 w-6" /><span>Clubs</span></div>
+            <div className="flex items-center space-x-3"><UserGroupIcon className="h-6 w-6" /><span>Clubs</span></div>
           </Link>
           <Link to="/events" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-4 rounded-md text-base font-medium hover:text-blue-600 hover:bg-blue-50 transition">
-             <div className="flex items-center space-x-3"><CalendarIcon className="h-6 w-6" /><span>Events</span></div>
+            <div className="flex items-center space-x-3"><CalendarIcon className="h-6 w-6" /><span>Events</span></div>
           </Link>
           <Link to="/admin/events" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-4 rounded-md text-base font-medium hover:text-indigo-800 hover:bg-indigo-100 transition border-l-4 border-indigo-500 bg-indigo-50 mt-2">
-             <div className="flex items-center space-x-3"><ShieldCheckIcon className="h-6 w-6 text-indigo-600" /><span className="text-indigo-800 font-bold">Admin Portal</span></div>
+            <div className="flex items-center space-x-3"><ShieldCheckIcon className="h-6 w-6 text-indigo-600" /><span className="text-indigo-800 font-bold">Admin Portal</span></div>
           </Link>
+          {user && (
+            <Link to="/my-bookings" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-4 rounded-md text-base font-medium hover:text-blue-600 hover:bg-blue-50 transition border-l-4 border-blue-500 bg-blue-50 mt-2">
+              <div className="flex items-center space-x-3"><ShoppingBagIcon className="h-6 w-6 text-blue-600" /><span className="text-blue-600 font-bold">My Bookings</span></div>
+            </Link>
+          )}
           <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col space-y-3 px-3">
             <Link
               to="/login"

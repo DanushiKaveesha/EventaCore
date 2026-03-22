@@ -12,6 +12,8 @@ import AdminPaymentsPortal from './pages/admin/AdminPayments';
 import AdminEventPayments from './pages/admin/AdminEventPayments';
 import AdminClubPayments from './pages/admin/AdminClubPayments';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminClubs from './pages/admin/AdminClubs';
+import AdminMemberships from './pages/admin/AdminMemberships';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 
@@ -36,6 +38,8 @@ function App() {
           <Route path="/admin/payments/events" element={<AdminEventPayments />} />
           <Route path="/admin/payments/clubs" element={<AdminClubPayments />} />
           <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/clubs" element={<AdminClubs />} />
+          <Route path="/admin/memberships" element={<AdminMemberships />} />
         </Routes>
       </main>
       {!isAdminRoute && <Footer />}
