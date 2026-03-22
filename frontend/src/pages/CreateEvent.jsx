@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createEvent } from '../services/eventService';
-import { PlusIcon, TrashIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, PhotoIcon, TicketIcon, SparklesIcon, GiftIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const CreateEvent = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +19,8 @@ const CreateEvent = () => {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [creationStep, setCreationStep] = useState('selection'); // selection, form
+  const [eventType, setEventType] = useState(null); // paid, free
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -93,17 +95,28 @@ const CreateEvent = () => {
       Object.entries(formData).forEach(([key, value]) => {
         data.append(key, value);
       });
-      data.append('tickets', JSON.stringify(tickets));
-      data.append('promotions', JSON.stringify(promotions));
+
+      let finalTickets = tickets;
+      let finalPromotions = promotions;
+
+      if (eventType === 'free') {
+        finalTickets = [{ type: 'Free Pass', price: 0, quantity: 999999 }];
+        finalPromotions = [];
+      }
+
+      data.append('tickets', JSON.stringify(finalTickets));
+      data.append('promotions', JSON.stringify(finalPromotions));
       if (image) data.append('image', image);
 
       await createEvent(data);
       setMessage({ text: 'Event created successfully!', type: 'success' });
 
-      // reset form optionally
+      // reset form
       setFormData({ name: '', description: '', location: '', date: '', time: '' });
       setImage(null); setImagePreview(null);
       setTickets([]); setPromotions([]);
+      setCreationStep('selection');
+      setEventType(null);
     } catch (err) {
       setMessage({ text: err.message || 'Failed to create event', type: 'error' });
     } finally {
@@ -115,11 +128,58 @@ const CreateEvent = () => {
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 sm:p-12 mb-10 transform transition-all">
-        <div className="mb-10 text-center">
-          <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">Create New Event</h2>
-          <p className="text-gray-500 text-lg">Define everything about your upcoming experience.</p>
+      {creationStep === 'selection' ? (
+        <div className="animate-fade-in py-12">
+          <div className="text-center mb-12">
+            <h2 className="text-5xl font-black text-gray-900 tracking-tight mb-4">Launch Your Experience</h2>
+            <p className="text-xl text-gray-500 max-w-lg mx-auto font-medium">Choose how you want to manage your event entries and registration.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {/* Paid Event Card */}
+            <button 
+              onClick={() => { setEventType('paid'); setCreationStep('form'); }}
+              className="group bg-white p-10 rounded-[2.5rem] border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl transition-all text-left relative overflow-hidden shadow-xl"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-[5rem] -mr-10 -mt-10 group-hover:bg-blue-100 transition-colors"></div>
+              <TicketIcon className="h-16 w-16 text-blue-600 mb-8 relative z-10 group-hover:scale-110 transition-transform" />
+              <h3 className="text-2xl font-black text-gray-900 mb-3 relative z-10">Ticket Booking</h3>
+              <p className="text-gray-500 font-medium mb-6 relative z-10">Best for paid concerts, workshops, and exclusive gatherings with multiple ticket tiers and pricing.</p>
+              <div className="flex items-center text-blue-600 font-bold group-hover:translate-x-2 transition-transform">
+                Start Paid Drop <span className="ml-2">→</span>
+              </div>
+            </button>
+
+            {/* Free Event Card */}
+            <button 
+              onClick={() => { setEventType('free'); setCreationStep('form'); }}
+              className="group bg-white p-10 rounded-[2.5rem] border-2 border-gray-100 hover:border-emerald-500 hover:shadow-2xl transition-all text-left relative overflow-hidden shadow-xl"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-[5rem] -mr-10 -mt-10 group-hover:bg-emerald-100 transition-colors"></div>
+              <SparklesIcon className="h-16 w-16 text-emerald-600 mb-8 relative z-10 group-hover:scale-110 transition-transform" />
+              <h3 className="text-2xl font-black text-gray-900 mb-3 relative z-10">Free Entry</h3>
+              <p className="text-gray-500 font-medium mb-6 relative z-10">Perfect for open meetups, club socials, and free workshops. One-click registration for all students.</p>
+              <div className="flex items-center text-emerald-600 font-bold group-hover:translate-x-2 transition-transform">
+                Start Free Drop <span className="ml-2">→</span>
+              </div>
+            </button>
+          </div>
         </div>
+      ) : (
+        <div className="bg-white rounded-3xl shadow-2xl p-8 sm:p-12 mb-10 transform transition-all relative">
+          <button 
+            onClick={() => { setCreationStep('selection'); setEventType(null); }}
+            className="absolute top-8 left-8 flex items-center text-gray-400 hover:text-gray-900 transition-colors font-bold text-sm uppercase tracking-widest"
+          >
+            <ArrowLeftIcon className="h-4 w-4 mr-2" /> Back
+          </button>
+
+          <div className="mb-10 text-center">
+            <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
+              {eventType === 'free' ? 'Quick Free Entry Setup' : 'Create Paid Booking Event'}
+            </h2>
+            <p className="text-gray-500 text-lg">Define everything about your upcoming experience.</p>
+          </div>
 
         {message.text && (
           <div className={`p-4 rounded-xl mb-8 font-medium animate-pulse ${message.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
@@ -188,97 +248,126 @@ const CreateEvent = () => {
             </div>
           </section>
 
-          {/* Ticket Configuration */}
-          <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
-            <div className="flex justify-between items-center border-b pb-3 mb-6">
-              <h3 className="text-xl font-bold text-gray-800 flex items-center">
-                <span className="bg-blue-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center mr-3 text-sm">3</span>
-                Ticket Types
-              </h3>
-              <button type="button" onClick={addTicket} className="flex items-center text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition">
-                <PlusIcon className="w-4 h-4 mr-1" /> Add Ticket
-              </button>
-            </div>
-
-            {tickets.length === 0 ? (
-              <p className="text-gray-400 text-center py-4 bg-white rounded-xl border border-dashed border-gray-300">No tickets added yet. Click 'Add Ticket' to create tiers.</p>
-            ) : (
-              <div className="space-y-4">
-                {tickets.map((ticket, index) => (
-                  <div key={index} className="flex flex-col sm:flex-row gap-4 items-end bg-white p-4 rounded-xl border border-gray-100 shadow-sm relative group">
-                    <div className="flex-1 w-full">
-                      <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Type</label>
-                      <select value={ticket.type} onChange={(e) => updateTicket(index, 'type', e.target.value)} className={inputStyles}>
-                        <option value="Regular">Regular</option>
-                        <option value="VIP">VIP</option>
-                        <option value="Early Bird">Early Bird</option>
-                      </select>
-                    </div>
-                    <div className="flex-1 w-full">
-                      <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Price (RS.)</label>
-                      <input type="number" value={ticket.price} onChange={(e) => updateTicket(index, 'price', e.target.value)} className={inputStyles} min="0" step="0.01" placeholder="0.00" />
-                    </div>
-                    <div className="flex-1 w-full">
-                      <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Quantity</label>
-                      <input type="number" value={ticket.quantity} onChange={(e) => updateTicket(index, 'quantity', e.target.value)} className={inputStyles} min="1" placeholder="Ex: 100" />
-                    </div>
-                    <button type="button" onClick={() => removeTicket(index)} className="p-3 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition duration-200" title="Remove Ticket">
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
-                  </div>
-                ))}
+          {/* Ticket Configuration (Only for Paid) */}
+          {eventType === 'paid' ? (
+            <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
+              <div className="flex justify-between items-center border-b pb-3 mb-6">
+                <h3 className="text-xl font-bold text-gray-800 flex items-center">
+                  <span className="bg-blue-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center mr-3 text-sm">3</span>
+                  Ticket Types
+                </h3>
+                <button type="button" onClick={addTicket} className="flex items-center text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition">
+                  <PlusIcon className="w-4 h-4 mr-1" /> Add Ticket
+                </button>
               </div>
-            )}
-          </section>
 
-          {/* Promotions & Offers */}
-          <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
-            <div className="flex justify-between items-center border-b pb-3 mb-6">
-              <h3 className="text-xl font-bold text-gray-800 flex items-center">
-                <span className="bg-blue-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center mr-3 text-sm">4</span>
-                Promotions
+              {tickets.length === 0 ? (
+                <p className="text-gray-400 text-center py-4 bg-white rounded-xl border border-dashed border-gray-300">No tickets added yet. Click 'Add Ticket' to create tiers.</p>
+              ) : (
+                <div className="space-y-4">
+                  {tickets.map((ticket, index) => (
+                    <div key={index} className="flex flex-col sm:flex-row gap-4 items-end bg-white p-4 rounded-xl border border-gray-100 shadow-sm relative group">
+                      <div className="flex-1 w-full">
+                        <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Type</label>
+                        <select value={ticket.type} onChange={(e) => updateTicket(index, 'type', e.target.value)} className={inputStyles}>
+                          <option value="Regular">Regular</option>
+                          <option value="VIP">VIP</option>
+                          <option value="Early Bird">Early Bird</option>
+                        </select>
+                      </div>
+                      <div className="flex-1 w-full">
+                        <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Price (RS.)</label>
+                        <input type="number" value={ticket.price} onChange={(e) => updateTicket(index, 'price', e.target.value)} className={inputStyles} min="0" step="0.01" placeholder="0.00" />
+                      </div>
+                      <div className="flex-1 w-full">
+                        <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Quantity</label>
+                        <input type="number" value={ticket.quantity} onChange={(e) => updateTicket(index, 'quantity', e.target.value)} className={inputStyles} min="1" placeholder="Ex: 100" />
+                      </div>
+                      <button type="button" onClick={() => removeTicket(index)} className="p-3 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition duration-200" title="Remove Ticket">
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          ) : (
+            <section className="bg-emerald-50/30 p-8 rounded-[2rem] border border-emerald-100 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-100/30 rounded-bl-full -mr-4 -mt-4"></div>
+              <h3 className="text-2xl font-black text-emerald-900 mb-6 flex items-center">
+                <GiftIcon className="h-8 w-8 text-emerald-500 mr-4" />
+                Access Configuration
               </h3>
-              <button type="button" onClick={addPromotion} className="flex items-center text-sm font-semibold text-purple-600 bg-purple-50 hover:bg-purple-100 px-4 py-2 rounded-xl transition">
-                <PlusIcon className="w-4 h-4 mr-1" /> Add Promo
-              </button>
-            </div>
-
-            {promotions.length === 0 ? (
-              <p className="text-gray-400 text-center py-4 bg-white rounded-xl border border-dashed border-gray-300">No promotions added. Click 'Add Promo' to create discounts.</p>
-            ) : (
-              <div className="space-y-4">
-                {promotions.map((promo, index) => (
-                  <div key={index} className="flex flex-col sm:flex-row gap-4 items-end bg-white p-4 rounded-xl border border-gray-100 shadow-sm relative">
-                    <div className="flex-1 w-full">
-                      <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Promo Code</label>
-                      <input type="text" value={promo.code} onChange={(e) => updatePromotion(index, 'code', e.target.value)} className={inputStyles} placeholder="SUMMER50" />
-                    </div>
-                    <div className="flex-1 w-full">
-                      <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Discount (%)</label>
-                      <input type="number" value={promo.discountPercentage} onChange={(e) => updatePromotion(index, 'discountPercentage', e.target.value)} className={inputStyles} min="1" max="100" placeholder="Ex: 15" />
-                    </div>
-                    <button type="button" onClick={() => removePromotion(index)} className="p-3 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition duration-200" title="Remove Promo">
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div className="bg-emerald-100/50 p-6 rounded-2xl border border-emerald-200">
+                  <label className="block text-sm font-bold text-emerald-800 mb-2 uppercase tracking-wide">Capacity</label>
+                  <div className="flex items-center text-emerald-700">
+                    <span className="text-3xl font-black mr-2">∞</span>
+                    <span className="text-lg font-bold">Unlimited Capacity</span>
                   </div>
-                ))}
+                  <p className="mt-3 text-sm text-emerald-600 font-medium italic">All students can register without limits.</p>
+                </div>
+                <div className="bg-white/80 backdrop-blur p-6 rounded-2xl border border-emerald-100 text-center">
+                   <div className="inline-flex items-center px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-xs font-black uppercase tracking-widest mb-3">One-Click Enabled</div>
+                   <p className="text-gray-600 text-sm leading-relaxed">Registration will be instant and free for all students. No payment steps required.</p>
+                </div>
               </div>
-            )}
-          </section>
+            </section>
+          )}
+
+          {/* Promotions & Offers (Only for Paid) */}
+          {eventType === 'paid' && (
+            <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
+              <div className="flex justify-between items-center border-b pb-3 mb-6">
+                <h3 className="text-xl font-bold text-gray-800 flex items-center">
+                  <span className="bg-blue-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center mr-3 text-sm">4</span>
+                  Promotions
+                </h3>
+                <button type="button" onClick={addPromotion} className="flex items-center text-sm font-semibold text-purple-600 bg-purple-50 hover:bg-purple-100 px-4 py-2 rounded-xl transition">
+                  <PlusIcon className="w-4 h-4 mr-1" /> Add Promo
+                </button>
+              </div>
+
+              {promotions.length === 0 ? (
+                <p className="text-gray-400 text-center py-4 bg-white rounded-xl border border-dashed border-gray-300">No promotions added. Click 'Add Promo' to create discounts.</p>
+              ) : (
+                <div className="space-y-4">
+                  {promotions.map((promo, index) => (
+                    <div key={index} className="flex flex-col sm:flex-row gap-4 items-end bg-white p-4 rounded-xl border border-gray-100 shadow-sm relative">
+                      <div className="flex-1 w-full">
+                        <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Promo Code</label>
+                        <input type="text" value={promo.code} onChange={(e) => updatePromotion(index, 'code', e.target.value)} className={inputStyles} placeholder="SUMMER50" />
+                      </div>
+                      <div className="flex-1 w-full">
+                        <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Discount (%)</label>
+                        <input type="number" value={promo.discountPercentage} onChange={(e) => updatePromotion(index, 'discountPercentage', e.target.value)} className={inputStyles} min="1" max="100" placeholder="Ex: 15" />
+                      </div>
+                      <button type="button" onClick={() => removePromotion(index)} className="p-3 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition duration-200" title="Remove Promo">
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
 
           <div className="pt-8">
-            <button type="submit" disabled={loading} className="w-full flex justify-center py-4 px-8 border border-transparent rounded-2xl shadow-sm tracking-wide text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed">
+            <button type="submit" disabled={loading} className={`w-full flex justify-center py-4 px-8 border border-transparent rounded-2xl shadow-sm tracking-wide text-lg font-bold text-white transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed ${
+              eventType === 'free' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+            }`}>
               {loading ? (
                 <span className="flex items-center">
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                  Publishing Event...
+                  Publishing {eventType === 'free' ? 'Free entry' : 'Event'}...
                 </span>
-              ) : 'Publish Event'}
+              ) : `Publish ${eventType === 'free' ? 'Free entry' : 'Event'}`}
             </button>
           </div>
 
         </form>
       </div>
+      )}
     </div>
   );
 };

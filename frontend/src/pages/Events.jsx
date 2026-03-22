@@ -7,6 +7,7 @@ const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filterFreeOnly, setFilterFreeOnly] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -65,6 +66,30 @@ const Events = () => {
         <p className="text-xl text-gray-600 max-w-2xl mx-auto font-medium leading-relaxed">
           Discover and explore the latest activities, workshops, and meetups organized by your favorite clubs.
         </p>
+
+        {/* Tab System for Selection */}
+        <div className="mt-12 flex items-center justify-center p-1.5 bg-gray-100 rounded-2xl max-w-sm mx-auto shadow-inner border border-gray-200">
+          <button
+            onClick={() => setFilterFreeOnly(false)}
+            className={`flex-1 py-3 px-6 rounded-xl text-sm font-black transition-all duration-300 ${
+              !filterFreeOnly 
+                ? 'bg-white text-blue-600 shadow-md' 
+                : 'text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            All Drops
+          </button>
+          <button
+            onClick={() => setFilterFreeOnly(true)}
+            className={`flex-1 py-3 px-6 rounded-xl text-sm font-black transition-all duration-300 ${
+              filterFreeOnly 
+                ? 'bg-white text-emerald-600 shadow-md' 
+                : 'text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            Free Entry
+          </button>
+        </div>
       </div>
 
       {events.length === 0 ? (
@@ -78,7 +103,9 @@ const Events = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {events.map((event) => (
+          {events
+            .filter(e => !filterFreeOnly || (e.tickets && e.tickets.some(t => t.price === 0)))
+            .map((event) => (
             <div key={event._id} className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col group border border-gray-100">
 
               {/* Event Image */}
@@ -125,10 +152,19 @@ const Events = () => {
                   </div>
                   {event.tickets && event.tickets.length > 0 && (
                     <div className="flex items-center text-gray-700">
-                      <CurrencyDollarIcon className="h-5 w-5 mr-3 text-emerald-500" />
-                      <span className="font-medium text-sm">
-                        Starting from RS. {Math.min(...event.tickets.map(t => t.price)).toFixed(2)}
-                      </span>
+                      {Math.min(...event.tickets.map(t => t.price)) === 0 ? (
+                        <div className="flex items-center text-emerald-600 font-black bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">
+                          <TagIcon className="h-5 w-5 mr-2" />
+                          FREE EVENT
+                        </div>
+                      ) : (
+                        <>
+                          <CurrencyDollarIcon className="h-5 w-5 mr-3 text-emerald-500" />
+                          <span className="font-medium text-sm">
+                            Starting from RS. {Math.min(...event.tickets.map(t => t.price)).toFixed(2)}
+                          </span>
+                        </>
+                      )}
                     </div>
                   )}
                   {event.promotions && event.promotions.length > 0 && (
@@ -143,8 +179,12 @@ const Events = () => {
 
                 {/* Footer Action */}
                 <div className="mt-auto pt-6 border-t border-gray-100">
-                  <Link to={`/event/${event._id}`} className="w-full bg-gray-50 hover:bg-blue-50 text-blue-600 font-bold py-3 px-4 rounded-xl border border-gray-200 hover:border-blue-200 transition-colors duration-200 group-hover:bg-blue-600 group-hover:text-white flex justify-center items-center">
-                    Book Tickets
+                  <Link to={`/event/${event._id}`} className={`w-full font-bold py-3 px-4 rounded-xl border border-gray-200 transition-colors duration-200 flex justify-center items-center ${
+                    Math.min(...event.tickets.map(t => t.price)) === 0 
+                    ? 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 border-gray-200' 
+                    : 'bg-gray-50 hover:bg-blue-600 text-blue-600 hover:text-white hover:border-blue-200'
+                  }`}>
+                    {Math.min(...event.tickets.map(t => t.price)) === 0 ? 'View Event Details' : 'Book Tickets'}
                   </Link>
                 </div>
               </div>
