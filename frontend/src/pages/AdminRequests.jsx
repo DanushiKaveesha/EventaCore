@@ -106,7 +106,7 @@ const AdminRequests = () => {
     );
 
     return (
-        <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 bg-slate-50/30 min-h-screen relative">
+        <div className="w-full py-8 px-4 sm:px-6 lg:px-8 bg-slate-50/30 min-h-screen relative">
             {/* Confirmation Modal */}
             {confirmModal.show && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
@@ -181,13 +181,13 @@ const AdminRequests = () => {
             )}
 
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-6 bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4 bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center mb-1">
-                        <ClipboardDocumentListIcon className="h-7 w-7 mr-3 text-blue-600" />
+                        <ClipboardDocumentListIcon className="h-6 w-6 mr-2 text-blue-600" />
                         Management Requests
                     </h1>
-                    <p className="text-slate-400 text-sm font-medium">Manage and review all incoming club membership applications.</p>
+                    <p className="text-slate-400 text-[11px] font-bold">Manage and review all incoming club membership applications.</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
@@ -223,26 +223,26 @@ const AdminRequests = () => {
             </div>
 
             {/* Table Section */}
-            <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+            <div className="bg-white rounded-[24px] border border-slate-100 shadow-lg shadow-slate-200/50 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50/50 border-b border-slate-100">
-                                <th className="px-8 py-5">
+                                <th className="px-4 py-3 w-12 text-center">
                                     <input 
                                         type="checkbox" 
                                         onChange={toggleSelectAll}
                                         checked={selectedIds.size > 0 && selectedIds.size === filteredRequests.filter(r => r.status === 'pending').length}
-                                        className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer" 
+                                        className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer" 
                                     />
                                 </th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Request #</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Student</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Club / Date</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Motivation</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Payment</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                                <th className="px-4 py-5 font-black text-[10px] text-slate-400 uppercase tracking-[0.2em] text-center">Action</th>
+                                <th className="px-3 py-3 font-black text-[9px] text-slate-400 uppercase tracking-widest">Request #</th>
+                                <th className="px-3 py-3 font-black text-[9px] text-slate-400 uppercase tracking-widest">Student</th>
+                                <th className="px-3 py-3 font-black text-[9px] text-slate-400 uppercase tracking-widest">Club / Date</th>
+                                <th className="px-3 py-3 font-black text-[9px] text-slate-400 uppercase tracking-widest">Motivation</th>
+                                <th className="px-3 py-3 font-black text-[9px] text-slate-400 uppercase tracking-widest">Payment</th>
+                                <th className="px-3 py-3 font-black text-[9px] text-slate-400 uppercase tracking-widest">Status</th>
+                                <th className="px-3 py-3 font-black text-[9px] text-slate-400 uppercase tracking-widest text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -258,46 +258,46 @@ const AdminRequests = () => {
                             ) : (
                                 filteredRequests.map((req, idx) => (
                                     <tr key={req._id} className="group hover:bg-slate-50/50 transition-colors border-b border-slate-50 last:border-0">
-                                        <td className="px-8 py-6">
+                                        <td className="px-4 py-3 text-center">
                                             <input 
                                                 type="checkbox" 
                                                 disabled={req.status !== 'pending'}
                                                 checked={selectedIds.has(req._id)}
                                                 onChange={() => toggleSelectOne(req._id)}
-                                                className={`w-4 h-4 rounded border-slate-200 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer ${req.status !== 'pending' ? 'opacity-20 cursor-not-allowed' : ''}`} 
+                                                className={`w-3.5 h-3.5 rounded border-slate-200 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer ${req.status !== 'pending' ? 'opacity-20 cursor-not-allowed' : ''}`} 
                                             />
                                         </td>
-                                        <td className="px-4 py-6">
-                                            <span className="text-xs font-black text-slate-900 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                                        <td className="px-3 py-3">
+                                            <span className="text-[10px] font-black text-slate-900 bg-slate-100 px-2 py-1 rounded-md border border-slate-200 whitespace-nowrap">
                                                 REQ-{req._id.slice(-4).toUpperCase()}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-6">
+                                        <td className="px-3 py-3">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-black text-slate-800 leading-tight mb-0.5">{req.studentName}</span>
-                                                <span className="text-xs font-bold text-slate-400">{req.studentId}</span>
+                                                <span className="text-xs font-black text-slate-800 leading-tight mb-0.5 whitespace-nowrap">{req.studentName}</span>
+                                                <span className="text-[10px] font-bold text-slate-400">{req.studentId}</span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-6">
+                                        <td className="px-3 py-3">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-slate-700">{req.clubId?.name || 'Club'}</span>
-                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
+                                                <span className="text-xs font-bold text-slate-700 whitespace-nowrap">{req.clubId?.name || 'Club'}</span>
+                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
                                                     {new Date(req.createdAt).toLocaleDateString()}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-6 max-w-xs">
-                                            <p className="text-xs text-slate-500 truncate font-medium bg-slate-50/50 px-3 py-2 rounded-xl border border-slate-100 italic">
+                                        <td className="px-3 py-3 max-w-[10rem]">
+                                            <p className="text-[10px] text-slate-500 truncate font-medium bg-slate-50/50 px-2 py-1.5 rounded-lg border border-slate-100 italic">
                                                 "{req.message || 'No message provided'}"
                                             </p>
                                         </td>
-                                        <td className="px-4 py-6">
-                                            <div className="flex flex-col gap-1.5">
-                                                <span className="text-[10px] font-black uppercase tracking-widest flex items-center text-slate-400 mb-1">
+                                        <td className="px-3 py-3">
+                                            <div className="flex flex-col gap-1 items-start">
+                                                <span className="text-[9px] font-black uppercase tracking-widest flex items-center text-slate-400 mb-0.5">
                                                     <CurrencyDollarIcon className="h-3 w-3 mr-1" />
                                                     Payment
                                                 </span>
-                                                <div className={`inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest w-fit ${
+                                                <div className={`inline-flex items-center px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest ${
                                                     req.paymentStatus === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-200' :
                                                     req.paymentStatus === 'verified' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 
                                                     'bg-red-50 text-red-600 border border-red-200'
@@ -306,29 +306,29 @@ const AdminRequests = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-6">
-                                            <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                                        <td className="px-3 py-3">
+                                            <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
                                                 req.status === 'pending' ? 'bg-amber-100 text-amber-700 border border-amber-200/50 shadow-sm shadow-amber-100/50' :
                                                 req.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200/50 shadow-sm shadow-emerald-100/50' : 
                                                 'bg-red-100 text-red-700 border border-red-200/50 shadow-sm shadow-red-100/50'
                                             }`}>
-                                                <span className={`w-1.5 h-1.5 rounded-full mr-2 ${
+                                                <span className={`w-1 h-1 rounded-full mr-1.5 ${
                                                     req.status === 'pending' ? 'bg-amber-500' :
                                                     req.status === 'approved' ? 'bg-emerald-500' : 'bg-red-500'
                                                 }`}></span>
                                                 {req.status}
                                             </div>
                                         </td>
-                                        <td className="px-4 py-6 text-center">
-                                            <div className="flex items-center justify-center gap-2">
+                                        <td className="px-3 py-3 text-center">
+                                            <div className="flex items-center justify-center gap-1.5">
                                                 {/* Rollback Action (Visible for non-pending) */}
                                                 {req.status !== 'pending' && (
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'pending', req.studentName)}
                                                         title="Rollback to Pending"
-                                                        className="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 border border-blue-100"
+                                                        className="w-7 h-7 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 border border-blue-100"
                                                     >
-                                                        <ArrowPathIcon className="h-3.5 w-3.5" />
+                                                        <ArrowPathIcon className="h-3 w-3" />
                                                     </button>
                                                 )}
 
@@ -337,9 +337,9 @@ const AdminRequests = () => {
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'approved', req.studentName)}
                                                         title="Approve Request"
-                                                        className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-100 shadow-sm shadow-emerald-100/50"
+                                                        className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-100 shadow-sm shadow-emerald-100/50"
                                                     >
-                                                        <CheckIcon className="h-3.5 w-3.5 stroke-[3px]" />
+                                                        <CheckIcon className="h-3 w-3 stroke-[3px]" />
                                                     </button>
                                                 )}
 
@@ -348,9 +348,9 @@ const AdminRequests = () => {
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'rejected', req.studentName)}
                                                         title="Reject Request"
-                                                        className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all duration-300 border border-red-100 shadow-sm shadow-red-100/50"
+                                                        className="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all duration-300 border border-red-100 shadow-sm shadow-red-100/50"
                                                     >
-                                                        <XMarkIcon className="h-3.5 w-3.5 stroke-[3px]" />
+                                                        <XMarkIcon className="h-3 w-3 stroke-[3px]" />
                                                     </button>
                                                 )}
                                             </div>

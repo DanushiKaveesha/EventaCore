@@ -54,10 +54,7 @@ const CreateClub = () => {
   const [message, setMessage] = useState(null);
   const [focusedField, setFocusedField] = useState(null);
   const [activeTab, setActiveTab] = useState('basic');
-
-
-
-  // SLIIT Campus Locations & Suggestions
+  const [errors, setErrors] = useState({});  // SLIIT Campus Locations & Suggestions
   const sliitCampuses = [
     { 
       id: 'malabe', 
@@ -120,6 +117,24 @@ const CreateClub = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Validations
+    if (name === 'phone') {
+      if (value && !/^\d+$/.test(value)) {
+        setErrors(prev => ({ ...prev, phone: 'Only numbers are allowed' }));
+      } else {
+        setErrors(prev => { const newErr = { ...prev }; delete newErr.phone; return newErr; });
+      }
+    }
+    
+    if (name === 'email') {
+      if (value && !value.endsWith('@gmail.com')) {
+        setErrors(prev => ({ ...prev, email: 'Email must strictly be a @gmail.com address' }));
+      } else {
+        setErrors(prev => { const newErr = { ...prev }; delete newErr.email; return newErr; });
+      }
+    }
+
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setFormData(prev => ({
@@ -145,6 +160,23 @@ const CreateClub = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (Object.keys(errors).length > 0) {
+      setMessage({ type: 'error', text: 'Please resolve the validation errors before submitting' });
+      return;
+    }
+
+    if (formData.email && !formData.email.endsWith('@gmail.com')) {
+      setErrors(prev => ({ ...prev, email: 'Email must strictly be a @gmail.com address' }));
+      setMessage({ type: 'error', text: 'Please resolve the validation errors before submitting' });
+      return;
+    }
+
+    if (formData.phone && !/^\d+$/.test(formData.phone)) {
+      setErrors(prev => ({ ...prev, phone: 'Only numbers are allowed' }));
+      setMessage({ type: 'error', text: 'Please resolve the validation errors before submitting' });
+      return;
+    }
 
     if (!formData.name.trim()) {
       setMessage({ type: 'error', text: 'Please enter club name' });
@@ -382,9 +414,10 @@ const CreateClub = () => {
                           name="phone"
                           value={formData.phone}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
-                          placeholder="+94 XX XXX XXXX"
+                          className={`w-full px-4 py-3 rounded-xl border-2 transition-all outline-none ${errors.phone ? 'border-red-500 focus:ring-4 focus:ring-red-100' : 'border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'}`}
+                          placeholder="e.g. 0712345678"
                         />
+                        {errors.phone && <p className="text-red-500 text-xs mt-1.5 font-bold animate-fadeIn">{errors.phone}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -396,9 +429,10 @@ const CreateClub = () => {
                           name="email"
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
-                          placeholder="club@example.com"
+                          className={`w-full px-4 py-3 rounded-xl border-2 transition-all outline-none ${errors.email ? 'border-red-500 focus:ring-4 focus:ring-red-100' : 'border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'}`}
+                          placeholder="club@gmail.com"
                         />
+                        {errors.email && <p className="text-red-500 text-xs mt-1.5 font-bold animate-fadeIn">{errors.email}</p>}
                       </div>
                     </div>
                   </div>

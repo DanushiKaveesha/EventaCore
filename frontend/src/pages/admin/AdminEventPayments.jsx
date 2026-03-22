@@ -74,30 +74,30 @@ const AdminEventPayments = () => {
   }
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen font-sans flex flex-col lg:flex-row w-full">
+    <div className="min-h-screen bg-slate-50 flex">
       <AdminSidebar activeOverride="payments" />
-      <div className="flex-1 w-full lg:max-w-[calc(100%-320px)] overflow-x-hidden min-h-screen p-4 sm:p-8 lg:p-12">
-        <div className="mb-8 lg:mb-12">
-          <h1 className="text-3xl lg:text-4xl xl:text-5xl font-black text-gray-900 capitalize tracking-tight">Payments Management</h1>
-          <p className="text-gray-500 font-medium mt-2 lg:mt-3 text-base lg:text-lg">Monitor, update, and verify ticket bookings.</p>
+      <div className="flex-1 min-w-0 p-5 lg:p-8 overflow-y-auto">
+        <div className="mb-6">
+          <h1 className="text-xl lg:text-2xl font-black text-gray-900 tracking-tight">Event Payments</h1>
+          <p className="text-gray-400 text-xs font-medium mt-0.5">Monitor, update, and verify ticket bookings.</p>
         </div>
-        <div className="animate-fade-in space-y-6">
+        <div className="space-y-5">
       {/* Search & Filter */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
-          <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder="Search by user or event..." 
-            className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-gray-100 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium"
+        <div className="relative flex-1 min-w-[180px]">
+          <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search by user or event…"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-violet-300 outline-none placeholder:text-gray-400 font-medium text-sm shadow-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
-        <div className="flex items-center gap-3">
-          <select 
-            className="px-4 py-3 rounded-2xl border-2 border-gray-100 focus:border-blue-500 outline-none font-bold text-gray-700 bg-white"
+        <div className="flex items-center">
+          <select
+            className="px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-violet-300 outline-none font-bold text-gray-700 text-xs shadow-sm"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
           >
@@ -110,103 +110,103 @@ const AdminEventPayments = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50/50 border-b border-gray-100">
-                <th className="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">Customer Info</th>
-                <th className="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">Event Detail</th>
-                <th className="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">Payment Slip</th>
-                <th className="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">Total Amount</th>
-                <th className="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">Status</th>
-                <th className="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Verification</th>
+              <tr className="bg-gray-50/60 border-b border-gray-100">
+                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Customer Info</th>
+                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Event Detail</th>
+                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Slip</th>
+                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Amount</th>
+                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {filteredBookings.length > 0 ? (
                 filteredBookings.map((booking) => (
-                  <tr key={booking._id} className="hover:bg-blue-50/30 transition-colors group">
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
-                          <UserIcon className="w-5 h-5" />
+                  <tr key={booking._id} className="hover:bg-violet-50/20 transition-colors">
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500 border border-blue-100 shrink-0">
+                          <UserIcon className="w-4 h-4" />
                         </div>
                         <div>
-                          <p className="font-black text-gray-900 leading-tight">{booking.displayName || booking.userName || 'Unknown User'}</p>
-                          <p className="text-xs font-bold text-gray-400 tracking-tight">{booking.displayEmail || booking.userEmail || 'No Email'}</p>
+                          <p className="text-xs font-black text-gray-900 leading-tight">{booking.displayName || booking.userName || 'Unknown User'}</p>
+                          <p className="text-[10px] font-bold text-gray-400">{booking.displayEmail || booking.userEmail || 'No Email'}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 border border-purple-100 font-black text-xs">
-                          <TicketIcon className="w-5 h-5" />
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-purple-500 border border-purple-100 shrink-0">
+                          <TicketIcon className="w-4 h-4" />
                         </div>
                         <div>
-                          <p className="font-black text-gray-900 leading-tight">{booking.event?.name || 'Unknown Event'}</p>
-                          <p className="text-xs font-bold text-gray-400 tracking-tight">
+                          <p className="text-xs font-black text-gray-900 leading-tight max-w-[140px] truncate">{booking.event?.name || 'Unknown Event'}</p>
+                          <p className="text-[10px] font-bold text-gray-400">
                             {booking.tickets && booking.tickets.length > 0 ? booking.tickets.map(t => `${t.quantity}x ${t.type}`).join(', ') : 'No tickets'}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-4 py-4">
                       {booking.paymentSlip ? (
-                        <a 
-                          href={`http://localhost:5000/${booking.paymentSlip}`} 
-                          target="_blank" 
+                        <a
+                          href={`http://localhost:5000/${booking.paymentSlip}`}
+                          target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-blue-600 font-bold hover:underline"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-lg text-[10px] font-black uppercase tracking-wider transition"
                         >
-                          Preview Slip <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+                          Preview Slip <ArrowTopRightOnSquareIcon className="w-3 h-3" />
                         </a>
                       ) : (
-                        <span className="text-gray-400 font-medium italic">No slip uploaded</span>
+                        <span className="text-gray-300 italic text-[10px]">No slip</span>
                       )}
                     </td>
-                    <td className="px-8 py-6">
-                      <p className="font-black text-gray-900 text-lg">RS. {(booking.totalAmount || 0).toFixed(2)}</p>
+                    <td className="px-4 py-4">
+                      <p className="text-xs font-black text-gray-900">RS. {(booking.totalAmount || 0).toFixed(2)}</p>
                       {booking.discountAmount > 0 && (
                         <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">
                           Promo Applied (-RS. {booking.discountAmount.toFixed(2)})
                         </p>
                       )}
                     </td>
-                    <td className="px-8 py-6">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyle(booking.status)}`}>
+                    <td className="px-4 py-4">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${getStatusStyle(booking.status)}`}>
                         {booking.status || 'unknown'}
                       </span>
                     </td>
-                    <td className="px-8 py-6 text-right">
+                    <td className="px-4 py-4 text-right">
                       {booking.status === 'pending' && (
                         <div className="flex justify-end gap-2">
-                          <button 
+                          <button
                             onClick={() => handleStatusUpdate(booking._id, 'confirmed')}
-                            className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all"
-                            title="Verify & Confirm"
+                            className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition hover:scale-110"
+                            title="Confirm"
                           >
-                            <CheckCircleIcon className="w-6 h-6" />
+                            <CheckCircleIcon className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleStatusUpdate(booking._id, 'rejected')}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                            title="Reject Payment"
+                            className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg transition hover:scale-110"
+                            title="Reject"
                           >
-                            <XCircleIcon className="w-6 h-6" />
+                            <XCircleIcon className="w-4 h-4" />
                           </button>
                         </div>
                       )}
                       {booking.status !== 'pending' && (
-                         <span className="text-gray-300 italic text-xs font-bold">Processed</span>
+                        <span className="text-gray-300 italic text-[10px]">Processed</span>
                       )}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="px-8 py-20 text-center">
-                    <p className="text-gray-400 font-bold text-xl tracking-tight">No payment records found matching your filters.</p>
+                  <td colSpan="6" className="px-6 py-20 text-center">
+                    <p className="text-gray-400 font-bold text-sm">No payment records found.</p>
                   </td>
                 </tr>
               )}

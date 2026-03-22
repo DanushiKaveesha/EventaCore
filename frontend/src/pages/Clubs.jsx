@@ -105,25 +105,25 @@ const Clubs = () => {
   return (
     <div className="w-full relative">
       {/* Banner Section */}
-      <div className="bg-gradient-to-r from-[#173F8E] via-[#2F217A] to-[#40136A] rounded-[32px] pt-14 pb-28 px-10 relative overflow-hidden shadow-xl">
+      <div className="bg-gradient-to-r from-[#173F8E] via-[#2F217A] to-[#40136A] rounded-3xl pt-8 pb-16 px-6 relative overflow-hidden shadow-lg">
         {/* Subtle background glow effect */}
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-purple-500 rounded-full blur-[120px] opacity-20 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-blue-500 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-purple-500 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-blue-500 rounded-full blur-[80px] opacity-20 pointer-events-none"></div>
 
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between relative z-10">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between relative z-10 gap-4">
           <div className="max-w-xl text-white">
-            <h1 className="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight drop-shadow-md">Club Dashboard</h1>
-            <p className="text-blue-100 text-sm sm:text-base leading-relaxed opacity-90 max-w-md">
+            <h1 className="text-2xl sm:text-3xl font-black mb-2 tracking-tight drop-shadow-md">Club Dashboard</h1>
+            <p className="text-blue-100 text-xs sm:text-sm leading-relaxed opacity-90 max-w-md">
               Monitor platform metrics, curate active clubs, and organize your master club schedule with absolute precision.
             </p>
           </div>
 
-          <div className="mt-8 lg:mt-0">
+          <div className="shrink-0">
             <Link
               to="/create-club"
-              className="inline-flex items-center space-x-2 bg-white text-[#2F217A] hover:bg-blue-50 px-6 py-3.5 rounded-full font-bold shadow-lg transition-transform hover:-translate-y-0.5"
+              className="inline-flex items-center space-x-2 bg-white text-[#2F217A] hover:bg-blue-50 px-5 py-2.5 rounded-xl font-bold shadow-md transition-transform hover:-translate-y-0.5 text-sm"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path></svg>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path></svg>
               <span>Launch New Club</span>
             </Link>
           </div>
@@ -131,46 +131,46 @@ const Clubs = () => {
       </div>
 
       {/* Stats Cards Row (Overlapping the banner) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative -mt-16 z-20 mb-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="w-full relative -mt-8 z-20 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
 
-          <div className="bg-white rounded-[20px] p-6 shadow-md border border-gray-100 flex items-center space-x-5">
-            <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
-              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100 flex items-center space-x-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
             </div>
             <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Clubs</p>
-              <h3 className="text-3xl font-extrabold text-gray-900 leading-none">{totalClubs}</h3>
+              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Total Clubs</p>
+              <h3 className="text-xl font-black text-gray-900 leading-none">{totalClubs}</h3>
             </div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-6 shadow-md border border-gray-100 flex items-center space-x-5">
-            <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
-              <CalendarIcon className="w-7 h-7" />
+          <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100 flex items-center space-x-4">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+              <CalendarIcon className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Categories</p>
-              <h3 className="text-3xl font-extrabold text-gray-900 leading-none">{categoriesCount}</h3>
+              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Categories</p>
+              <h3 className="text-xl font-black text-gray-900 leading-none">{categoriesCount}</h3>
             </div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-6 shadow-md border border-gray-100 flex items-center space-x-5">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
-              <BuildingOfficeIcon className="w-7 h-7" />
+          <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100 flex items-center space-x-4">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+              <BuildingOfficeIcon className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Locations</p>
-              <h3 className="text-3xl font-extrabold text-gray-900 leading-none">{activeLocations}</h3>
+              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Locations</p>
+              <h3 className="text-xl font-black text-gray-900 leading-none">{activeLocations}</h3>
             </div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-6 shadow-md border border-gray-100 flex items-center space-x-5">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0">
-              <CheckBadgeIcon className="w-7 h-7" />
+          <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100 flex items-center space-x-4">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0">
+              <CheckBadgeIcon className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Platform Status</p>
-              <h3 className="text-xl font-extrabold text-gray-900 leading-none mt-1">Active</h3>
+              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Status</p>
+              <h3 className="text-lg font-black text-gray-900 leading-none mt-1">Active</h3>
             </div>
           </div>
 
@@ -178,38 +178,38 @@ const Clubs = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
-        <div className="bg-white rounded-[16px] p-2 flex items-center shadow-sm border border-gray-100">
-          <div className="flex items-center flex-grow bg-gray-50 rounded-xl px-4 py-3 border border-gray-100/50">
-            <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 mr-3 shrink-0" />
+      <div className="w-full mb-6">
+        <div className="bg-white rounded-2xl p-1.5 flex items-center shadow-sm border border-gray-100">
+          <div className="flex items-center flex-grow bg-slate-50/80 rounded-xl px-4 py-2 border border-gray-100/50">
+            <MagnifyingGlassIcon className="w-4 h-4 text-gray-400 mr-2 shrink-0" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search clubs by name or location..."
-              className="bg-transparent border-none outline-none w-full text-sm font-medium text-gray-700 placeholder-gray-400"
+              placeholder="Search clubs by name or location…"
+              className="bg-transparent border-none outline-none w-full text-[13px] font-medium text-gray-700 placeholder-gray-400"
             />
           </div>
-          <div className="px-6 shrink-0 hidden sm:block">
-            <span className="text-sm font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-full">
-              Showing {filteredClubs.length} results
+          <div className="px-4 shrink-0 hidden sm:block">
+            <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg uppercase tracking-widest">
+              {filteredClubs.length} Results
             </span>
           </div>
         </div>
       </div>
 
       {/* Table Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
-        <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden">
+      <div className="w-full pb-20">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="py-5 px-8 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest bg-white">Club Identification</th>
-                  <th className="py-5 px-6 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest bg-white">President & Category</th>
-                  <th className="py-5 px-6 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest bg-white">Location</th>
-                  <th className="py-5 px-6 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest bg-white">Status/Events</th>
-                  <th className="py-5 px-8 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest bg-white text-right">Actions</th>
+                <tr className="bg-gray-50/60 border-b border-gray-100">
+                  <th className="py-3 px-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Club Identification</th>
+                  <th className="py-3 px-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">President & Category</th>
+                  <th className="py-3 px-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Location</th>
+                  <th className="py-3 px-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Status/Events</th>
+                  <th className="py-3 px-4 text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -221,12 +221,12 @@ const Clubs = () => {
                   </tr>
                 ) : (
                   filteredClubs.map((club) => (
-                    <tr key={club._id} className="hover:bg-gray-50/50 transition-colors group">
+                    <tr key={club._id} className="hover:bg-violet-50/20 transition-colors group">
 
                       {/* Identity */}
-                      <td className="py-4 px-8">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-14 h-14 rounded-2xl bg-gray-100 shrink-0 overflow-hidden border border-gray-200">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-9 h-9 rounded-xl bg-gray-100 shrink-0 overflow-hidden border border-gray-200">
                             {club.image ? (
                               <img 
                                 src={club.image.startsWith('http') ? club.image : `http://localhost:5000/${club.image.replace(/\\/g, '/')}`} 
@@ -239,13 +239,13 @@ const Clubs = () => {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                <BuildingOfficeIcon className="w-6 h-6" />
+                                <BuildingOfficeIcon className="w-4 h-4" />
                               </div>
                             )}
                           </div>
-                          <div>
-                            <h3 className="font-extrabold text-gray-900 text-sm mb-1">{club.name}</h3>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-600 uppercase tracking-wide">
+                          <div className="min-w-0">
+                            <h3 className="font-black text-gray-900 text-xs mb-0.5 truncate max-w-[140px]">{club.name}</h3>
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[8px] font-black bg-blue-50 text-blue-600 uppercase tracking-widest border border-blue-100">
                               {club.category || 'General'}
                             </span>
                           </div>
@@ -253,67 +253,67 @@ const Clubs = () => {
                       </td>
 
                       {/* President & Bio */}
-                      <td className="py-4 px-6">
-                        <div className="font-semibold text-gray-800 text-sm mb-1">{club.president || 'Unassigned'}</div>
-                        <div className="text-gray-400 text-xs flex items-center font-medium">
-                          <DocumentTextIcon className="w-3.5 h-3.5 mr-1" />
-                          <span className="truncate max-w-[150px]">{club.description || 'No description provided'}</span>
+                      <td className="py-3 px-4">
+                        <div className="font-black text-gray-800 text-xs mb-0.5">{club.president || 'Unassigned'}</div>
+                        <div className="text-gray-400 text-[10px] flex items-center font-bold">
+                          <DocumentTextIcon className="w-3 h-3 mr-1 shrink-0" />
+                          <span className="truncate max-w-[140px]">{club.description || 'No description'}</span>
                         </div>
                       </td>
 
                       {/* Location */}
-                      <td className="py-4 px-6">
-                        <span className="px-3.5 py-1.5 bg-gray-100 text-gray-600 rounded-full text-[11px] font-bold tracking-wide">
+                      <td className="py-3 px-4">
+                        <span className="inline-block whitespace-nowrap px-2.5 py-1 bg-gray-50 border border-gray-100 text-gray-600 rounded-lg text-[10px] font-black tracking-wide max-w-[140px] truncate">
                           {club.location || 'TBA'}
                         </span>
                       </td>
 
                       {/* Status & Events */}
-                      <td className="py-4 px-6">
-                        <div className="flex flex-col space-y-2">
-                          <span className="inline-flex px-3.5 py-1.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[10px] font-extrabold uppercase tracking-wide w-fit">
+                      <td className="py-3 px-4">
+                        <div className="flex flex-col space-y-1.5 items-start">
+                          <span className="inline-flex px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-md text-[8px] font-black uppercase tracking-widest">
                             Active
                           </span>
-                          <span className="inline-flex items-center space-x-1 text-[11px] font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md w-fit">
-                            <CalendarIcon className="w-3.5 h-3.5" />
+                          <span className="inline-flex items-center space-x-1 text-[9px] font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">
+                            <CalendarIcon className="w-3 h-3" />
                             <span>{club.events?.length || 0} Events</span>
                           </span>
                         </div>
                       </td>
 
                       {/* Actions */}
-                      <td className="py-4 px-8 text-right">
-                        <div className="flex items-center justify-end space-x-2 opacity-100 lg:opacity-60 group-hover:opacity-100 transition-opacity">
+                      <td className="py-3 px-4 text-right">
+                        <div className="flex items-center justify-end space-x-1.5 opacity-100 transition-opacity">
                           <button
                             onClick={() => handleAddEvent(club)}
-                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-[11px] font-bold text-purple-600 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+                            className="inline-flex items-center justify-center w-8 h-8 text-purple-600 bg-purple-50 border border-purple-100 rounded-lg hover:bg-purple-100 hover:scale-105 transition-all"
+                            title="Add Event"
                           >
-                            <CalendarIcon className="w-3.5 h-3.5" />
-                            <span>Add Event</span>
+                            <CalendarIcon className="w-4 h-4" />
                           </button>
 
                           <Link
                             to={`/admin/clubs/${club._id}`}
-                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-[11px] font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                            className="inline-flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 hover:scale-105 transition-all"
+                            title="View Details"
                           >
-                            <EyeIcon className="w-3.5 h-3.5" />
-                            <span>View</span>
+                            <EyeIcon className="w-4 h-4" />
                           </Link>
 
                           <Link
                             to={`/clubs/${club._id}/edit`}
-                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-[11px] font-bold text-amber-600 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+                            className="inline-flex items-center justify-center w-8 h-8 text-amber-600 bg-amber-50 border border-amber-100 rounded-lg hover:bg-amber-100 hover:scale-105 transition-all"
+                            title="Edit Club"
                           >
-                            <PencilSquareIcon className="w-3.5 h-3.5" />
-                            <span>Edit</span>
+                            <PencilSquareIcon className="w-4 h-4" />
                           </Link>
 
                           <button
                             onClick={() => handleDelete(club._id, club.name)}
-                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-[11px] font-bold text-red-500 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                            className="inline-flex items-center justify-center w-8 h-8 text-red-500 bg-red-50 border border-red-100 rounded-lg hover:bg-red-100 hover:scale-105 transition-all"
+                            title="Drop Club"
                           >
-                            <TrashIcon className="w-3.5 h-3.5" />
-                            <span>Drop</span>
+                            <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
@@ -361,6 +361,7 @@ const Clubs = () => {
                   <input
                     type="date"
                     required
+                    min={new Date().toISOString().split('T')[0]}
                     value={eventFormData.date}
                     onChange={(e) => setEventFormData({...eventFormData, date: e.target.value})}
                     className="w-full px-5 py-3.5 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold text-gray-800"
