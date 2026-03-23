@@ -22,9 +22,7 @@ const CreateEvent = () => {
   const [creationStep, setCreationStep] = useState('selection'); // selection, form
   const [eventType, setEventType] = useState(null); // paid, free
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // handleInputChange is defined after errors state, see below
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -62,30 +60,107 @@ const CreateEvent = () => {
     setPromotions(promotions.filter((_, i) => i !== index));
   };
 
-  const validateForm = () => {
-    if (!formData.name.trim()) return "Event name is required.";
-    if (!formData.date) return "Event date is required.";
-    
-    // Check if date is in the past
-    // Ensure we parse the date correctly by splitting the YYYY-MM-DD string to avoid timezone shifts
-    const [year, month, day] = formData.date.split('-');
-    const selectedDate = new Date(year, month - 1, day);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (selectedDate < today) return "Event date cannot be in the past.";
-    
-    if (!formData.time) return "Event time is required.";
-    if (!formData.location.trim()) return "Location is required.";
-    if (!formData.description.trim()) return "Description is required.";
+  const [errors, setErrors] = useState({});
 
-    
-    return null;
+  const validateForm = () => {
+    const newErrors = {};
+
+    // --- Basic Info ---
+    if (!formData.name.trim()) {
+      newErrors.name = 'Event name is required.';
+    } else if (formData.name.trim().length < 3) {
+      newErrors.name = 'Event name must be at least 3 characters.';
+    }
+
+    if (!formData.date) {
+      newErrors.date = 'Event date is required.';
+    } else {
+      const [year, month, day] = formData.date.split('-');
+      const selectedDate = new Date(year, month - 1, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate < today) newErrors.date = 'Event date cannot be in the past.';
+    }
+
+    if (!formData.time) {
+      newErrors.time = 'Event time is required.';
+    } else if (formData.date) {
+      // If the event is today, the time must be in the future
+      const [year, month, day] = formData.date.split('-');
+      const selectedDate = new Date(year, month - 1, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate.getTime() === today.getTime()) {
+        const [h, m] = formData.time.split(':').map(Number);
+        const now = new Date();
+        if (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes())) {
+          newErrors.time = 'Event time must be in the future for today.';
+        }
+      }
+    }
+
+    if (!formData.location.trim()) {
+      newErrors.location = 'Location is required.';
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required.';
+    } else if (formData.description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters.';
+    }
+
+    // --- Ticket validation (paid only) ---
+    if (eventType === 'paid') {
+      if (tickets.length === 0) {
+        newErrors.tickets = 'Please add at least one ticket type.';
+      } else {
+        const ticketErrors = tickets.map((t) => {
+          const te = {};
+          if (t.price === '' || t.price === null) te.price = 'Price is required.';
+          else if (Number(t.price) < 0) te.price = 'Price cannot be negative.';
+          if (t.quantity === '' || t.quantity === null) te.quantity = 'Quantity is required.';
+          else if (!Number.isInteger(Number(t.quantity)) || Number(t.quantity) < 1) te.quantity = 'Quantity must be ≥ 1.';
+          return te;
+        });
+        if (ticketErrors.some((te) => Object.keys(te).length > 0)) {
+          newErrors.ticketRows = ticketErrors;
+        }
+      }
+
+      // --- Promotion validation ---
+      if (promotions.length > 0) {
+        const promoErrors = promotions.map((p) => {
+          const pe = {};
+          if (!p.code.trim()) pe.code = 'Promo code is required.';
+          else if (p.code.trim().length < 2) pe.code = 'Promo code must be at least 2 characters.';
+          if (p.discountPercentage === '' || p.discountPercentage === null) pe.discountPercentage = 'Discount is required.';
+          else if (Number(p.discountPercentage) < 1 || Number(p.discountPercentage) > 100) pe.discountPercentage = 'Discount must be between 1 and 100.';
+          return pe;
+        });
+        if (promoErrors.some((pe) => Object.keys(pe).length > 0)) {
+          newErrors.promoRows = promoErrors;
+        }
+        // Check for duplicate promo codes
+        const codes = promotions.map((p) => p.code.trim().toUpperCase()).filter(Boolean);
+        const hasDuplicates = codes.length !== new Set(codes).size;
+        if (hasDuplicates) newErrors.promos = 'Promo codes must be unique.';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear the specific field error on change
+    if (errors[e.target.name]) setErrors((prev) => { const n = { ...prev }; delete n[e.target.name]; return n; });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errorMsg = validateForm();
-    if (errorMsg) return setMessage({ text: errorMsg, type: 'error' });
+    const isValid = validateForm();
+    if (!isValid) return setMessage({ text: 'Please fix the errors below before submitting.', type: 'error' });
 
     setLoading(true);
     setMessage({ text: '', type: '' });
@@ -199,27 +274,32 @@ const CreateEvent = () => {
             <div className="grid grid-cols-1 gap-y-6 gap-x-6 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Event Name</label>
-                <input type="text" name="name" value={formData.name} onChange={handleInputChange} className={inputStyles} placeholder="Enter an engaging title" />
+                <input type="text" name="name" value={formData.name} onChange={handleInputChange} className={`${inputStyles} ${errors.name ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : ''}`} placeholder="Enter an engaging title" />
+                {errors.name && <p className="mt-1 text-xs text-red-600 font-medium flex items-center gap-1"><span>⚠</span>{errors.name}</p>}
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Date</label>
-                <input type="date" name="date" value={formData.date} onChange={handleInputChange} className={inputStyles} />
+                <input type="date" name="date" value={formData.date} onChange={handleInputChange} className={`${inputStyles} ${errors.date ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : ''}`} />
+                {errors.date && <p className="mt-1 text-xs text-red-600 font-medium flex items-center gap-1"><span>⚠</span>{errors.date}</p>}
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Time</label>
-                <input type="time" name="time" value={formData.time} onChange={handleInputChange} className={inputStyles} />
+                <input type="time" name="time" value={formData.time} onChange={handleInputChange} className={`${inputStyles} ${errors.time ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : ''}`} />
+                {errors.time && <p className="mt-1 text-xs text-red-600 font-medium flex items-center gap-1"><span>⚠</span>{errors.time}</p>}
               </div>
 
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Location</label>
-                <input type="text" name="location" value={formData.location} onChange={handleInputChange} className={inputStyles} placeholder="Venue or Online Link" />
+                <input type="text" name="location" value={formData.location} onChange={handleInputChange} className={`${inputStyles} ${errors.location ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : ''}`} placeholder="Venue or Online Link" />
+                {errors.location && <p className="mt-1 text-xs text-red-600 font-medium flex items-center gap-1"><span>⚠</span>{errors.location}</p>}
               </div>
 
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
-                <textarea rows={4} name="description" value={formData.description} onChange={handleInputChange} className={inputStyles} placeholder="Tell people what this event is about..." />
+                <textarea rows={4} name="description" value={formData.description} onChange={handleInputChange} className={`${inputStyles} ${errors.description ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : ''}`} placeholder="Tell people what this event is about..." />
+                {errors.description && <p className="mt-1 text-xs text-red-600 font-medium flex items-center gap-1"><span>⚠</span>{errors.description}</p>}
               </div>
             </div>
           </section>
@@ -261,6 +341,7 @@ const CreateEvent = () => {
                 </button>
               </div>
 
+              {errors.tickets && <p className="mb-3 text-xs text-red-600 font-medium bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-1"><span>⚠</span>{errors.tickets}</p>}
               {tickets.length === 0 ? (
                 <p className="text-gray-400 text-center py-4 bg-white rounded-xl border border-dashed border-gray-300">No tickets added yet. Click 'Add Ticket' to create tiers.</p>
               ) : (
@@ -277,11 +358,13 @@ const CreateEvent = () => {
                       </div>
                       <div className="flex-1 w-full">
                         <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Price (RS.)</label>
-                        <input type="number" value={ticket.price} onChange={(e) => updateTicket(index, 'price', e.target.value)} className={inputStyles} min="0" step="0.01" placeholder="0.00" />
+                        <input type="number" value={ticket.price} onChange={(e) => { updateTicket(index, 'price', e.target.value); if (errors.ticketRows) setErrors((p) => { const n={...p}; if(n.ticketRows) n.ticketRows[index] && delete n.ticketRows[index].price; return n; }); }} className={`${inputStyles} ${errors.ticketRows?.[index]?.price ? 'border-red-400' : ''}`} min="0" step="0.01" placeholder="0.00" />
+                        {errors.ticketRows?.[index]?.price && <p className="mt-1 text-xs text-red-600 font-medium">⚠ {errors.ticketRows[index].price}</p>}
                       </div>
                       <div className="flex-1 w-full">
                         <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Quantity</label>
-                        <input type="number" value={ticket.quantity} onChange={(e) => updateTicket(index, 'quantity', e.target.value)} className={inputStyles} min="1" placeholder="Ex: 100" />
+                        <input type="number" value={ticket.quantity} onChange={(e) => { updateTicket(index, 'quantity', e.target.value); if (errors.ticketRows) setErrors((p) => { const n={...p}; if(n.ticketRows) n.ticketRows[index] && delete n.ticketRows[index].quantity; return n; }); }} className={`${inputStyles} ${errors.ticketRows?.[index]?.quantity ? 'border-red-400' : ''}`} min="1" placeholder="Ex: 100" />
+                        {errors.ticketRows?.[index]?.quantity && <p className="mt-1 text-xs text-red-600 font-medium">⚠ {errors.ticketRows[index].quantity}</p>}
                       </div>
                       <button type="button" onClick={() => removeTicket(index)} className="p-3 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition duration-200" title="Remove Ticket">
                         <TrashIcon className="w-5 h-5" />
@@ -328,6 +411,7 @@ const CreateEvent = () => {
                 </button>
               </div>
 
+              {errors.promos && <p className="mb-3 text-xs text-red-600 font-medium bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-1"><span>⚠</span>{errors.promos}</p>}
               {promotions.length === 0 ? (
                 <p className="text-gray-400 text-center py-4 bg-white rounded-xl border border-dashed border-gray-300">No promotions added. Click 'Add Promo' to create discounts.</p>
               ) : (
@@ -336,11 +420,13 @@ const CreateEvent = () => {
                     <div key={index} className="flex flex-col sm:flex-row gap-4 items-end bg-white p-4 rounded-xl border border-gray-100 shadow-sm relative">
                       <div className="flex-1 w-full">
                         <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Promo Code</label>
-                        <input type="text" value={promo.code} onChange={(e) => updatePromotion(index, 'code', e.target.value)} className={inputStyles} placeholder="SUMMER50" />
+                        <input type="text" value={promo.code} onChange={(e) => updatePromotion(index, 'code', e.target.value)} className={`${inputStyles} ${errors.promoRows?.[index]?.code ? 'border-red-400' : ''}`} placeholder="SUMMER50" />
+                        {errors.promoRows?.[index]?.code && <p className="mt-1 text-xs text-red-600 font-medium">⚠ {errors.promoRows[index].code}</p>}
                       </div>
                       <div className="flex-1 w-full">
                         <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Discount (%)</label>
-                        <input type="number" value={promo.discountPercentage} onChange={(e) => updatePromotion(index, 'discountPercentage', e.target.value)} className={inputStyles} min="1" max="100" placeholder="Ex: 15" />
+                        <input type="number" value={promo.discountPercentage} onChange={(e) => updatePromotion(index, 'discountPercentage', e.target.value)} className={`${inputStyles} ${errors.promoRows?.[index]?.discountPercentage ? 'border-red-400' : ''}`} min="1" max="100" placeholder="Ex: 15" />
+                        {errors.promoRows?.[index]?.discountPercentage && <p className="mt-1 text-xs text-red-600 font-medium">⚠ {errors.promoRows[index].discountPercentage}</p>}
                       </div>
                       <button type="button" onClick={() => removePromotion(index)} className="p-3 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition duration-200" title="Remove Promo">
                         <TrashIcon className="w-5 h-5" />
