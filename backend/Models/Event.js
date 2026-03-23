@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const ticketSchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ["VIP", "Regular", "Early Bird"],
+    enum: ["VIP", "Regular", "Early Bird", "Free Pass"],
     required: false,
   },
   price: {

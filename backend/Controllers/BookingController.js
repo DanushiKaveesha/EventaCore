@@ -46,6 +46,7 @@ const createBooking = async (req, res) => {
     }
 
     // 4. Create Booking — store user display info directly for reliable admin display
+    const isFree = totalAmount === 0;
     const newBooking = new Booking({
       event: eventId,
       user: userId || undefined,
@@ -55,8 +56,19 @@ const createBooking = async (req, res) => {
       totalAmount,
       promotionCode,
       discountAmount,
-      status: "pending",
+      status: isFree ? "confirmed" : "pending",
     });
+
+    if (isFree) {
+        // Deduct ticket quantities immediately for free events
+        for (const item of selectedTickets) {
+            const eventTicket = event.tickets.find((t) => t.type === item.type);
+            if (eventTicket) {
+                eventTicket.quantity -= item.quantity;
+            }
+        }
+        await event.save();
+    }
 
     const savedBooking = await newBooking.save();
     res.status(201).json(savedBooking);
