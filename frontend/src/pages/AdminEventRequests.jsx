@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAdminEventRequests, updateEventRequestStatus } from '../services/eventRegistrationService';
+import AdminSidebar from './admin/AdminSidebar';
 import { 
   ClipboardDocumentListIcon, 
   CheckIcon, 
@@ -102,8 +103,13 @@ const AdminEventRequests = () => {
     );
 
     return (
-        <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 bg-slate-50/30 min-h-screen relative">
-            {/* Confirmation Modal */}
+        <div className="min-h-screen bg-slate-50 flex">
+            <AdminSidebar activeOverride="event-requests" />
+            
+            {/* Main scrollable area */}
+            <div className="flex-1 min-w-0 p-5 lg:p-8 space-y-6 overflow-y-auto relative bg-slate-50/30">
+                <div className="max-w-7xl mx-auto">
+                    {/* Confirmation Modal */}
             {confirmModal.show && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-white rounded-[32px] shadow-2xl border border-slate-100 p-10 max-w-md w-full animate-in zoom-in-95 duration-200">
@@ -305,9 +311,9 @@ const AdminEventRequests = () => {
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'pending', req.studentName)}
                                                         title="Rollback to Pending"
-                                                        className="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 border border-blue-100"
+                                                        className="w-9 h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 border border-blue-100/50 shadow-sm"
                                                     >
-                                                        <ArrowPathIcon className="h-3.5 w-3.5" />
+                                                        <ArrowPathIcon className="h-4 w-4" />
                                                     </button>
                                                 )}
 
@@ -315,9 +321,9 @@ const AdminEventRequests = () => {
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'approved', req.studentName)}
                                                         title="Approve Request"
-                                                        className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-100 shadow-sm shadow-emerald-100/50"
+                                                        className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-100 shadow-sm shadow-emerald-100/50"
                                                     >
-                                                        <CheckIcon className="h-3.5 w-3.5 stroke-[3px]" />
+                                                        <CheckIcon className="h-4 w-4 stroke-[3px]" />
                                                     </button>
                                                 )}
 
@@ -325,9 +331,9 @@ const AdminEventRequests = () => {
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'rejected', req.studentName)}
                                                         title="Reject Request"
-                                                        className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all duration-300 border border-red-100 shadow-sm shadow-red-100/50"
+                                                        className="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all duration-300 border border-red-100 shadow-sm shadow-red-100/50"
                                                     >
-                                                        <XMarkIcon className="h-3.5 w-3.5 stroke-[3px]" />
+                                                        <XMarkIcon className="h-4 w-4 stroke-[3px]" />
                                                     </button>
                                                 )}
                                             </div>
@@ -337,6 +343,8 @@ const AdminEventRequests = () => {
                             )}
                         </tbody>
                     </table>
+                </div>
+            </div>
                 </div>
             </div>
         </div>

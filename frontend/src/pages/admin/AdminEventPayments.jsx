@@ -183,14 +183,14 @@ const AdminEventPayments = () => {
                         <div className="flex justify-end gap-2">
                           <button
                             onClick={() => handleStatusUpdate(booking._id, 'confirmed')}
-                            className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition hover:scale-110"
+                            className="w-9 h-9 flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl transition-all hover:scale-110 border border-emerald-100/50"
                             title="Confirm"
                           >
                             <CheckCircleIcon className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleStatusUpdate(booking._id, 'rejected')}
-                            className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg transition hover:scale-110"
+                            className="w-9 h-9 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-500 rounded-xl transition-all hover:scale-110 border border-red-100/50"
                             title="Reject"
                           >
                             <XCircleIcon className="w-4 h-4" />

@@ -65,7 +65,7 @@ const Clubs = () => {
       // Update local state to reflect the new event count/data
       setClubs(clubs.map(c => c._id === selectedClub._id ? response : c));
       setIsEventModalOpen(false);
-      alert('Event added successfully! 🎉');
+      alert('Event added successfully!');
     } catch (err) {
       alert('Error adding event: ' + err.toString());
     } finally {
@@ -112,7 +112,7 @@ const Clubs = () => {
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between relative z-10 gap-4">
           <div className="max-w-xl text-white">
-            <h1 className="text-2xl sm:text-3xl font-black mb-2 tracking-tight drop-shadow-md">Club Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight drop-shadow-md">Club Dashboard</h1>
             <p className="text-blue-100 text-xs sm:text-sm leading-relaxed opacity-90 max-w-md">
               Monitor platform metrics, curate active clubs, and organize your master club schedule with absolute precision.
             </p>

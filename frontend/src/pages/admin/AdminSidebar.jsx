@@ -8,7 +8,8 @@ import {
   PlusIcon,
   ArrowLeftIcon,
   UserGroupIcon,
-  IdentificationIcon
+  IdentificationIcon,
+  CalendarDaysIcon
 } from '@heroicons/react/24/outline';
 
 const AdminSidebar = ({ activeOverride }) => {
@@ -60,6 +61,12 @@ const AdminSidebar = ({ activeOverride }) => {
           className={`whitespace-nowrap lg:w-full flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === 'clubs' ? 'bg-sky-500 text-white shadow-[0_8px_16px_-4px_rgba(14,165,233,0.4)]' : 'text-slate-400 hover:bg-slate-800 hover:text-white border border-transparent'}`}
         >
           <UserGroupIcon className={`w-5 h-5 mr-4 transition-colors ${activeTab === 'clubs' ? 'text-white' : 'text-slate-500'}`} /> Club Management
+        </Link>
+        <Link 
+          to="/admin/event-requests" 
+          className={`whitespace-nowrap lg:w-full flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === 'event-requests' ? 'bg-sky-500 text-white shadow-[0_8px_16px_-4px_rgba(14,165,233,0.4)]' : 'text-slate-400 hover:bg-slate-800 hover:text-white border border-transparent'}`}
+        >
+          <CalendarDaysIcon className={`w-5 h-5 mr-4 transition-colors ${activeTab === 'event-requests' ? 'text-white' : 'text-slate-500'}`} /> Club Event Management
         </Link>
 
         <Link 

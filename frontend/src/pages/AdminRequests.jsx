@@ -10,8 +10,19 @@ import {
   FunnelIcon,
   ArrowPathIcon,
   MagnifyingGlassIcon,
-  CurrencyDollarIcon
+  CurrencyDollarIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline';
+import { SparklesIcon } from '@heroicons/react/24/solid';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 const AdminRequests = () => {
     const [requests, setRequests] = useState([]);
@@ -181,37 +192,62 @@ const AdminRequests = () => {
             )}
 
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4 bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center mb-1">
-                        <ClipboardDocumentListIcon className="h-6 w-6 mr-2 text-blue-600" />
-                        Management Requests
-                    </h1>
-                    <p className="text-slate-400 text-[11px] font-bold">Manage and review all incoming club membership applications.</p>
+                    <div className="flex items-center gap-1.5 mb-1">
+                        <SparklesIcon className="h-4 w-4 text-violet-500" />
+                        <span className="text-[10px] font-black text-violet-500 uppercase tracking-widest">Enrollment Command</span>
+                    </div>
+                    <h1 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tight leading-tight">Club Membership Requests</h1>
+                    <p className="text-slate-400 text-[11px] font-bold mt-1">Review, validate, and manage incoming applications across all managed clubs.</p>
                 </div>
+            </div>
 
-                <div className="flex flex-wrap items-center gap-4">
-                    {/* Search Bar */}
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {[
+                    { label: 'Pending validation', value: requests.filter(r => r.status === 'pending').length, color: 'text-amber-600', bg: 'bg-amber-50', icon: ArrowPathIcon },
+                    { label: 'System Approved', value: requests.filter(r => r.status === 'approved').length, color: 'text-emerald-600', bg: 'bg-emerald-50', icon: CheckIcon },
+                    { label: 'Rejected Protocol', value: requests.filter(r => r.status === 'rejected').length, color: 'text-red-500', bg: 'bg-red-50', icon: XMarkIcon },
+                    { label: 'Verified Payments', value: requests.filter(r => r.paymentStatus === 'verified').length, color: 'text-blue-600', bg: 'bg-blue-50', icon: CurrencyDollarIcon },
+                ].map((stat, i) => (
+                    <div key={i} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center shrink-0`}>
+                            <stat.icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 leading-none mb-1">{stat.label}</p>
+                            <h3 className="text-xl font-black text-slate-800">{stat.value}</h3>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+
+            {/* Bulk Action Bar Placeholder (if any) */}
+
+            {/* Controls */}
+            <div className="flex flex-wrap md:items-center md:justify-between mb-4 gap-4 bg-white/50 p-2 rounded-2xl">
+                <div className="flex flex-wrap items-center gap-3">
                     <div className="relative group">
-                        <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                        <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-violet-500 transition-colors" />
                         <input 
                             type="text" 
-                            placeholder="Search requests..."
-                            className="pl-11 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-200 transition-all w-full sm:w-64"
+                            placeholder="Identify applicant..."
+                            className="pl-11 pr-6 py-2.5 bg-white border border-slate-100 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-100 transition-all w-full sm:w-56 shadow-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
 
-                    {/* Filter Pills */}
-                    <div className="bg-slate-50 p-1.5 rounded-2xl flex space-x-1 border border-slate-100">
+                    <div className="bg-white p-1 rounded-xl flex space-x-1 border border-slate-100 shadow-sm">
                         {['pending', 'approved', 'rejected', 'all'].map((s) => (
                             <button
                                 key={s}
                                 onClick={() => setFilter(s)}
-                                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
                                     filter === s 
-                                        ? 'bg-white text-slate-900 shadow-sm' 
+                                        ? 'bg-slate-900 text-white shadow-sm' 
                                         : 'text-slate-400 hover:text-slate-600'
                                 }`}
                             >
@@ -326,9 +362,9 @@ const AdminRequests = () => {
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'pending', req.studentName)}
                                                         title="Rollback to Pending"
-                                                        className="w-7 h-7 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 border border-blue-100"
+                                                        className="w-9 h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 border border-blue-100/50 shadow-sm"
                                                     >
-                                                        <ArrowPathIcon className="h-3 w-3" />
+                                                        <ArrowPathIcon className="h-4 w-4" />
                                                     </button>
                                                 )}
 
@@ -336,10 +372,15 @@ const AdminRequests = () => {
                                                 {req.status === 'pending' && (
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'approved', req.studentName)}
-                                                        title="Approve Request"
-                                                        className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-100 shadow-sm shadow-emerald-100/50"
+                                                        disabled={req.paymentStatus !== 'verified'}
+                                                        title={req.paymentStatus !== 'verified' ? "Payment must be verified first" : "Approve Request"}
+                                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border shadow-md ${
+                                                            req.paymentStatus !== 'verified' 
+                                                                ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed shadow-none' 
+                                                                : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border-emerald-100 shadow-emerald-100/50'
+                                                        }`}
                                                     >
-                                                        <CheckIcon className="h-3 w-3 stroke-[3px]" />
+                                                        <CheckIcon className="h-4 w-4 stroke-[3px]" />
                                                     </button>
                                                 )}
 
@@ -348,9 +389,9 @@ const AdminRequests = () => {
                                                     <button 
                                                         onClick={() => handleActionClick(req._id, 'rejected', req.studentName)}
                                                         title="Reject Request"
-                                                        className="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all duration-300 border border-red-100 shadow-sm shadow-red-100/50"
+                                                        className="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all duration-300 border border-red-100 shadow-sm shadow-red-100/50"
                                                     >
-                                                        <XMarkIcon className="h-3 w-3 stroke-[3px]" />
+                                                        <XMarkIcon className="h-4 w-4 stroke-[3px]" />
                                                     </button>
                                                 )}
                                             </div>

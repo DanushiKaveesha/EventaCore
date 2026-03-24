@@ -16,6 +16,16 @@ import {
 import { SparklesIcon } from '@heroicons/react/24/solid';
 import { Link } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend
+} from 'recharts';
+
+const COLORS = ['#38bdf8', '#34d399', '#94a3b8'];
 
 const STATUS_CONFIG = {
   upcoming: { label: 'Upcoming', dot: 'bg-sky-400', badge: 'bg-sky-50 text-sky-700 border-sky-200' },
@@ -107,6 +117,41 @@ const AdminEvents = () => {
             </div>
           ))}
         </div>
+
+        {/* Analytics Section */}
+        {events.length > 0 && (
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm h-64 flex flex-col">
+            <h2 className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <ChartBarIcon className="w-4 h-4 text-violet-500" />
+              Event Status Distribution
+            </h2>
+            <div className="flex-1 min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: 'Upcoming', value: events.filter(e => e.status === 'upcoming').length },
+                        { name: 'Ongoing', value: events.filter(e => e.status === 'ongoing').length },
+                        { name: 'Completed', value: events.filter(e => e.status === 'completed').length }
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={70}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {COLORS.map((color, index) => (
+                        <Cell key={`cell-${index}`} fill={color} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Legend verticalAlign="right" align="right" layout="vertical" iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+          </div>
+        )}
 
         {/* Search + Filter */}
         <div className="flex flex-wrap gap-3">
@@ -207,10 +252,10 @@ const AdminEvents = () => {
                         {/* Actions */}
                         <td className="px-5 py-4 whitespace-nowrap text-right">
                           <div className="flex justify-end gap-2">
-                            <Link to={`/edit-event/${event._id}`} className="p-2 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-lg transition-all hover:scale-110" title="Edit">
+                            <Link to={`/edit-event/${event._id}`} className="w-9 h-9 flex items-center justify-center bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl transition-all hover:scale-110 border border-amber-100/50" title="Edit">
                               <PencilIcon className="h-4 w-4" />
                             </Link>
-                            <button onClick={() => handleDelete(event._id)} className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg transition-all hover:scale-110" title="Delete">
+                            <button onClick={() => handleDelete(event._id)} className="w-9 h-9 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-500 rounded-xl transition-all hover:scale-110 border border-red-100/50" title="Delete">
                               <TrashIcon className="h-4 w-4" />
                             </button>
                           </div>
