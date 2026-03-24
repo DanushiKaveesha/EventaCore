@@ -16,6 +16,7 @@ import AdminClubs from './pages/admin/AdminClubs';
 import AdminMemberships from './pages/admin/AdminMemberships';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
+import ContactUs from './pages/ContactUs';
 
 function App() {
   const location = useLocation();
@@ -28,6 +29,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<ContactUs />} />
           <Route path="/create-event" element={<CreateEvent />} />
           <Route path="/edit-event/:id" element={<EditEvent />} />
           <Route path="/events" element={<Events />} />
