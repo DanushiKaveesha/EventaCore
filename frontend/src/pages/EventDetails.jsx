@@ -10,8 +10,11 @@ import {
   ArrowLeftIcon,
   CheckCircleIcon,
   CloudArrowUpIcon,
-  TagIcon
+  TagIcon,
+  HeartIcon
 } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
+import useWishlist from '../hooks/useWishlist';
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -19,6 +22,7 @@ const EventDetails = () => {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isWishlisted, toggleWishlist } = useWishlist();
 
   // Booking state
   const [selectedTickets, setSelectedTickets] = useState({}); // { type: quantity }
@@ -159,6 +163,16 @@ const EventDetails = () => {
               alt={event.name}
               className="w-full h-full object-cover"
             />
+            {/* Wishlist button */}
+            <button
+              onClick={() => toggleWishlist(event._id)}
+              className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-lg hover:scale-110 active:scale-95 transition-transform duration-200"
+              aria-label={isWishlisted(event._id) ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              {isWishlisted(event._id)
+                ? <HeartSolid className="w-6 h-6 text-rose-500" />
+                : <HeartIcon className="w-6 h-6 text-gray-400" />}
+            </button>
           </div>
 
           <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 leading-tight">{event.name}</h1>
