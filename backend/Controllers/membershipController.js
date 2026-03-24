@@ -47,6 +47,15 @@ exports.getMyRequests = async (req, res) => {
 exports.updateRequest = async (req, res) => {
     try {
         const { id } = req.params;
+
+        if (req.body.status === 'approved') {
+            const membership = await Membership.findById(id);
+            if (!membership) return res.status(404).json({ message: "Request not found" });
+            if (membership.paymentStatus !== 'verified') {
+                return res.status(400).json({ message: "Cannot approve membership: Payment is not verified." });
+            }
+        }
+
         const updatedRequest = await Membership.findByIdAndUpdate(
             id,
             req.body,
