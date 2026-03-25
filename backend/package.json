@@ -1,20 +1,28 @@
 {
-  "name": "backend",
+  "name": "eventracore-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "description": "EventraCore backend",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^6.0.0",
-    "cors": "^2.8.6",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
     "dotenv": "^17.3.1",
-    "express": "^5.2.1",
-    "express-validator": "^7.3.1",
-    "mongoose": "^9.2.3"
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.1",
+    "multer": "^2.1.1",
+    "nodemailer": "^7.0.6",
+    "express-validator": "^7.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

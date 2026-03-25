@@ -1,19 +1,37 @@
-const { validationResult } = require('express-validator');
-const ReviewRating = require('../models/ReviewRating');
+import { validationResult } from 'express-validator';
+import ReviewRating from '../models/ReviewRating.js';
 
-// @desc    Add a new review & rating for an event
-// @route   POST /api/reviews
-// @access  Public (Can be protected if auth is added)
-const addReview = async (req, res) => {
+const getDisplayName = (user) => {
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim();
+  return fullName || user?.username || 'User';
+};
+
+export const addReview = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { eventId, userId, userName, rating, message } = req.body;
+    const { eventId, rating, message } = req.body;
+    const userId = req.user._id.toString();
+    const userName = getDisplayName(req.user);
 
-    const review = new ReviewRating({
+    let review = await ReviewRating.findOne({ eventId, userId });
+
+    if (review) {
+      review.rating = rating;
+      review.message = message;
+      review.userName = userName;
+
+      const updatedReview = await review.save();
+      return res.status(200).json({
+        ...updatedReview.toObject(),
+        wasUpdated: true,
+      });
+    }
+
+    review = new ReviewRating({
       eventId,
       userId,
       userName,
@@ -22,32 +40,33 @@ const addReview = async (req, res) => {
     });
 
     const savedReview = await review.save();
-    res.status(201).json(savedReview);
+    res.status(201).json({
+      ...savedReview.toObject(),
+      wasUpdated: false,
+    });
   } catch (error) {
     console.error('Error adding review:', error);
     res.status(500).json({ error: 'Server error while adding review' });
   }
 };
 
-// @desc    Get all reviews for a specific event
-// @route   GET /api/reviews/:eventId
-// @access  Public
-const getEventReviews = async (req, res) => {
+export const getEventReviews = async (req, res) => {
   try {
     const { eventId } = req.params;
-
     const reviews = await ReviewRating.find({ eventId }).sort({ createdAt: -1 });
-    
-    // Calculate average rating
+
     const count = reviews.length;
-    const averageRating = count > 0 
-      ? (reviews.reduce((acc, curr) => acc + curr.rating, 0) / count).toFixed(1) 
-      : 0;
+    const averageRating =
+      count > 0
+        ? (
+            reviews.reduce((acc, curr) => acc + curr.rating, 0) / count
+          ).toFixed(1)
+        : 0;
 
     res.status(200).json({
       reviews,
       count,
-      averageRating: parseFloat(averageRating)
+      averageRating: parseFloat(averageRating),
     });
   } catch (error) {
     console.error('Error fetching reviews:', error);
@@ -55,7 +74,75 @@ const getEventReviews = async (req, res) => {
   }
 };
 
-module.exports = {
-  addReview,
-  getEventReviews,
+export const getAllReviews = async (req, res) => {
+  try {
+    const reviews = await ReviewRating.find().sort({ createdAt: -1 });
+    res.status(200).json(reviews);
+  } catch (error) {
+    console.error('Error fetching all reviews:', error);
+    res.status(500).json({ error: 'Server error while fetching all reviews' });
+  }
+};
+
+export const getReviewById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const review = await ReviewRating.findById(id);
+
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    res.status(200).json(review);
+  } catch (error) {
+    console.error('Error fetching review by ID:', error);
+    res.status(500).json({ error: 'Server error while fetching review' });
+  }
+};
+
+export const updateReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rating, message } = req.body;
+
+    const review = await ReviewRating.findById(id);
+
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    if (rating !== undefined) {
+      review.rating = rating;
+    }
+
+    if (message !== undefined) {
+      review.message = message;
+    }
+
+    const updatedReview = await review.save();
+    res.status(200).json(updatedReview);
+  } catch (error) {
+    console.error('Error updating review:', error);
+    res.status(500).json({ error: 'Server error while updating review' });
+  }
+};
+
+export const deleteReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const review = await ReviewRating.findById(id);
+
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    await review.deleteOne();
+
+    res.status(200).json({ message: 'Review deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting review:', error);
+    res.status(500).json({ error: 'Server error while deleting review' });
+  }
 };

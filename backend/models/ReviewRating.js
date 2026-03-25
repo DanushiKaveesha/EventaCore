@@ -1,18 +1,18 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const reviewRatingSchema = new mongoose.Schema(
   {
     eventId: {
       type: String,
       required: true,
-      index: true
+      index: true,
     },
     userId: {
-      type: String, // Or ObjectId if using User authentication properly, String is flexible for now
+      type: String,
       required: true,
     },
     userName: {
-      type: String, // To display the reviewer name
+      type: String,
       required: true,
     },
     rating: {
@@ -30,4 +30,6 @@ const reviewRatingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('ReviewRating', reviewRatingSchema);
+reviewRatingSchema.index({ eventId: 1, userId: 1 }, { unique: true });
+
+export default mongoose.model('ReviewRating', reviewRatingSchema);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getEventById } from '../services/eventService';
 import { getEventReviews, addReview } from '../services/reviewService';
@@ -9,6 +9,7 @@ import {
     StarIcon as StarIconSolid
 } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
+import { getCurrentUser } from '../utils/getCurrentUser';
 
 const EventDetails = () => {
     const { eventId } = useParams();
@@ -24,24 +25,27 @@ const EventDetails = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
 
+    const currentUser = useMemo(() => getCurrentUser(), []);
+
+    const loadReviews = useCallback(async () => {
+        const reviewsData = await getEventReviews(eventId);
+        setReviews(reviewsData.reviews || []);
+        setAverageRating(reviewsData.averageRating || 0);
+        setReviewStatsCount(reviewsData.count || 0);
+    }, [eventId]);
+
     useEffect(() => {
         const fetchDetails = async () => {
             try {
-                // Fetch event details
                 const eventData = await getEventById(eventId);
                 setEvent(eventData);
-
-                // Fetch reviews
-                const reviewsData = await getEventReviews(eventId);
-                setReviews(reviewsData.reviews || []);
-                setAverageRating(reviewsData.averageRating || 0);
-                setReviewStatsCount(reviewsData.count || 0);
+                await loadReviews();
             } catch (err) {
                 console.error("Failed to load event or reviews", err);
             }
         };
         fetchDetails();
-    }, [eventId]);
+    }, [eventId, loadReviews]);
 
     const handleSubmitReview = async (e) => {
         e.preventDefault();
@@ -59,36 +63,44 @@ const EventDetails = () => {
         setIsSubmitting(true);
 
         try {
-            // Using a hardcoded mock user for now, since auth is not specified
-            const newReview = await addReview({
-                eventId: eventId,
-                userId: 'user_123',
-                userName: 'John Doe',
-                rating: rating,
-                message: message
+            if (!currentUser?._id || !currentUser?.token) {
+                setErrorMsg('Please log in to post a review.');
+                setIsSubmitting(false);
+                return;
+            }
+
+            await addReview({
+                eventId,
+                rating,
+                message,
             });
 
-            // Add the new review to the top of the list locally
-            const updatedReviews = [newReview, ...reviews];
-            setReviews(updatedReviews);
-            
-            // Recalculate average locally
-            const newCount = reviewStatsCount + 1;
-            const newTotal = (averageRating * reviewStatsCount) + rating;
-            setAverageRating(Number((newTotal / newCount).toFixed(1)));
-            setReviewStatsCount(newCount);
+            await loadReviews();
 
-            // Reset form
             setRating(0);
             setMessage('');
             setHoverRating(0);
         } catch (err) {
             console.error(err);
-            setErrorMsg("Failed to submit review. Make sure the backend is running.");
+            setErrorMsg(err?.response?.data?.message || err?.response?.data?.error || 'Failed to submit review. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
     };
+
+
+    const existingUserReview = useMemo(() => {
+        if (!currentUser?._id) return null;
+        return reviews.find((review) => review.userId === currentUser._id) || null;
+    }, [currentUser, reviews]);
+
+
+    useEffect(() => {
+        if (existingUserReview) {
+            setRating(Number(existingUserReview.rating) || 0);
+            setMessage(existingUserReview.message || '');
+        }
+    }, [existingUserReview]);
 
     if (!event) return (
         <div className="flex justify-center items-center h-screen bg-gray-50">
@@ -176,7 +188,17 @@ const EventDetails = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         {/* Write a Review Form */}
                         <div className="lg:col-span-1 bg-gray-50 p-8 rounded-3xl border border-gray-200 h-fit">
-                            <h3 className="text-xl font-bold text-gray-900 mb-6 font-sans">Leave a Review</h3>
+                            <h3 className="text-xl font-bold text-gray-900 mb-6 font-sans">{existingUserReview ? 'Update Your Review' : 'Leave a Review'}</h3>
+                            {existingUserReview && (
+                                <div className="p-3 bg-blue-50 text-blue-700 text-sm rounded-xl mb-4 font-semibold border border-blue-100">
+                                    You already reviewed this event. Submitting again will update your existing review.
+                                </div>
+                            )}
+                            {!currentUser?.token && (
+                                <div className="p-3 bg-amber-50 text-amber-700 text-sm rounded-xl mb-4 font-semibold border border-amber-100">
+                                    Please log in first to submit a review.
+                                </div>
+                            )}
                             {errorMsg && <div className="p-3 bg-red-100 text-red-700 text-sm rounded-xl mb-4 font-semibold">{errorMsg}</div>}
                             <form onSubmit={handleSubmitReview}>
                                 <div className="mb-6">
@@ -219,7 +241,7 @@ const EventDetails = () => {
                                     disabled={isSubmitting}
                                     className="w-full bg-blue-600 text-white font-bold py-4 px-6 rounded-2xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5"
                                 >
-                                    {isSubmitting ? 'Posting...' : 'Post Review'}
+                                    {isSubmitting ? 'Saving...' : existingUserReview ? 'Update Review' : 'Post Review'}
                                 </button>
                             </form>
                         </div>
