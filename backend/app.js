@@ -14,15 +14,15 @@ app.get("/", (req, res) => {
   res.send("Eventra Backend is running 🚀");
 });
 
+// Import Routes
+const reviewRoutes = require('./routes/reviewRoutes');
+
+// Use Routes
+app.use('/api/reviews', reviewRoutes);
+
 // MongoDB connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("✅ MongoDB connected");
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
-  });
+const connectDB = require('./config/db');
+connectDB();
 
 // Server
 const PORT = process.env.PORT || 5000;

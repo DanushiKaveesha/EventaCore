@@ -1,6 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #2563EB;
+  --color-secondary: #7C3AED;
+  --color-accent: #F59E0B;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-warning: #F97316;
+  --color-info: #3B82F6;
+  --color-light: #F9FAFB;
+  --color-dark: #111827;
+  --color-grayborder: #E5E7EB;
+}
 
 :root {
   --text: #6b6375;
@@ -108,15 +119,10 @@
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+  width: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
 }
 
 @layer components {
