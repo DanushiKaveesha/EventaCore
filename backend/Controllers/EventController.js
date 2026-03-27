@@ -20,6 +20,24 @@ exports.createEvent = async (req, res) => {
       eventData.imageUrl = `uploads/${req.file.filename}`;
     }
 
+    // Server-side validation for past date/time
+    const selectedDate = new Date(date);
+    selectedDate.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      return res.status(400).json({ message: "Event date cannot be in the past." });
+    }
+
+    if (selectedDate.getTime() === today.getTime()) {
+      const [h, m] = time.split(':').map(Number);
+      const now = new Date();
+      if (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes())) {
+        return res.status(400).json({ message: "Event time cannot be in the past for today." });
+      }
+    }
+
     const event = new Event(eventData);
     const savedEvent = await event.save();
     res.status(201).json(savedEvent);
@@ -80,6 +98,24 @@ exports.updateEvent = async (req, res) => {
     // Update image if a new one was uploaded
     if (req.file) {
       event.imageUrl = `uploads/${req.file.filename}`;
+    }
+
+    // Server-side validation for past date/time
+    const selectedDate = new Date(event.date);
+    selectedDate.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      return res.status(400).json({ message: "Event date cannot be in the past." });
+    }
+
+    if (selectedDate.getTime() === today.getTime()) {
+      const [h, m] = event.time.split(':').map(Number);
+      const now = new Date();
+      if (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes())) {
+        return res.status(400).json({ message: "Event time cannot be in the past for today." });
+      }
     }
 
     const updatedEvent = await event.save();
