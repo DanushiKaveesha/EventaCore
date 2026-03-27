@@ -11,7 +11,8 @@ const userRoutes = require("./Routes/UserRoute");
 
 const clubRoutes = require("./Routes/clubRoutes");
 const membershipRoutes = require("./Routes/membershipRoutes");
-const notificationRoutes = require("./Routes/notificationRoutes");
+
+
 const eventRegistrationRoutes = require("./Routes/eventRegistrationRoutes");
 const bookmarkRoutes = require("./Routes/bookmarkRoutes");
 
@@ -37,7 +38,8 @@ app.use("/api/users", userRoutes);
 
 app.use("/api/clubs", clubRoutes);
 app.use("/api/memberships", membershipRoutes);
-app.use("/api/notifications", notificationRoutes);
+
+
 app.use("/api/event-registrations", eventRegistrationRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
 

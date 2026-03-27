@@ -41,6 +41,7 @@ const clubSchema = new mongoose.Schema(
             {
                 name: { type: String, required: true },
                 date: { type: Date, required: true },
+                startTime: { type: String, required: false },
                 description: { type: String, required: true },
                 location: { type: String, required: false }
             }
