@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
+import AdminStats from '../../components/admin/AdminStats';
 
 const AdminEvents = () => {
   const [events, setEvents] = useState([]);
@@ -105,6 +106,29 @@ const AdminEvents = () => {
               <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100 flex items-center space-x-5 transform transition duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <div className="p-4 bg-gray-50 text-gray-600 rounded-2xl"><CheckCircleIcon className="w-8 h-8" /></div>
                 <div><p className="text-sm font-bold text-gray-400 uppercase tracking-wider">Completed</p><p className="text-3xl font-black text-gray-900">{events.filter(e => e.status === 'completed').length}</p></div>
+              </div>
+            </div>
+            
+            <div className="flex flex-col xl:flex-row gap-8 mb-10">
+              <div className="flex-1">
+                <AdminStats events={events} />
+              </div>
+              <div className="xl:w-1/3 bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-8 flex flex-col justify-center">
+                <h3 className="text-xl font-black text-gray-900 mb-4 px-2">Quick Tips</h3>
+                <ul className="space-y-4 text-sm font-medium text-gray-500">
+                  <li className="flex items-start gap-3 p-3 rounded-2xl hover:bg-blue-50/50 transition-colors">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></div>
+                    Keep event statuses updated to ensure accurate reporting.
+                  </li>
+                  <li className="flex items-start gap-3 p-3 rounded-2xl hover:bg-emerald-50/50 transition-colors">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></div>
+                    Ongoing events move to completed automatically after the date pass.
+                  </li>
+                  <li className="flex items-start gap-3 p-3 rounded-2xl hover:bg-amber-50/50 transition-colors">
+                    <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></div>
+                    Promoted events often see 2.4x higher registration rates.
+                  </li>
+                </ul>
               </div>
             </div>
 

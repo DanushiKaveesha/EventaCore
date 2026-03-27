@@ -94,7 +94,7 @@ const CreateEvent = () => {
         const [h, m] = formData.time.split(':').map(Number);
         const now = new Date();
         if (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes())) {
-          newErrors.time = 'Event time must be in the future for today.';
+          newErrors.time = 'Event time cannot be in the past for today.';
         }
       }
     }
@@ -280,7 +280,14 @@ const CreateEvent = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Date</label>
-                <input type="date" name="date" value={formData.date} onChange={handleInputChange} className={`${inputStyles} ${errors.date ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : ''}`} />
+                <input 
+                  type="date" 
+                  name="date" 
+                  min={new Date().toISOString().split('T')[0]}
+                  value={formData.date} 
+                  onChange={handleInputChange} 
+                  className={`${inputStyles} ${errors.date ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : ''}`} 
+                />
                 {errors.date && <p className="mt-1 text-xs text-red-600 font-medium flex items-center gap-1"><span>⚠</span>{errors.date}</p>}
               </div>
 

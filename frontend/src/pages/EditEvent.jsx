@@ -20,6 +20,7 @@ const EditEvent = () => {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [errors, setErrors] = useState({});
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -50,6 +51,8 @@ const EditEvent = () => {
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear the specific field error on change
+    if (errors[e.target.name]) setErrors((prev) => { const n = { ...prev }; delete n[e.target.name]; return n; });
   };
 
   const handleImageChange = (e) => {
@@ -89,33 +92,73 @@ const EditEvent = () => {
   };
 
   const validateForm = () => {
-    if (!formData.name.trim()) return "Event name is required.";
-    if (!formData.date) return "Event date is required.";
-    if (!formData.time) return "Event time is required.";
-    if (!formData.location.trim()) return "Location is required.";
-    if (!formData.description.trim()) return "Description is required.";
+    const newErrors = {};
 
-    if (tickets.length === 0) return "At least one ticket type is required.";
-    
-    for (const t of tickets) {
-      if (t.price === '' || isNaN(t.price) || Number(t.price) < 0) return `Price for ${t.type} ticket must be a valid number (0 or greater).`;
-      if (t.quantity === '' || isNaN(t.quantity) || Number(t.quantity) <= 0) return `Quantity for ${t.type} ticket must be greater than 0.`;
+    if (!formData.name.trim()) {
+      newErrors.name = "Event name is required.";
     }
 
-    for (const p of promotions) {
-      if (!p.code.trim()) return "Promotion code cannot be empty.";
-      if (p.discountPercentage === '' || isNaN(p.discountPercentage) || Number(p.discountPercentage) <= 0 || Number(p.discountPercentage) > 100) {
-        return `Discount percentage for code ${p.code} must be between 1 and 100.`;
+    if (!formData.date) {
+      newErrors.date = "Event date is required.";
+    } else {
+      const [year, month, day] = formData.date.split('-');
+      const selectedDate = new Date(year, month - 1, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate < today) newErrors.date = "Event date cannot be in the past.";
+    }
+
+    if (!formData.time) {
+      newErrors.time = "Event time is required.";
+    } else if (formData.date) {
+      const [year, month, day] = formData.date.split('-');
+      const selectedDate = new Date(year, month - 1, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate.getTime() === today.getTime()) {
+        const [h, m] = formData.time.split(':').map(Number);
+        const now = new Date();
+        if (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes())) {
+          newErrors.time = "Event time cannot be in the past for today.";
+        }
       }
     }
+
+    if (!formData.location.trim()) newErrors.location = "Location is required.";
+    if (!formData.description.trim()) newErrors.description = "Description is required.";
+
+    if (tickets.length === 0) {
+      newErrors.tickets = "At least one ticket type is required.";
+    } else {
+      const ticketErrors = tickets.map((t) => {
+        const te = {};
+        if (t.price === '' || isNaN(t.price) || Number(t.price) < 0) te.price = "Price must be ≥ 0.";
+        if (t.quantity === '' || isNaN(t.quantity) || Number(t.quantity) <= 0) te.quantity = "Qty must be > 0.";
+        return te;
+      });
+      if (ticketErrors.some(te => Object.keys(te).length > 0)) newErrors.ticketRows = ticketErrors;
+    }
+
+    if (promotions.length > 0) {
+      const promoErrors = promotions.map((p) => {
+        const pe = {};
+        if (!p.code.trim()) pe.code = "Required.";
+        if (p.discountPercentage === '' || isNaN(p.discountPercentage) || Number(p.discountPercentage) <= 0 || Number(p.discountPercentage) > 100) {
+          pe.discountPercentage = "1-100%.";
+        }
+        return pe;
+      });
+      if (promoErrors.some(pe => Object.keys(pe).length > 0)) newErrors.promoRows = promoErrors;
+    }
     
-    return null;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errorMsg = validateForm();
-    if (errorMsg) return setMessage({ text: errorMsg, type: 'error' });
+    const isValid = validateForm();
+    if (!isValid) return setMessage({ text: 'Please fix the errors below before submitting.', type: 'error' });
 
     setLoading(true);
     setMessage({ text: '', type: '' });
@@ -168,27 +211,39 @@ const EditEvent = () => {
             <div className="grid grid-cols-1 gap-y-6 gap-x-6 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Event Name</label>
-                <input type="text" name="name" value={formData.name} onChange={handleInputChange} className={inputStyles} placeholder="Enter an engaging title" />
+                <input type="text" name="name" value={formData.name} onChange={handleInputChange} className={`${inputStyles} ${errors.name ? 'border-red-400 focus:border-red-500' : ''}`} placeholder="Enter an engaging title" />
+                {errors.name && <p className="mt-1 text-xs text-red-600 font-medium">⚠ {errors.name}</p>}
               </div>
-
+ 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Date</label>
-                <input type="date" name="date" value={formData.date} onChange={handleInputChange} className={inputStyles} />
+                <input 
+                  type="date" 
+                  name="date" 
+                  min={new Date().toISOString().split('T')[0]}
+                  value={formData.date} 
+                  onChange={handleInputChange} 
+                  className={`${inputStyles} ${errors.date ? 'border-red-400 focus:border-red-500' : ''}`} 
+                />
+                {errors.date && <p className="mt-1 text-xs text-red-600 font-medium">⚠ {errors.date}</p>}
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Time</label>
-                <input type="time" name="time" value={formData.time} onChange={handleInputChange} className={inputStyles} />
+                <input type="time" name="time" value={formData.time} onChange={handleInputChange} className={`${inputStyles} ${errors.time ? 'border-red-400 focus:border-red-500' : ''}`} />
+                {errors.time && <p className="mt-1 text-xs text-red-600 font-medium">⚠ {errors.time}</p>}
               </div>
 
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Location</label>
-                <input type="text" name="location" value={formData.location} onChange={handleInputChange} className={inputStyles} placeholder="Venue or Online Link" />
+                <input type="text" name="location" value={formData.location} onChange={handleInputChange} className={`${inputStyles} ${errors.location ? 'border-red-400 focus:border-red-500' : ''}`} placeholder="Venue or Online Link" />
+                {errors.location && <p className="mt-1 text-xs text-red-600 font-medium">⚠ {errors.location}</p>}
               </div>
 
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
-                <textarea rows={4} name="description" value={formData.description} onChange={handleInputChange} className={inputStyles} placeholder="Tell people what this event is about..." />
+                <textarea rows={4} name="description" value={formData.description} onChange={handleInputChange} className={`${inputStyles} ${errors.description ? 'border-red-400 focus:border-red-500' : ''}`} placeholder="Tell people what this event is about..." />
+                {errors.description && <p className="mt-1 text-xs text-red-600 font-medium">⚠ {errors.description}</p>}
               </div>
             </div>
           </section>

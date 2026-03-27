@@ -17,7 +17,7 @@ const AdminSidebar = ({ activeOverride }) => {
 
   return (
     <div className="w-full lg:w-[320px] bg-[#0f172a] text-white shadow-2xl z-20 lg:sticky lg:top-0 lg:h-screen flex flex-col flex-shrink-0">
-      
+
       {/* Sidebar Header with Logo */}
       <div className="p-4 lg:p-6 flex items-center justify-between lg:block border-b lg:border-b-0 border-white/5">
         <div className="flex flex-row items-center gap-4 lg:mb-4">
@@ -43,34 +43,34 @@ const AdminSidebar = ({ activeOverride }) => {
 
       {/* Navigation Tabs */}
       <nav className="flex-1 px-4 lg:px-5 py-2 lg:py-4 flex flex-row lg:flex-col overflow-x-auto lg:overflow-y-auto gap-2 no-scrollbar border-b border-white/5 lg:border-none">
-        <Link 
-          to="/admin/events" 
+        <Link
+          to="/admin/events"
           className={`whitespace-nowrap lg:w-full flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === 'events' ? 'bg-sky-500 text-white shadow-[0_8px_16px_-4px_rgba(14,165,233,0.4)]' : 'text-slate-400 hover:bg-slate-800 hover:text-white border border-transparent'}`}
         >
           <CalendarIcon className={`w-5 h-5 mr-4 transition-colors ${activeTab === 'events' ? 'text-white' : 'text-slate-500'}`} /> Event Management
         </Link>
-        <Link 
-          to="/admin/payments" 
+        <Link
+          to="/admin/payments"
           className={`whitespace-nowrap lg:w-full flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === 'payments' ? 'bg-sky-500 text-white shadow-[0_8px_16px_-4px_rgba(14,165,233,0.4)]' : 'text-slate-400 hover:bg-slate-800 hover:text-white border border-transparent'}`}
         >
           <CreditCardIcon className={`w-5 h-5 mr-4 transition-colors ${activeTab === 'payments' ? 'text-white' : 'text-slate-500'}`} /> Payment Management
         </Link>
-        <Link 
-          to="/admin/clubs" 
+        <Link
+          to="/admin/clubs"
           className={`whitespace-nowrap lg:w-full flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === 'clubs' ? 'bg-sky-500 text-white shadow-[0_8px_16px_-4px_rgba(14,165,233,0.4)]' : 'text-slate-400 hover:bg-slate-800 hover:text-white border border-transparent'}`}
         >
           <UserGroupIcon className={`w-5 h-5 mr-4 transition-colors ${activeTab === 'clubs' ? 'text-white' : 'text-slate-500'}`} /> Club Management
         </Link>
 
-        <Link 
-          to="/admin/memberships" 
+        <Link
+          to="/admin/memberships"
           className={`whitespace-nowrap lg:w-full flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === 'memberships' ? 'bg-sky-500 text-white shadow-[0_8px_16px_-4px_rgba(14,165,233,0.4)]' : 'text-slate-400 hover:bg-slate-800 hover:text-white border border-transparent'}`}
         >
           <IdentificationIcon className={`w-5 h-5 mr-4 transition-colors ${activeTab === 'memberships' ? 'text-white' : 'text-slate-500'}`} /> Membership Management
         </Link>
 
-        <Link  
-          to="/admin/users" 
+        <Link
+          to="/admin/users"
           className={`whitespace-nowrap lg:w-full flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === 'users' ? 'bg-sky-500 text-white shadow-[0_8px_16px_-4px_rgba(14,165,233,0.4)]' : 'text-slate-400 hover:bg-slate-800 hover:text-white border border-transparent'}`}
         >
           <UsersIcon className={`w-5 h-5 mr-4 transition-colors ${activeTab === 'users' ? 'text-white' : 'text-slate-500'}`} /> Users Management
