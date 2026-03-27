@@ -5,7 +5,6 @@ import {
   HomeIcon, 
   UserGroupIcon, 
   CalendarIcon,
-  BellIcon,
   UserCircleIcon,
   ClipboardDocumentListIcon,
   CurrencyDollarIcon,
@@ -16,46 +15,19 @@ import {
   ShieldCheckIcon,
   ShoppingBagIcon
 } from '@heroicons/react/24/outline';
-import { getNotifications, markAsRead } from '../../services/notificationService';
 import { useAuth } from '../../hooks/useAuth';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
   
-  const [notifications, setNotifications] = useState([]);
-  const [showNotifications, setShowNotifications] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
     // Determine userId based on context or a mockup identifier
     const userId = location.pathname.includes('/admin') ? 'admin' : 'ST12345';
-    fetchNotifications(userId);
-    
-    // Refresh every 30s
-    const interval = setInterval(() => fetchNotifications(userId), 30000);
-    return () => clearInterval(interval);
+    // Notifications were previously fetched here
   }, [location.pathname]);
-
-  const fetchNotifications = async (userId) => {
-    try {
-      const data = await getNotifications(userId);
-      setNotifications(data);
-    } catch (err) {
-      console.error('Failed to fetch notifications:', err);
-    }
-  };
-
-  const unreadCount = notifications.filter(n => !n.isRead).length;
-
-  const handleMarkRead = async (id) => {
-    try {
-      await markAsRead(id);
-      setNotifications(notifications.map(n => n._id === id ? { ...n, isRead: true } : n));
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   return (
     <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm sticky top-0 z-50 transition-all duration-300">
@@ -150,59 +122,8 @@ const Header = () => {
 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
-            {/* Notification Dropdown */}
-            <div className="relative hidden sm:block">
-              <button 
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="relative text-gray-500 hover:text-[#7C3AED] transition p-2 hover:bg-slate-50 rounded-full"
-              >
-                <BellIcon className="h-6 w-6" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-white animate-pulse">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {showNotifications && (
-                <div className="absolute right-0 mt-3 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden animate-in slide-in-from-top-2 duration-200">
-                  <div className="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-                    <h3 className="font-black text-slate-900 text-xs uppercase tracking-widest">Notifications</h3>
-                    <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-                      {unreadCount} Unread
-                    </span>
-                  </div>
-                  <div className="max-h-96 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <div className="p-8 text-center bg-white">
-                        <BellIcon className="h-10 w-10 text-slate-200 mx-auto mb-3" />
-                        <p className="text-slate-400 font-medium text-sm italic">No notifications yet</p>
-                      </div>
-                    ) : (
-                      notifications.map((n) => (
-                        <div 
-                          key={n._id} 
-                          onClick={() => handleMarkRead(n._id)}
-                          className={`p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer relative ${!n.isRead ? 'bg-blue-50/30' : ''}`}
-                        >
-                          {!n.isRead && <div className="absolute left-2 top-1/3 w-1.5 h-1.5 bg-blue-600 rounded-full"></div>}
-                          <p className={`text-xs ${!n.isRead ? 'font-black text-slate-800' : 'font-medium text-slate-500'}`}>
-                            {n.message}
-                          </p>
-                          <span className="text-[9px] text-slate-400 mt-1 block">
-                            {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  <div className="p-3 text-center bg-slate-50/50">
-                    <button className="text-[10px] font-black text-slate-500 hover:text-blue-600 uppercase tracking-widest transition-colors">
-                      View all
-                    </button>
-                  </div>
-                </div>
-              )}
+            <div className="hidden sm:block">
+              {/* Notifications removed */}
             </div>
 
             {/* User Profile / Auth */}

@@ -42,10 +42,12 @@ const AdminClubs = () => {
   const [eventFormData, setEventFormData] = useState({
     name: '',
     date: '',
+    startTime: '',
     description: '',
     location: ''
   });
   const [isSubmittingEvent, setIsSubmittingEvent] = useState(false);
+  const [eventTimeError, setEventTimeError] = useState("");
 
   useEffect(() => {
     fetchClubs();
@@ -79,6 +81,7 @@ const AdminClubs = () => {
     setEventFormData({
       name: '',
       date: '',
+      startTime: '',
       description: '',
       location: club.location || ''
     });
@@ -87,6 +90,7 @@ const AdminClubs = () => {
 
   const handleEventSubmit = async (e) => {
     e.preventDefault();
+    if (eventTimeError) return;
     setIsSubmittingEvent(true);
     try {
       const updatedClub = await addEvent(selectedClub._id, eventFormData);
@@ -103,14 +107,14 @@ const AdminClubs = () => {
 
   // Compute analytics
   const totalClubs = clubs.length;
-  
+
   // Categories Map
   const categoryMap = {};
   clubs.forEach(c => {
     const cat = c.category || 'General';
     categoryMap[cat] = (categoryMap[cat] || 0) + 1;
   });
-  
+
   const pieData = Object.keys(categoryMap).map(key => ({
     name: key,
     value: categoryMap[key]
@@ -264,9 +268,8 @@ const AdminClubs = () => {
               <button
                 key={c}
                 onClick={() => setFilterCategory(c)}
-                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                  filterCategory === c ? 'bg-slate-800 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-200 hover:text-slate-700 shadow-sm'
-                }`}
+                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${filterCategory === c ? 'bg-slate-800 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-200 hover:text-slate-700 shadow-sm'
+                  }`}
               >
                 {c}
               </button>
@@ -365,7 +368,7 @@ const AdminClubs = () => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
             <div className="bg-white w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden border border-slate-100 animate-in zoom-in-95 duration-200">
               <div className="bg-gradient-to-r from-violet-600 to-indigo-700 p-8 text-white relative">
-                <button 
+                <button
                   onClick={() => setIsEventModalOpen(false)}
                   className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors"
                 >
@@ -375,7 +378,7 @@ const AdminClubs = () => {
                 <h2 className="text-3xl font-extrabold tracking-tight leading-none">Add Club Event</h2>
                 <p className="text-violet-100 text-xs mt-2 font-medium opacity-90 tracking-wide uppercase">Organize a new activity for {selectedClub?.name}</p>
               </div>
-              
+
               <form onSubmit={handleEventSubmit} className="p-8 space-y-5">
                 <div>
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Event Title</label>
@@ -383,13 +386,13 @@ const AdminClubs = () => {
                     type="text"
                     required
                     value={eventFormData.name}
-                    onChange={(e) => setEventFormData({...eventFormData, name: e.target.value})}
+                    onChange={(e) => setEventFormData({ ...eventFormData, name: e.target.value })}
                     className="w-full px-5 py-3 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-bold text-slate-800 placeholder-slate-400 text-sm"
                     placeholder="e.g. Weekly Workshop, Annual Meetup"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Date</label>
                     <input
@@ -397,20 +400,52 @@ const AdminClubs = () => {
                       required
                       min={new Date().toISOString().split('T')[0]}
                       value={eventFormData.date}
-                      onChange={(e) => setEventFormData({...eventFormData, date: e.target.value})}
+                      onChange={(e) => setEventFormData({ ...eventFormData, date: e.target.value })}
                       className="w-full px-5 py-3 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-bold text-slate-800 text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Location</label>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Start Time</label>
                     <input
-                      type="text"
-                      value={eventFormData.location}
-                      onChange={(e) => setEventFormData({...eventFormData, location: e.target.value})}
-                      className="w-full px-5 py-3 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-bold text-slate-800 placeholder-slate-400 text-sm"
-                      placeholder="e.g. Room 301"
+                      type="time"
+                      required
+                      min={eventFormData.date === new Date().toISOString().split('T')[0] ? new Date().toTimeString().slice(0, 5) : undefined}
+                      value={eventFormData.startTime}
+                      onChange={(e) => {
+                        const time = e.target.value;
+                        const now = new Date();
+                        const today = now.toISOString().split('T')[0];
+                        if (eventFormData.date === today && time) {
+                          const [h, m] = time.split(':').map(Number);
+                          const sel = new Date();
+                          sel.setHours(h, m, 0, 0);
+                          if (sel <= now) {
+                            setEventTimeError("Please select a future time");
+                          } else {
+                            setEventTimeError("");
+                          }
+                        } else {
+                          setEventTimeError("");
+                        }
+                        setEventFormData({ ...eventFormData, startTime: time });
+                      }}
+                      className={`w-full px-5 py-3 rounded-2xl bg-slate-50 border transition-all outline-none font-bold text-slate-800 text-sm
+                        ${eventTimeError ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/10' : 'border-slate-100 focus:bg-white focus:border-violet-500 focus:ring-violet-500/10'}`}
                     />
+                    {eventTimeError && <p className="text-[10px] text-red-500 font-bold mt-1 ml-2">{eventTimeError}</p>}
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Location</label>
+                  <input
+                    type="text"
+                    required
+                    value={eventFormData.location}
+                    onChange={(e) => setEventFormData({ ...eventFormData, location: e.target.value })}
+                    className="w-full px-5 py-3 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-bold text-slate-800 placeholder-slate-400 text-sm"
+                    placeholder="e.g. SLIIT Malabe Campus"
+                  />
                 </div>
 
                 <div>
@@ -419,7 +454,7 @@ const AdminClubs = () => {
                     required
                     rows="3"
                     value={eventFormData.description}
-                    onChange={(e) => setEventFormData({...eventFormData, description: e.target.value})}
+                    onChange={(e) => setEventFormData({ ...eventFormData, description: e.target.value })}
                     className="w-full px-5 py-3 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-bold text-slate-800 placeholder-slate-400 text-sm resize-none"
                     placeholder="What's happening in this event?"
                   />
@@ -428,11 +463,11 @@ const AdminClubs = () => {
                 <div className="pt-2 flex flex-col space-y-3">
                   <button
                     type="submit"
-                    disabled={isSubmittingEvent}
-                    className={`w-full py-4 rounded-2xl font-black text-white shadow-xl shadow-violet-200 transition-all active:scale-[0.98]
-                      ${isSubmittingEvent 
-                        ? 'bg-violet-300 cursor-not-allowed' 
-                        : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 hover:shadow-violet-400'
+                    disabled={isSubmittingEvent || !!eventTimeError}
+                    className={`w-full py-4 rounded-2xl font-black text-white shadow-xl transition-all active:scale-[0.98]
+                      ${(isSubmittingEvent || !!eventTimeError)
+                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                        : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 hover:shadow-violet-400 shadow-violet-200'
                       }`}
                   >
                     {isSubmittingEvent ? 'Saving Event...' : 'Launch Event'}

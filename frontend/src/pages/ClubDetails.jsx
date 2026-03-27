@@ -11,12 +11,12 @@ import {
 } from '@heroicons/react/24/outline';
 
 const categoryMeta = {
-  Academic:            { emoji: '📚', from: '#2563eb', to: '#1e40af', badge: 'bg-blue-100 text-blue-700' },
-  Sports:              { emoji: '⚽', from: '#16a34a', to: '#14532d', badge: 'bg-green-100 text-green-700' },
-  Arts:                { emoji: '🎨', from: '#db2777', to: '#9d174d', badge: 'bg-pink-100 text-pink-700' },
+  Academic: { emoji: '📚', from: '#2563eb', to: '#1e40af', badge: 'bg-blue-100 text-blue-700' },
+  Sports: { emoji: '⚽', from: '#16a34a', to: '#14532d', badge: 'bg-green-100 text-green-700' },
+  Arts: { emoji: '🎨', from: '#db2777', to: '#9d174d', badge: 'bg-pink-100 text-pink-700' },
   'Community Service': { emoji: '🤝', from: '#ea580c', to: '#9a3412', badge: 'bg-orange-100 text-orange-700' },
-  Technology:          { emoji: '💻', from: '#7c3aed', to: '#4c1d95', badge: 'bg-purple-100 text-purple-700' },
-  Other:               { emoji: '🎯', from: '#475569', to: '#1e293b', badge: 'bg-gray-100 text-gray-700' },
+  Technology: { emoji: '💻', from: '#7c3aed', to: '#4c1d95', badge: 'bg-purple-100 text-purple-700' },
+  Other: { emoji: '🎯', from: '#475569', to: '#1e293b', badge: 'bg-gray-100 text-gray-700' },
 };
 
 const fallbackImgs = [
@@ -31,24 +31,24 @@ export default function ClubDetails() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('about');
   const [isBookmarked, setIsBookmarked] = useState(false);
-  
+
   useEffect(() => {
     Promise.all([getClubById(id), getMyBookmarks()])
       .then(([clubData, bookmarks]) => {
-         setClub(clubData);
-         setIsBookmarked(bookmarks.some(b => (b.clubId._id || b.clubId) === id));
+        setClub(clubData);
+        setIsBookmarked(bookmarks.some(b => (b.clubId._id || b.clubId) === id));
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [id]);
 
   const handleToggleBookmark = async () => {
-      try {
-          const res = await toggleBookmark(id);
-          setIsBookmarked(res.bookmarked);
-      } catch (e) {
-          console.error(e);
-      }
+    try {
+      const res = await toggleBookmark(id);
+      setIsBookmarked(res.bookmarked);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   if (loading) return (
@@ -76,8 +76,8 @@ export default function ClubDetails() {
   const phone = (contactRaw.match(/Phone:\s*([^,]+)/) || [])[1]?.trim() || '';
 
   const tabs = [
-    { id: 'about',   label: 'About' },
-    { id: 'events',  label: `Events (${club.events?.length || 0})` },
+    { id: 'about', label: 'About' },
+    { id: 'events', label: `Events (${club.events?.length || 0})` },
     { id: 'contact', label: 'Contact' },
   ];
 
@@ -142,16 +142,16 @@ export default function ClubDetails() {
 
             {/* Join button */}
             <div className="shrink-0 flex items-center space-x-3">
-              <button 
+              <button
                 onClick={handleToggleBookmark}
                 className="p-3.5 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 transition-all duration-300"
                 title={isBookmarked ? "Remove Bookmark" : "Bookmark Club"}
               >
                 {isBookmarked ? <BookmarkSolid className="w-5 h-5 text-rose-300" /> : <BookmarkOutline className="w-5 h-5 text-white" />}
               </button>
-              <Link 
+              <Link
                 to={`/clubs/${id}/request`}
-                className="px-8 py-3.5 bg-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-xl hover:-translate-y-0.5 hover:shadow-2xl transition-all" 
+                className="px-8 py-3.5 bg-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-xl hover:-translate-y-0.5 hover:shadow-2xl transition-all"
                 style={{ color: meta.from }}
               >
                 Join Club
@@ -167,11 +167,10 @@ export default function ClubDetails() {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
-              tab === t.id
-                ? 'text-white shadow-md'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-            }`}
+            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${tab === t.id
+              ? 'text-white shadow-md'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
             style={tab === t.id ? { background: `linear-gradient(135deg, ${meta.from}, ${meta.to})` } : {}}
           >
             {t.label}
@@ -198,10 +197,10 @@ export default function ClubDetails() {
               <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-5">Club Details</h3>
               <div className="space-y-4">
                 {[
-                  { icon: UserIcon,      label: 'President', value: club.president,        color: 'text-blue-600',   bg: 'bg-blue-50' },
-                  { icon: MapPinIcon,    label: 'Location',  value: club.location || 'TBA',color: 'text-purple-600', bg: 'bg-purple-50' },
-                  { icon: UserGroupIcon, label: 'Category',  value: `${meta.emoji} ${club.category || 'General'}`, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                  { icon: CheckBadgeIcon,label: 'Status',    value: 'Active',              color: 'text-green-600',  bg: 'bg-green-50' },
+                  { icon: UserIcon, label: 'President', value: club.president, color: 'text-blue-600', bg: 'bg-blue-50' },
+                  { icon: MapPinIcon, label: 'Location', value: club.location || 'TBA', color: 'text-purple-600', bg: 'bg-purple-50' },
+                  { icon: UserGroupIcon, label: 'Category', value: `${meta.emoji} ${club.category || 'General'}`, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                  { icon: CheckBadgeIcon, label: 'Status', value: 'Active', color: 'text-green-600', bg: 'bg-green-50' },
                 ].map(({ icon: Icon, label, value, color, bg }) => (
                   <div key={label} className="flex items-center space-x-3">
                     <div className={`w-9 h-9 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
@@ -269,19 +268,22 @@ export default function ClubDetails() {
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-x-4 text-xs text-gray-500 font-medium">
-                        <span className="flex items-center space-x-1"><ClockIcon className="w-3 h-3" /><span>{d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></span>
+                        <span className="flex items-center space-x-1">
+                          <ClockIcon className="w-3 h-3" />
+                          <span>{ev.startTime || d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </span>
                         <span className="flex items-center space-x-1"><MapPinIcon className="w-3 h-3" /><span>{ev.location || 'TBA'}</span></span>
                       </div>
                       {ev.description && <p className="mt-2 text-xs text-gray-400 line-clamp-2">{ev.description}</p>}
                       {!isPast && (
                         <div className="mt-4 flex justify-end">
-                           <Link 
-                             to={`/clubs/${id}/events/${ev._id}/register`}
-                             className="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-white shadow-md shadow-slate-200 hover:-translate-y-0.5 hover:shadow-lg transition-all"
-                             style={{ background: `linear-gradient(135deg, ${meta.from}, ${meta.to})` }}
-                           >
-                              RSVP / Register
-                           </Link>
+                          <Link
+                            to={`/clubs/${id}/events/${ev._id}/register`}
+                            className="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-white shadow-md shadow-slate-200 hover:-translate-y-0.5 hover:shadow-lg transition-all"
+                            style={{ background: `linear-gradient(135deg, ${meta.from}, ${meta.to})` }}
+                          >
+                            RSVP / Register
+                          </Link>
                         </div>
                       )}
                     </div>
@@ -297,10 +299,10 @@ export default function ClubDetails() {
       {tab === 'contact' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {[
-            { icon: EnvelopeIcon, label: 'Email',     value: email,          color: 'text-blue-600',   bg: 'bg-blue-50' },
-            { icon: PhoneIcon,    label: 'Phone',     value: phone,          color: 'text-green-600',  bg: 'bg-green-50' },
-            { icon: UserIcon,     label: 'President', value: club.president, color: 'text-purple-600', bg: 'bg-purple-50' },
-            { icon: MapPinIcon,   label: 'Location',  value: club.location,  color: 'text-orange-600', bg: 'bg-orange-50' },
+            { icon: EnvelopeIcon, label: 'Email', value: email, color: 'text-blue-600', bg: 'bg-blue-50' },
+            { icon: PhoneIcon, label: 'Phone', value: phone, color: 'text-green-600', bg: 'bg-green-50' },
+            { icon: UserIcon, label: 'President', value: club.president, color: 'text-purple-600', bg: 'bg-purple-50' },
+            { icon: MapPinIcon, label: 'Location', value: club.location, color: 'text-orange-600', bg: 'bg-orange-50' },
           ].map(({ icon: Icon, label, value, color, bg }) => (
             <div key={label} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center space-x-4 hover:shadow-md transition-shadow">
               <div className={`w-12 h-12 rounded-2xl ${bg} flex items-center justify-center shrink-0`}>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getMyEventRequests } from '../services/eventRegistrationService';
-import { 
-    CalendarDaysIcon, 
-    CheckCircleIcon, 
-    ClockIcon, 
+import {
+    CalendarDaysIcon,
+    CheckCircleIcon,
+    ClockIcon,
     XCircleIcon,
     MapPinIcon,
     InboxIcon
@@ -74,10 +74,10 @@ const MyEventRequests = () => {
                     {requests.map((req, idx) => {
                         const theme = getStatusTheme(req.status);
                         const StatusIcon = theme.icon;
-                        
+
                         return (
-                            <div 
-                                key={req._id} 
+                            <div
+                                key={req._id}
                                 className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:border-purple-100 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-8"
                                 style={{ animationDelay: `${idx * 100}ms` }}
                             >

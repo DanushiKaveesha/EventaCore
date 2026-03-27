@@ -185,9 +185,9 @@ const AdminClubDetails = () => {
                               {event.name}
                             </h4>
                             <div className="flex items-center space-x-4 mt-1 text-slate-500 font-bold text-xs uppercase tracking-widest">
-                              <span className="flex items-center">
+                              <span className="flex items-center text-purple-600">
                                 <ClockIcon className="w-3.5 h-3.5 mr-1" />
-                                {new Date(event.date).getFullYear()}
+                                {event.startTime || "TBA"}
                               </span>
                               <span className="flex items-center">
                                 <MapPinIcon className="w-3.5 h-3.5 mr-1" />
