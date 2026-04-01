@@ -114,7 +114,7 @@ const AdminEventRequests = () => {
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
                             <div className="bg-white rounded-[32px] shadow-2xl border border-slate-100 p-10 max-w-md w-full animate-in zoom-in-95 duration-200">
                                 <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 mx-auto ${confirmModal.status === 'approved' ? 'bg-emerald-50 text-emerald-600' :
-                                        confirmModal.status === 'rejected' ? 'bg-red-50 text-red-600' : 'bg-purple-50 text-purple-600'
+                                    confirmModal.status === 'rejected' ? 'bg-red-50 text-red-600' : 'bg-purple-50 text-purple-600'
                                     }`}>
                                     {confirmModal.status === 'approved' ? <CheckIcon className="h-8 w-8" /> :
                                         confirmModal.status === 'rejected' ? <XMarkIcon className="h-8 w-8" /> : <ArrowPathIcon className="h-8 w-8 shrink-0" />}
@@ -135,7 +135,7 @@ const AdminEventRequests = () => {
                                     <button
                                         onClick={processAction}
                                         className={`flex-1 py-4 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${confirmModal.status === 'approved' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' :
-                                                confirmModal.status === 'rejected' ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-purple-600 hover:bg-purple-700 shadow-purple-200'
+                                            confirmModal.status === 'rejected' ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-purple-600 hover:bg-purple-700 shadow-purple-200'
                                             }`}
                                     >
                                         Confirm {confirmModal.status === 'pending' ? 'Rollback' : confirmModal.status}
@@ -210,8 +210,8 @@ const AdminEventRequests = () => {
                                         key={s}
                                         onClick={() => setFilter(s)}
                                         className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === s
-                                                ? 'bg-white text-slate-900 shadow-sm'
-                                                : 'text-slate-400 hover:text-slate-600'
+                                            ? 'bg-white text-slate-900 shadow-sm'
+                                            : 'text-slate-400 hover:text-slate-600'
                                             }`}
                                     >
                                         {s}
@@ -291,11 +291,11 @@ const AdminEventRequests = () => {
                                                 </td>
                                                 <td className="px-4 py-6">
                                                     <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${req.status === 'pending' ? 'bg-amber-100 text-amber-700 border border-amber-200/50 shadow-sm shadow-amber-100/50' :
-                                                            req.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200/50 shadow-sm shadow-emerald-100/50' :
-                                                                'bg-red-100 text-red-700 border border-red-200/50 shadow-sm shadow-red-100/50'
+                                                        req.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200/50 shadow-sm shadow-emerald-100/50' :
+                                                            'bg-red-100 text-red-700 border border-red-200/50 shadow-sm shadow-red-100/50'
                                                         }`}>
                                                         <span className={`w-1.5 h-1.5 rounded-full mr-2 ${req.status === 'pending' ? 'bg-amber-500' :
-                                                                req.status === 'approved' ? 'bg-emerald-500' : 'bg-red-500'
+                                                            req.status === 'approved' ? 'bg-emerald-500' : 'bg-red-500'
                                                             }`}></span>
                                                         {req.status}
                                                     </div>

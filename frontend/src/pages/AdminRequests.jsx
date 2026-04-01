@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { getMyRequests, updateMembershipRequest } from '../services/membershipService';
-import { 
-  ClipboardDocumentListIcon, 
-  CheckIcon, 
-  XMarkIcon, 
-  EyeIcon,
-  InboxIcon,
-  ChevronRightIcon,
-  FunnelIcon,
-  ArrowPathIcon,
-  MagnifyingGlassIcon,
-  CurrencyDollarIcon,
-  ChartBarIcon
+import {
+    ClipboardDocumentListIcon,
+    CheckIcon,
+    XMarkIcon,
+    EyeIcon,
+    InboxIcon,
+    ChevronRightIcon,
+    FunnelIcon,
+    ArrowPathIcon,
+    MagnifyingGlassIcon,
+    CurrencyDollarIcon,
+    ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { SparklesIcon } from '@heroicons/react/24/solid';
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
+    AreaChart,
+    Area,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
 } from 'recharts';
 
 const AdminRequests = () => {
@@ -53,7 +53,7 @@ const AdminRequests = () => {
         const pendingIds = filteredRequests
             .filter(req => req.status === 'pending')
             .map(req => req._id);
-        
+
         if (selectedIds.size === pendingIds.length && pendingIds.length > 0) {
             setSelectedIds(new Set());
         } else {
@@ -77,11 +77,11 @@ const AdminRequests = () => {
 
     const handleBulkAction = (status) => {
         if (selectedIds.size === 0) return;
-        setConfirmModal({ 
-            show: true, 
-            ids: Array.from(selectedIds), 
-            status, 
-            name: `${selectedIds.size} selected requests` 
+        setConfirmModal({
+            show: true,
+            ids: Array.from(selectedIds),
+            status,
+            name: `${selectedIds.size} selected requests`
         });
     };
 
@@ -90,11 +90,11 @@ const AdminRequests = () => {
         try {
             // Process all in parallel
             await Promise.all(ids.map(id => updateMembershipRequest(id, { status })));
-            
-            setRequests(requests.map(req => 
+
+            setRequests(requests.map(req =>
                 ids.includes(req._id) ? { ...req, status } : req
             ));
-            
+
             setConfirmModal({ show: false, ids: [], status: null, name: '' });
             setSelectedIds(new Set()); // Clear selection after action
         } catch (err) {
@@ -104,9 +104,9 @@ const AdminRequests = () => {
 
     const filteredRequests = requests.filter(req => {
         const matchesFilter = filter === 'all' || req.status === filter;
-        const matchesSearch = req.studentName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              req.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              (req.clubId?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = req.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            req.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (req.clubId?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
@@ -122,12 +122,11 @@ const AdminRequests = () => {
             {confirmModal.show && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-white rounded-[32px] shadow-2xl border border-slate-100 p-10 max-w-md w-full animate-in zoom-in-95 duration-200">
-                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 mx-auto ${
-                            confirmModal.status === 'approved' ? 'bg-emerald-50 text-emerald-600' : 
-                            confirmModal.status === 'rejected' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
-                        }`}>
-                            {confirmModal.status === 'approved' ? <CheckIcon className="h-8 w-8" /> : 
-                             confirmModal.status === 'rejected' ? <XMarkIcon className="h-8 w-8" /> : <ArrowPathIcon className="h-8 w-8 shrink-0" />}
+                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 mx-auto ${confirmModal.status === 'approved' ? 'bg-emerald-50 text-emerald-600' :
+                                confirmModal.status === 'rejected' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
+                            }`}>
+                            {confirmModal.status === 'approved' ? <CheckIcon className="h-8 w-8" /> :
+                                confirmModal.status === 'rejected' ? <XMarkIcon className="h-8 w-8" /> : <ArrowPathIcon className="h-8 w-8 shrink-0" />}
                         </div>
                         <h3 className="text-xl font-black text-center text-slate-900 mb-2 capitalize">
                             Confirm {confirmModal.status === 'pending' ? 'Rollback' : confirmModal.status}
@@ -136,18 +135,17 @@ const AdminRequests = () => {
                             Are you sure you want to <span className="font-bold text-slate-700">{confirmModal.status === 'pending' ? 'reset to pending' : confirmModal.status}</span> the {confirmModal.ids.length > 1 ? `${confirmModal.ids.length} selected requests` : `request from ${confirmModal.name}`}?
                         </p>
                         <div className="flex gap-4">
-                            <button 
+                            <button
                                 onClick={() => setConfirmModal({ show: false, id: null, status: null, name: '' })}
                                 className="flex-1 py-4 bg-slate-50 text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100"
                             >
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 onClick={processAction}
-                                className={`flex-1 py-4 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${
-                                    confirmModal.status === 'approved' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' : 
-                                    confirmModal.status === 'rejected' ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
-                                }`}
+                                className={`flex-1 py-4 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${confirmModal.status === 'approved' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' :
+                                        confirmModal.status === 'rejected' ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
+                                    }`}
                             >
                                 Confirm {confirmModal.status === 'pending' ? 'Rollback' : confirmModal.status}
                             </button>
@@ -165,23 +163,23 @@ const AdminRequests = () => {
                         </div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Selected Applications</span>
                     </div>
-                    
+
                     <div className="flex gap-4">
-                        <button 
+                        <button
                             onClick={() => handleBulkAction('approved')}
                             className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-900/20"
                         >
                             <CheckIcon className="h-4 w-4" />
                             Bulk Approve
                         </button>
-                        <button 
+                        <button
                             onClick={() => handleBulkAction('rejected')}
                             className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-red-900/20"
                         >
                             <XMarkIcon className="h-4 w-4" />
                             Bulk Reject
                         </button>
-                        <button 
+                        <button
                             onClick={() => setSelectedIds(new Set())}
                             className="px-6 py-3 hover:bg-slate-800 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 border border-slate-700 transition-all font-inter"
                         >
@@ -231,8 +229,8 @@ const AdminRequests = () => {
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative group">
                         <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-violet-500 transition-colors" />
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             placeholder="Identify applicant..."
                             className="pl-11 pr-6 py-2.5 bg-white border border-slate-100 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-100 transition-all w-full sm:w-56 shadow-sm"
                             value={searchTerm}
@@ -245,11 +243,10 @@ const AdminRequests = () => {
                             <button
                                 key={s}
                                 onClick={() => setFilter(s)}
-                                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-                                    filter === s 
-                                        ? 'bg-slate-900 text-white shadow-sm' 
+                                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${filter === s
+                                        ? 'bg-slate-900 text-white shadow-sm'
                                         : 'text-slate-400 hover:text-slate-600'
-                                }`}
+                                    }`}
                             >
                                 {s}
                             </button>
@@ -265,11 +262,11 @@ const AdminRequests = () => {
                         <thead>
                             <tr className="bg-slate-50/50 border-b border-slate-100">
                                 <th className="px-4 py-3 w-12 text-center">
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         onChange={toggleSelectAll}
                                         checked={selectedIds.size > 0 && selectedIds.size === filteredRequests.filter(r => r.status === 'pending').length}
-                                        className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer" 
+                                        className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer"
                                     />
                                 </th>
                                 <th className="px-3 py-3 font-black text-[9px] text-slate-400 uppercase tracking-widest">Request #</th>
@@ -295,12 +292,12 @@ const AdminRequests = () => {
                                 filteredRequests.map((req, idx) => (
                                     <tr key={req._id} className="group hover:bg-slate-50/50 transition-colors border-b border-slate-50 last:border-0">
                                         <td className="px-4 py-3 text-center">
-                                            <input 
-                                                type="checkbox" 
+                                            <input
+                                                type="checkbox"
                                                 disabled={req.status !== 'pending'}
                                                 checked={selectedIds.has(req._id)}
                                                 onChange={() => toggleSelectOne(req._id)}
-                                                className={`w-3.5 h-3.5 rounded border-slate-200 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer ${req.status !== 'pending' ? 'opacity-20 cursor-not-allowed' : ''}`} 
+                                                className={`w-3.5 h-3.5 rounded border-slate-200 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer ${req.status !== 'pending' ? 'opacity-20 cursor-not-allowed' : ''}`}
                                             />
                                         </td>
                                         <td className="px-3 py-3">
@@ -333,25 +330,22 @@ const AdminRequests = () => {
                                                     <CurrencyDollarIcon className="h-3 w-3 mr-1" />
                                                     Payment
                                                 </span>
-                                                <div className={`inline-flex items-center px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest ${
-                                                    req.paymentStatus === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-200' :
-                                                    req.paymentStatus === 'verified' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 
-                                                    'bg-red-50 text-red-600 border border-red-200'
-                                                }`}>
+                                                <div className={`inline-flex items-center px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest ${req.paymentStatus === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-200' :
+                                                        req.paymentStatus === 'verified' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' :
+                                                            'bg-red-50 text-red-600 border border-red-200'
+                                                    }`}>
                                                     {req.paymentStatus || 'pending'}
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-3 py-3">
-                                            <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                                                req.status === 'pending' ? 'bg-amber-100 text-amber-700 border border-amber-200/50 shadow-sm shadow-amber-100/50' :
-                                                req.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200/50 shadow-sm shadow-emerald-100/50' : 
-                                                'bg-red-100 text-red-700 border border-red-200/50 shadow-sm shadow-red-100/50'
-                                            }`}>
-                                                <span className={`w-1 h-1 rounded-full mr-1.5 ${
-                                                    req.status === 'pending' ? 'bg-amber-500' :
-                                                    req.status === 'approved' ? 'bg-emerald-500' : 'bg-red-500'
-                                                }`}></span>
+                                            <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${req.status === 'pending' ? 'bg-amber-100 text-amber-700 border border-amber-200/50 shadow-sm shadow-amber-100/50' :
+                                                    req.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200/50 shadow-sm shadow-emerald-100/50' :
+                                                        'bg-red-100 text-red-700 border border-red-200/50 shadow-sm shadow-red-100/50'
+                                                }`}>
+                                                <span className={`w-1 h-1 rounded-full mr-1.5 ${req.status === 'pending' ? 'bg-amber-500' :
+                                                        req.status === 'approved' ? 'bg-emerald-500' : 'bg-red-500'
+                                                    }`}></span>
                                                 {req.status}
                                             </div>
                                         </td>
@@ -359,7 +353,7 @@ const AdminRequests = () => {
                                             <div className="flex items-center justify-center gap-1.5">
                                                 {/* Rollback Action (Visible for non-pending) */}
                                                 {req.status !== 'pending' && (
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleActionClick(req._id, 'pending', req.studentName)}
                                                         title="Rollback to Pending"
                                                         className="w-9 h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 border border-blue-100/50 shadow-sm"
@@ -370,15 +364,14 @@ const AdminRequests = () => {
 
                                                 {/* Approve Action */}
                                                 {req.status === 'pending' && (
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleActionClick(req._id, 'approved', req.studentName)}
                                                         disabled={req.paymentStatus !== 'verified'}
                                                         title={req.paymentStatus !== 'verified' ? "Payment must be verified first" : "Approve Request"}
-                                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border shadow-md ${
-                                                            req.paymentStatus !== 'verified' 
-                                                                ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed shadow-none' 
+                                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border shadow-md ${req.paymentStatus !== 'verified'
+                                                                ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed shadow-none'
                                                                 : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border-emerald-100 shadow-emerald-100/50'
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <CheckIcon className="h-4 w-4 stroke-[3px]" />
                                                     </button>
@@ -386,7 +379,7 @@ const AdminRequests = () => {
 
                                                 {/* Reject Action */}
                                                 {req.status === 'pending' && (
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleActionClick(req._id, 'rejected', req.studentName)}
                                                         title="Reject Request"
                                                         className="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all duration-300 border border-red-100 shadow-sm shadow-red-100/50"
@@ -402,7 +395,7 @@ const AdminRequests = () => {
                         </tbody>
                     </table>
                 </div>
-                
+
                 {/* Footer Section */}
                 <div className="px-8 py-5 bg-slate-50/30 border-t border-slate-100 flex items-center justify-between">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">

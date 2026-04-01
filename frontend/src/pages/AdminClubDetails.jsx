@@ -126,7 +126,7 @@ const AdminClubDetails = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Left Column: About & Info */}
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white rounded-[40px] p-10 shadow-xl shadow-slate-200/60 border border-slate-100">
@@ -145,7 +145,7 @@ const AdminClubDetails = () => {
             <div className="bg-white rounded-[40px] p-10 shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden relative">
               {/* Event background decoration */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-purple-50 blur-[100px] -mr-32 -mt-32"></div>
-              
+
               <div className="flex items-center justify-between mb-10 relative z-10">
                 <div className="flex items-center space-x-3">
                   <div className="bg-purple-600 p-2.5 rounded-2xl shadow-lg shadow-purple-200">
@@ -166,8 +166,8 @@ const AdminClubDetails = () => {
                   </div>
                 ) : (
                   club.events.map((event, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className="group bg-slate-50/50 hover:bg-white p-6 rounded-[32px] border border-transparent hover:border-purple-100 hover:shadow-xl hover:shadow-purple-100/50 transition-all duration-300"
                     >
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -214,7 +214,7 @@ const AdminClubDetails = () => {
                 <div className="w-2 h-2 bg-blue-600 rounded-full mr-3 animate-pulse"></div>
                 Connect Today
               </h3>
-              
+
               <div className="space-y-5">
                 <div className="p-4 rounded-3xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-blue-100 transition-all group">
                   <div className="flex items-center space-x-4">

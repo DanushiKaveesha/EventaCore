@@ -4,7 +4,8 @@ const clubSchema = new mongoose.Schema(
     {
         name: {
             type: String,
-            required: true
+            required: true,
+            match: [/^[a-zA-Z\s]+$/, 'Club Name can only contain letters and spaces']
         },
 
         description: {
@@ -14,7 +15,8 @@ const clubSchema = new mongoose.Schema(
 
         president: {
             type: String,
-            required: true
+            required: true,
+            match: [/^[a-zA-Z\s]+$/, 'President name can only contain letters and spaces']
         },
 
         category: {
@@ -36,7 +38,7 @@ const clubSchema = new mongoose.Schema(
             type: String,
             required: false
         },
-        
+
         events: [
             {
                 name: { type: String, required: true },

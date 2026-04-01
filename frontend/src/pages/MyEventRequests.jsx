@@ -51,7 +51,7 @@ const MyEventRequests = () => {
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center mb-1">
                         <CalendarDaysIcon className="h-7 w-7 mr-3 text-purple-600" />
-                        My Event RSVPs
+                        My Events
                     </h1>
                     <p className="text-slate-400 text-sm font-medium">Track your upcoming event registrations and attendances.</p>
                 </div>

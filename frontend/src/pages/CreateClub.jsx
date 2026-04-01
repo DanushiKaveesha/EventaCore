@@ -135,6 +135,14 @@ const CreateClub = () => {
       }
     }
 
+    if (name === 'name' || name === 'president') {
+      if (value && !/^[a-zA-Z\s]*$/.test(value)) {
+        setErrors(prev => ({ ...prev, [name]: 'Only letters and spaces are allowed' }));
+      } else {
+        setErrors(prev => { const newErr = { ...prev }; delete newErr[name]; return newErr; });
+      }
+    }
+
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setFormData(prev => ({
@@ -178,13 +186,50 @@ const CreateClub = () => {
       return;
     }
 
-    if (!formData.name.trim()) {
-      setMessage({ type: 'error', text: 'Please enter club name' });
+    if (formData.name && !/^[a-zA-Z\s]*$/.test(formData.name)) {
+      setErrors(prev => ({ ...prev, name: 'Only letters and spaces are allowed' }));
+      setMessage({ type: 'error', text: 'Please resolve the validation errors before submitting' });
       return;
     }
 
-    if (!formData.location) {
-      setMessage({ type: 'error', text: 'Please select or enter a location' });
+    if (formData.president && !/^[a-zA-Z\s]*$/.test(formData.president)) {
+      setErrors(prev => ({ ...prev, president: 'Only letters and spaces are allowed' }));
+      setMessage({ type: 'error', text: 'Please resolve the validation errors before submitting' });
+      return;
+    }
+
+    if (!formData.name.trim()) {
+      setMessage({ type: 'error', text: 'Please enter the Club Name' });
+      return;
+    }
+
+    if (!formData.president.trim()) {
+      setMessage({ type: 'error', text: 'Please enter the President / Leader name' });
+      return;
+    }
+
+    if (!formData.category) {
+      setMessage({ type: 'error', text: 'Please select a Category' });
+      return;
+    }
+
+    if (!formData.description || formData.description.trim().length < 20) {
+      setMessage({ type: 'error', text: 'Please enter a description (at least 20 characters)' });
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setMessage({ type: 'error', text: 'Please enter a contact Email' });
+      return;
+    }
+
+    if (!formData.phone.trim()) {
+      setMessage({ type: 'error', text: 'Please enter a contact Phone number' });
+      return;
+    }
+
+    if (!formData.location || !formData.campus || !formData.building) {
+      setMessage({ type: 'error', text: 'Please complete the Location selection (Campus and Building)' });
       return;
     }
 
@@ -314,11 +359,12 @@ const CreateClub = () => {
                         onBlur={() => setFocusedField(null)}
                         className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 outline-none
                           ${focusedField === 'name'
-                            ? 'border-blue-500 ring-4 ring-blue-100 transform scale-[1.01]'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? errors.name ? 'border-red-500 ring-4 ring-red-100' : 'border-blue-500 ring-4 ring-blue-100 transform scale-[1.01]'
+                            : errors.name ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
                           }`}
                         placeholder="e.g., Leo Club, Tech Society"
                       />
+                      {errors.name && <p className="text-red-500 text-xs mt-1.5 font-bold animate-fadeIn">{errors.name}</p>}
                     </div>
 
                     {/* President */}
@@ -333,9 +379,10 @@ const CreateClub = () => {
                         required
                         value={formData.president}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                        className={`w-full px-4 py-3 rounded-xl border-2 transition-all outline-none ${errors.president ? 'border-red-500 focus:ring-4 focus:ring-red-100' : 'border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'}`}
                         placeholder="Full name of the club president"
                       />
+                      {errors.president && <p className="text-red-500 text-xs mt-1.5 font-bold animate-fadeIn">{errors.president}</p>}
                     </div>
 
                     {/* Established Year */}

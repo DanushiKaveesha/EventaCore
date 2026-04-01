@@ -105,8 +105,8 @@ const EventRegistration = () => {
 
                     {submitStatus && (
                         <div className={`mb-8 p-6 rounded-2xl flex items-center space-x-4 border animate-in slide-in-from-top-4 ${submitStatus.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' :
-                                submitStatus.type === 'error' ? 'bg-red-50 border-red-100 text-red-800' :
-                                    'bg-blue-50 border-blue-100 text-blue-800'
+                            submitStatus.type === 'error' ? 'bg-red-50 border-red-100 text-red-800' :
+                                'bg-blue-50 border-blue-100 text-blue-800'
                             }`}>
                             {submitStatus.type === 'success' ? <CheckCircleIcon className="w-8 h-8 text-emerald-500 shrink-0" /> :
                                 submitStatus.type === 'processing' ? <div className="w-8 h-8 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin shrink-0" /> :
