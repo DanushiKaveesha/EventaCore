@@ -1,42 +1,301 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminSidebar from './AdminSidebar';
-import { UsersIcon, UserPlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { 
+  getUsers, 
+  deleteUser, 
+  toggleUserStatus, 
+  updateUserRole 
+} from '../../services/userService';
+import {
+  UsersIcon,
+  UserPlusIcon,
+  MagnifyingGlassIcon,
+  TrashIcon,
+  ShieldCheckIcon,
+  UserCircleIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  EnvelopeIcon,
+  FingerPrintIcon
+} from '@heroicons/react/24/outline';
+import { SparklesIcon } from '@heroicons/react/24/solid';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend
+} from 'recharts';
+
+const COLORS = ['#8b5cf6', '#3b82f6', '#10b981'];
 
 const AdminUsers = () => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await getUsers();
+      setUsers(data || []);
+    } catch (err) {
+      console.error('Failed to fetch users:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id, name) => {
+    if (window.confirm(`Permanently remove user "${name}"?`)) {
+      try {
+        await deleteUser(id);
+        setUsers(users.filter(u => u._id !== id));
+      } catch (err) {
+        alert('Failed: ' + err);
+      }
+    }
+  };
+
+  const handleToggleStatus = async (id) => {
+    try {
+      await toggleUserStatus(id);
+      setUsers(users.map(u => u._id === id ? { ...u, isActive: !u.isActive } : u));
+    } catch (err) {
+      alert('Failed: ' + err);
+    }
+  };
+
+  const handleRoleChange = async (id, newRole) => {
+    try {
+      await updateUserRole(id, newRole);
+      setUsers(users.map(u => u._id === id ? { ...u, role: newRole } : u));
+    } catch (err) {
+      alert('Failed: ' + err);
+    }
+  };
+
+  const filtered = users.filter(u => {
+    const q = searchTerm.toLowerCase();
+    const matchSearch = u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q);
+    const matchRole = filterRole === 'all' || u.role === filterRole;
+    return matchSearch && matchRole;
+  });
+
+  const stats = {
+    total: users.length,
+    admins: users.filter(u => u.role === 'Admin').length,
+    organizers: users.filter(u => u.role === 'Organizer').length,
+    students: users.filter(u => u.role === 'Student').length,
+  };
+
+  const pieData = [
+    { name: 'Admins', value: stats.admins },
+    { name: 'Organizers', value: stats.organizers },
+    { name: 'Students', value: stats.students },
+  ].filter(d => d.value > 0);
+
   return (
-    <div className="bg-[#F8FAFC] min-h-screen font-sans flex flex-col lg:flex-row w-full">
+    <div className="min-h-screen bg-slate-50 flex">
       <AdminSidebar activeOverride="users" />
-      <div className="flex-1 w-full lg:max-w-[calc(100%-320px)] overflow-x-hidden min-h-screen p-4 sm:p-8 lg:p-12">
-        <div className="mb-8 lg:mb-12 flex justify-between items-end">
+
+      <div className="flex-1 min-w-0 p-5 lg:p-8 space-y-6 overflow-y-auto w-full">
+        {/* Header */}
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl lg:text-4xl xl:text-5xl font-black text-gray-900 capitalize tracking-tight">Users Management</h1>
-            <p className="text-gray-500 font-medium mt-2 lg:mt-3 text-base lg:text-lg">Monitor, update, and manage your platform's user roles and permissions.</p>
+            <div className="flex items-center gap-1.5 mb-1">
+              <SparklesIcon className="h-4 w-4 text-violet-500" />
+              <span className="text-[10px] font-black text-violet-500 uppercase tracking-widest leading-none">Security Center</span>
+            </div>
+            <h1 className="text-xl lg:text-2xl font-black text-gray-900 tracking-tight leading-tight">Users Management</h1>
+            <p className="text-gray-400 text-xs font-medium mt-1">Granular control over accounts, roles, and platform access.</p>
           </div>
-          <button className="hidden sm:flex items-center gap-2 px-6 py-3 bg-indigo-500 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-600 transition-all">
-            <UserPlusIcon className="h-5 w-5" />
-            Add New User
+          <button className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl font-black text-[10px] shadow-lg hover:-translate-y-0.5 transition-all uppercase tracking-wider">
+            <UserPlusIcon className="h-4 w-4" />
+            Provision User
           </button>
         </div>
 
-        <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-12 text-center">
-            <div className="max-w-md mx-auto">
-                <div className="h-24 w-24 bg-indigo-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-indigo-500">
-                    <UsersIcon className="h-12 w-12" />
-                </div>
-                <h2 className="text-2xl font-black text-gray-900 mb-4">Users Module Coming Soon</h2>
-                <p className="text-gray-500 font-medium mb-8">
-                    The advanced user management dashboard is currently in development. You will soon be able to manage granular permissions and activity logs.
-                </p>
-                <div className="relative max-w-xs mx-auto">
-                    <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input 
-                        type="text" 
-                        disabled
-                        placeholder="Search users..." 
-                        className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-gray-50 bg-gray-50/50 cursor-not-allowed outline-none"
-                    />
-                </div>
+        {/* Analytics & Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 grid grid-cols-2 gap-4">
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
+                <UsersIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Users</p>
+                <h3 className="text-2xl font-black text-slate-800">{stats.total}</h3>
+              </div>
             </div>
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <ShieldCheckIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Admins</p>
+                <h3 className="text-2xl font-black text-slate-800">{stats.admins}</h3>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <FingerPrintIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Organizers</p>
+                <h3 className="text-2xl font-black text-slate-800">{stats.organizers}</h3>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center shrink-0">
+                <UserCircleIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Students</p>
+                <h3 className="text-2xl font-black text-slate-800">{stats.students}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col h-full min-h-[200px]">
+            <h2 className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-4">Role Distribution</h2>
+            <div className="flex-1 min-h-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={60}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="flex flex-wrap gap-3 items-center">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by name or email stream..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-slate-200 shadow-sm text-sm font-medium focus:ring-2 focus:ring-violet-300 outline-none"
+            />
+          </div>
+          <div className="flex gap-1.5 p-1 bg-white rounded-xl border border-slate-100 shadow-sm overflow-x-auto no-scrollbar">
+            {['all', 'Admin', 'Organizer', 'Student'].map(role => (
+              <button
+                key={role}
+                onClick={() => setFilterRole(role)}
+                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                  filterRole === role ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                {role}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Data Grid */}
+        <div className="bg-white rounded-[32px] border border-slate-100 shadow-lg overflow-hidden">
+          {loading ? (
+            <div className="py-24 flex justify-center"><div className="animate-spin h-8 w-8 border-4 border-violet-500 border-t-transparent rounded-full" /></div>
+          ) : filtered.length === 0 ? (
+            <div className="py-24 text-center font-bold text-slate-300">No users found in current buffer.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-slate-50 border-b border-slate-100">
+                  <tr>
+                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Identified User</th>
+                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Access Role</th>
+                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Node Status</th>
+                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right pr-10">Protocols</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {filtered.map(user => (
+                    <tr key={user._id} className="hover:bg-slate-50/50 transition-colors group">
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-4">
+                          <div className="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center font-black text-indigo-600 shrink-0">
+                            {user.name?.charAt(0) || 'U'}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-black text-slate-900 truncate leading-tight">{user.name}</p>
+                            <div className="flex items-center gap-1 mt-1">
+                              <EnvelopeIcon className="w-3 h-3 text-slate-300" />
+                              <span className="text-[10px] font-bold text-slate-400 truncate">{user.email}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <select
+                          value={user.role}
+                          onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                          className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border focus:outline-none transition-all cursor-pointer ${
+                            user.role === 'Admin' ? 'bg-violet-50 text-violet-600 border-violet-100' :
+                            user.role === 'Organizer' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                            'bg-slate-50 text-slate-600 border-slate-100'
+                          }`}
+                        >
+                          <option value="Student">Student</option>
+                          <option value="Organizer">Organizer</option>
+                          <option value="Admin">Admin</option>
+                        </select>
+                      </td>
+                      <td className="px-6 py-5">
+                        <button
+                          onClick={() => handleToggleStatus(user._id)}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
+                            user.isActive 
+                              ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
+                              : 'bg-red-50 text-red-500 border border-red-100 opacity-60'
+                          }`}
+                        >
+                          {user.isActive ? (
+                            <><CheckCircleIcon className="w-3.5 h-3.5" /> Active Stream</>
+                          ) : (
+                            <><XCircleIcon className="w-3.5 h-3.5" /> Locked</>
+                          )}
+                        </button>
+                      </td>
+                      <td className="px-6 py-5 text-right pr-10">
+                        <button
+                          onClick={() => handleDelete(user._id, user.name)}
+                          className="w-9 h-9 flex items-center justify-center text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-all border border-red-100/50 ml-auto"
+                          title="Delete User"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>
