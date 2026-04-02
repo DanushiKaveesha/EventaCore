@@ -11,9 +11,20 @@ export const requestMembership = async (data) => {
     }
 };
 
-export const getMyRequests = async () => {
+export const getAllMemberships = async () => {
     try {
-        const response = await axios.get(`${API_URL}/my-requests`);
+        const response = await axios.get(API_URL);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Error fetching all memberships';
+    }
+};
+
+export const getMyRequests = async (userId) => {
+    try {
+        const response = await axios.get(`${API_URL}/my-requests`, {
+            params: { userId }
+        });
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || 'Error fetching requests';

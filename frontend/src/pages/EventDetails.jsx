@@ -147,7 +147,8 @@ const EventDetails = () => {
   if (error || !event) return <div className="p-10 text-center text-red-600 font-bold">{error || "Event not found"}</div>;
 
   return (
-    <div className="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div className="w-full py-16 px-4 sm:px-10 lg:px-20 xl:px-32">
+      <div className="max-w-7xl mx-auto">
 
       <button onClick={() => navigate(-1)} className="flex items-center text-gray-500 hover:text-blue-600 mb-8 transition-colors font-bold">
         <ArrowLeftIcon className="h-5 w-5 mr-2" /> Back to Discover
@@ -361,6 +362,7 @@ const EventDetails = () => {
           )}
 
         </div>
+      </div>
       </div>
     </div>
   );

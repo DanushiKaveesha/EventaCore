@@ -102,7 +102,7 @@ const AdminUsers = () => {
   ].filter(d => d.value > 0);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
       <AdminSidebar activeOverride="users" />
 
       <div className="flex-1 min-w-0 p-5 lg:p-8 space-y-6 overflow-y-auto w-full">

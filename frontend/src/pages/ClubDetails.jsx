@@ -82,7 +82,8 @@ export default function ClubDetails() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="w-full py-16 px-4 sm:px-10 lg:px-20 xl:px-32">
+      <div className="max-w-7xl mx-auto space-y-8">
 
       {/* ── Hero Card ── */}
       <div className="relative rounded-3xl overflow-hidden shadow-2xl" style={{ background: `linear-gradient(135deg, ${meta.from}, ${meta.to})` }}>
@@ -326,6 +327,7 @@ export default function ClubDetails() {
         </div>
       )}
 
+      </div>
     </div>
   );
 }

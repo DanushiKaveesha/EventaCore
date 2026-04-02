@@ -11,9 +11,11 @@ export const registerForEvent = async (data) => {
     }
 };
 
-export const getMyEventRequests = async () => {
+export const getMyEventRequests = async (userId) => {
     try {
-        const response = await axios.get(`${API_URL}/my-requests`);
+        const response = await axios.get(`${API_URL}/my-requests`, {
+            params: { userId }
+        });
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || 'Error fetching event requests';

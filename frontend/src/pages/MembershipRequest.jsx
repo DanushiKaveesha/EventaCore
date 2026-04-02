@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getClubById } from '../services/clubService';
 import { requestMembership } from '../services/membershipService';
+import { useAuth } from '../hooks/useAuth';
 import {
     ArrowLeftIcon,
     UserGroupIcon,
@@ -16,12 +17,13 @@ import {
 const MembershipRequest = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [club, setClub] = useState(null);
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
-        studentName: 'John Doe',
-        studentId: 'ST12345',
-        email: 'john@example.com',
+        studentName: user?.studentName || '',
+        studentId: user?.studentId || '',
+        email: user?.email || '',
         message: ''
     });
     const [paymentDetails, setPaymentDetails] = useState({
@@ -32,6 +34,7 @@ const MembershipRequest = () => {
     const [debouncedBankName, setDebouncedBankName] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null);
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         getClubById(id)
@@ -48,11 +51,46 @@ const MembershipRequest = () => {
         return () => clearTimeout(timer);
     }, [paymentDetails.bankName]);
 
+    const validateForm = () => {
+        const newErrors = {};
+
+        if (!formData.studentName.trim() || formData.studentName.length < 3 || !/^[a-zA-Z\s]+$/.test(formData.studentName)) {
+            newErrors.studentName = 'Please enter a valid full name (letters only)';
+        }
+
+        if (!formData.studentId.trim() || formData.studentId.length < 5) {
+            newErrors.studentId = 'Please enter a valid Student ID';
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.email.trim() || !emailRegex.test(formData.email)) {
+            newErrors.email = 'Please enter a valid email address';
+        }
+
+        if (!formData.message.trim() || formData.message.length < 10) {
+            newErrors.message = 'Please provide detailed motivation (min 10 characters)';
+        }
+
+        if (!paymentDetails.bankName.trim() || paymentDetails.bankName.length < 2) {
+            newErrors.bankName = 'Bank name is required';
+        }
+
+        if (!paymentDetails.branchName.trim() || paymentDetails.branchName.length < 2) {
+            newErrors.branchName = 'Branch name is required';
+        }
+
+        if (!paymentDetails.paymentSlip) {
+            newErrors.paymentSlip = 'Please upload a payment slip';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!paymentDetails.paymentSlip) {
-            setSubmitStatus({ type: 'error', message: 'Please upload a payment slip.' });
+        if (!validateForm()) {
             return;
         }
 
@@ -63,6 +101,7 @@ const MembershipRequest = () => {
             const formDataToSubmit = new FormData();
             formDataToSubmit.append('studentName', formData.studentName);
             formDataToSubmit.append('studentId', formData.studentId);
+            formDataToSubmit.append('user', user?._id || '');
             formDataToSubmit.append('email', formData.email);
             formDataToSubmit.append('message', formData.message);
             formDataToSubmit.append('clubId', id);
@@ -163,23 +202,29 @@ const MembershipRequest = () => {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Full Name</label>
                                 <input
                                     type="text"
-                                    required
                                     placeholder="Enter your name"
-                                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                    className={`w-full px-6 py-4 bg-slate-50 border ${errors.studentName ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-100'} rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300`}
                                     value={formData.studentName}
-                                    onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, studentName: e.target.value });
+                                        if (errors.studentName) setErrors({ ...errors, studentName: null });
+                                    }}
                                 />
+                                {errors.studentName && <p className="text-red-500 text-xs font-semibold ml-2 mt-1">{errors.studentName}</p>}
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Student ID</label>
                                 <input
                                     type="text"
-                                    required
                                     placeholder="ST00000"
-                                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                    className={`w-full px-6 py-4 bg-slate-50 border ${errors.studentId ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-100'} rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300`}
                                     value={formData.studentId}
-                                    onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, studentId: e.target.value });
+                                        if (errors.studentId) setErrors({ ...errors, studentId: null });
+                                    }}
                                 />
+                                {errors.studentId && <p className="text-red-500 text-xs font-semibold ml-2 mt-1">{errors.studentId}</p>}
                             </div>
                         </div>
 
@@ -187,24 +232,30 @@ const MembershipRequest = () => {
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Email Address</label>
                             <input
                                 type="email"
-                                required
                                 placeholder="name@university.com"
-                                className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                className={`w-full px-6 py-4 bg-slate-50 border ${errors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-100'} rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300`}
                                 value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                onChange={(e) => {
+                                    setFormData({ ...formData, email: e.target.value });
+                                    if (errors.email) setErrors({ ...errors, email: null });
+                                }}
                             />
+                            {errors.email && <p className="text-red-500 text-xs font-semibold ml-2 mt-1">{errors.email}</p>}
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Why do you want to join?</label>
                             <textarea
-                                required
                                 rows="3"
                                 placeholder="Share your motivation and skills..."
-                                className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all resize-none placeholder:text-slate-300"
+                                className={`w-full px-6 py-4 bg-slate-50 border ${errors.message ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-100'} rounded-3xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all resize-none placeholder:text-slate-300`}
                                 value={formData.message}
-                                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                onChange={(e) => {
+                                    setFormData({ ...formData, message: e.target.value });
+                                    if (errors.message) setErrors({ ...errors, message: null });
+                                }}
                             />
+                            {errors.message && <p className="text-red-500 text-xs font-semibold ml-2 mt-1">{errors.message}</p>}
                         </div>
 
                         {/* Payment Details Section */}
@@ -225,23 +276,29 @@ const MembershipRequest = () => {
                                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Bank Name</label>
                                         <input
                                             type="text"
-                                            required
                                             placeholder="e.g. Bank of Ceylon"
-                                            className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                            className={`w-full px-6 py-4 bg-white border ${errors.bankName ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'} rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300`}
                                             value={paymentDetails.bankName}
-                                            onChange={(e) => setPaymentDetails({ ...paymentDetails, bankName: e.target.value })}
+                                            onChange={(e) => {
+                                                setPaymentDetails({ ...paymentDetails, bankName: e.target.value });
+                                                if (errors.bankName) setErrors({ ...errors, bankName: null });
+                                            }}
                                         />
+                                        {errors.bankName && <p className="text-red-500 text-xs font-semibold ml-2 mt-1">{errors.bankName}</p>}
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Branch Name</label>
                                         <input
                                             type="text"
-                                            required
                                             placeholder="e.g. City Branch"
-                                            className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                            className={`w-full px-6 py-4 bg-white border ${errors.branchName ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'} rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all placeholder:text-slate-300`}
                                             value={paymentDetails.branchName}
-                                            onChange={(e) => setPaymentDetails({ ...paymentDetails, branchName: e.target.value })}
+                                            onChange={(e) => {
+                                                setPaymentDetails({ ...paymentDetails, branchName: e.target.value });
+                                                if (errors.branchName) setErrors({ ...errors, branchName: null });
+                                            }}
                                         />
+                                        {errors.branchName && <p className="text-red-500 text-xs font-semibold ml-2 mt-1">{errors.branchName}</p>}
                                     </div>
                                 </div>
 
@@ -272,20 +329,22 @@ const MembershipRequest = () => {
 
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Upload Payment Slip</label>
-                                    <div className="relative border-2 border-dashed border-slate-200 rounded-2xl bg-white hover:bg-slate-50 transition-colors p-6 text-center cursor-pointer">
+                                    <div className={`relative border-2 border-dashed ${errors.paymentSlip ? 'border-red-500 bg-red-50/50' : 'border-slate-200 hover:bg-slate-50'} rounded-2xl bg-white transition-colors p-6 text-center cursor-pointer`}>
                                         <input
                                             type="file"
-                                            required
                                             accept="image/*"
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                            onChange={(e) => setPaymentDetails({ ...paymentDetails, paymentSlip: e.target.files[0] })}
+                                            onChange={(e) => {
+                                                setPaymentDetails({ ...paymentDetails, paymentSlip: e.target.files[0] });
+                                                if (errors.paymentSlip) setErrors({ ...errors, paymentSlip: null });
+                                            }}
                                         />
                                         <div className="pointer-events-none">
-                                            <DocumentArrowUpIcon className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+                                            <DocumentArrowUpIcon className={`h-8 w-8 mx-auto mb-2 ${errors.paymentSlip ? 'text-red-400' : 'text-blue-500'}`} />
                                             {paymentDetails.paymentSlip ? (
                                                 <span className="text-sm font-black text-blue-600 block truncate">{paymentDetails.paymentSlip.name}</span>
                                             ) : (
-                                                <span className="text-sm font-bold text-slate-400">Click to upload or drag and drop<br /><span className="text-xs font-medium text-slate-300">PNG, JPG up to 5MB</span></span>
+                                                <span className={`text-sm font-bold ${errors.paymentSlip ? 'text-red-500' : 'text-slate-400'}`}>{errors.paymentSlip || 'Click to upload or drag and drop'}<br /><span className={`text-xs font-medium ${errors.paymentSlip ? 'text-red-400' : 'text-slate-300'}`}>PNG, JPG up to 5MB</span></span>
                                             )}
                                         </div>
                                     </div>

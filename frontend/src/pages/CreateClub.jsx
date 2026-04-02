@@ -56,21 +56,21 @@ const CreateClub = () => {
   const [activeTab, setActiveTab] = useState('basic');
   const [errors, setErrors] = useState({});  // SLIIT Campus Locations & Suggestions
   const sliitCampuses = [
-    { 
-      id: 'malabe', 
-      name: 'SLIIT Malabe Campus', 
+    {
+      id: 'malabe',
+      name: 'SLIIT Malabe Campus',
       address: 'New Kandy Rd, Malabe',
       suggestions: ['Main Building', 'Computing Building', 'Business Building', 'Engineering Building', 'FOSS Lab', 'Aero Lab', 'Library']
     },
-    { 
-      id: 'metro', 
-      name: 'SLIIT Metro Campus', 
+    {
+      id: 'metro',
+      name: 'SLIIT Metro Campus',
       address: 'Colombo 03',
       suggestions: ['Main Hall', 'Computer Lab 1', 'Auditorium', 'Student Lounge']
     },
-    { 
-      id: 'kandy', 
-      name: 'SLIIT Kandy Campus', 
+    {
+      id: 'kandy',
+      name: 'SLIIT Kandy Campus',
       address: 'Kandy',
       suggestions: ['Academic Block', 'IT Center', 'Admin Office']
     }
@@ -117,7 +117,7 @@ const CreateClub = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Validations
     if (name === 'phone') {
       if (value && !/^\d+$/.test(value)) {
@@ -126,7 +126,7 @@ const CreateClub = () => {
         setErrors(prev => { const newErr = { ...prev }; delete newErr.phone; return newErr; });
       }
     }
-    
+
     if (name === 'email') {
       if (value && !value.endsWith('@gmail.com')) {
         setErrors(prev => ({ ...prev, email: 'Email must strictly be a @gmail.com address' }));
@@ -195,6 +195,11 @@ const CreateClub = () => {
     if (formData.president && !/^[a-zA-Z\s]*$/.test(formData.president)) {
       setErrors(prev => ({ ...prev, president: 'Only letters and spaces are allowed' }));
       setMessage({ type: 'error', text: 'Please resolve the validation errors before submitting' });
+      return;
+    }
+
+    if (!formData.meetingDays.trim()) {
+      setMessage({ type: 'error', text: 'Please enter the Regular Meeting Days' });
       return;
     }
 
@@ -357,7 +362,7 @@ const CreateClub = () => {
                         onChange={handleInputChange}
                         onFocus={() => setFocusedField('name')}
                         onBlur={() => setFocusedField(null)}
-                        className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 outline-none
+                        className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 outline-none bg-white text-gray-900
                           ${focusedField === 'name'
                             ? errors.name ? 'border-red-500 ring-4 ring-red-100' : 'border-blue-500 ring-4 ring-blue-100 transform scale-[1.01]'
                             : errors.name ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
@@ -379,7 +384,7 @@ const CreateClub = () => {
                         required
                         value={formData.president}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 rounded-xl border-2 transition-all outline-none ${errors.president ? 'border-red-500 focus:ring-4 focus:ring-red-100' : 'border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'}`}
+                        className={`w-full px-4 py-3 rounded-xl border-2 transition-all outline-none bg-white text-gray-900 ${errors.president ? 'border-red-500 focus:ring-4 focus:ring-red-100' : 'border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'}`}
                         placeholder="Full name of the club president"
                       />
                       {errors.president && <p className="text-red-500 text-xs mt-1.5 font-bold animate-fadeIn">{errors.president}</p>}
@@ -396,7 +401,7 @@ const CreateClub = () => {
                         name="establishedYear"
                         value={formData.establishedYear}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none bg-white text-gray-900"
                         placeholder="e.g., 2024"
                         min="1900"
                         max="2024"
@@ -437,14 +442,15 @@ const CreateClub = () => {
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         <CalendarIcon className="inline w-4 h-4 mr-1 text-blue-500" />
-                        Regular Meeting Days
+                        Regular Meeting Days <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         name="meetingDays"
+                        required
                         value={formData.meetingDays}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none bg-white text-gray-900"
                         placeholder="e.g., Every Wednesday, 3:00 PM"
                       />
                     </div>
@@ -461,7 +467,7 @@ const CreateClub = () => {
                           name="phone"
                           value={formData.phone}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 rounded-xl border-2 transition-all outline-none ${errors.phone ? 'border-red-500 focus:ring-4 focus:ring-red-100' : 'border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'}`}
+                          className={`w-full px-4 py-3 rounded-xl border-2 transition-all outline-none bg-white text-gray-900 ${errors.phone ? 'border-red-500 focus:ring-4 focus:ring-red-100' : 'border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'}`}
                           placeholder="e.g. 0712345678"
                         />
                         {errors.phone && <p className="text-red-500 text-xs mt-1.5 font-bold animate-fadeIn">{errors.phone}</p>}
@@ -476,7 +482,7 @@ const CreateClub = () => {
                           name="email"
                           value={formData.email}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 rounded-xl border-2 transition-all outline-none ${errors.email ? 'border-red-500 focus:ring-4 focus:ring-red-100' : 'border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'}`}
+                          className={`w-full px-4 py-3 rounded-xl border-2 transition-all outline-none bg-white text-gray-900 ${errors.email ? 'border-red-500 focus:ring-4 focus:ring-red-100' : 'border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'}`}
                           placeholder="club@gmail.com"
                         />
                         {errors.email && <p className="text-red-500 text-xs mt-1.5 font-bold animate-fadeIn">{errors.email}</p>}
@@ -497,7 +503,7 @@ const CreateClub = () => {
                     rows="4"
                     value={formData.description}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none resize-none"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none resize-none bg-white text-gray-900"
                     placeholder="Describe what this club is about, its mission, activities, and benefits for members..."
                   />
                   <div className="mt-2 flex justify-between text-xs text-gray-500">
@@ -519,7 +525,7 @@ const CreateClub = () => {
                     </div>
                     <h3 className="text-xl font-bold text-gray-900">Select Your Campus</h3>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     {sliitCampuses.map((campus) => (
                       <button
@@ -528,8 +534,8 @@ const CreateClub = () => {
                         onClick={() => {
                           setFormData(prev => {
                             const newBuilding = prev.campus === campus.name ? prev.building : '';
-                            return { 
-                              ...prev, 
+                            return {
+                              ...prev,
                               campus: campus.name,
                               building: newBuilding,
                               location: newBuilding ? `${campus.name} | ${newBuilding}` : campus.name
@@ -550,7 +556,7 @@ const CreateClub = () => {
                           {campus.name}
                         </p>
                         <p className="text-xs text-gray-500 font-medium">{campus.address}</p>
-                        
+
                         {formData.campus === campus.name && (
                           <div className="absolute top-4 right-4 animate-scaleIn">
                             <CheckCircleIcon className="w-6 h-6 text-blue-600" />
@@ -666,7 +672,7 @@ const CreateClub = () => {
                       name="socialMedia.facebook"
                       value={formData.socialMedia.facebook}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none bg-white text-gray-900"
                       placeholder="https://facebook.com/yourclub"
                     />
                   </div>
@@ -679,7 +685,7 @@ const CreateClub = () => {
                       name="socialMedia.instagram"
                       value={formData.socialMedia.instagram}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none bg-white text-gray-900"
                       placeholder="https://instagram.com/yourclub"
                     />
                   </div>
@@ -692,7 +698,7 @@ const CreateClub = () => {
                       name="socialMedia.linkedin"
                       value={formData.socialMedia.linkedin}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none bg-white text-gray-900"
                       placeholder="https://linkedin.com/company/yourclub"
                     />
                   </div>

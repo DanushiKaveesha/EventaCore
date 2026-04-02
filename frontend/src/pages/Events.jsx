@@ -60,7 +60,7 @@ const Events = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div className="w-full py-20 px-4 sm:px-10 lg:px-20 xl:px-32">
       <div className="text-center mb-16 mt-8">
         <div className="inline-flex items-center space-x-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-blue-100 shadow-sm">
           <span>Explore Campus Drops</span>
@@ -134,8 +134,8 @@ const Events = () => {
         </div>
       ) : (
         <div className={viewMode === 'grid' 
-          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10"
-          : "space-y-6 max-w-5xl mx-auto"
+          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10"
+          : "space-y-6 max-w-7xl mx-auto"
         }>
           {events
             .filter(e => !filterFreeOnly || (e.tickets && e.tickets.some(t => t.price === 0)))

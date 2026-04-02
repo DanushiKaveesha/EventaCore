@@ -25,6 +25,7 @@ const PAYMENT_STATUS = {
 const AdminClubPayments = () => {
   const [memberships, setMemberships] = useState([]);
   const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState(null);
   const [search, setSearch]           = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [slipModal, setSlipModal]     = useState(null); // url string
@@ -34,10 +35,12 @@ const AdminClubPayments = () => {
   const fetchAll = async () => {
     try {
       setLoading(true);
+      setError(null);
       const { data } = await axios.get('http://localhost:5000/api/memberships');
       setMemberships(data);
     } catch (err) {
       console.error('Failed to fetch memberships:', err);
+      setError('Failed to load memberships: ' + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
@@ -74,7 +77,7 @@ const AdminClubPayments = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
       <AdminSidebar activeOverride="payments" />
 
       <div className="flex-1 min-w-0 p-5 lg:p-8 space-y-6 overflow-y-auto">
@@ -145,6 +148,20 @@ const AdminClubPayments = () => {
           {loading ? (
             <div className="flex justify-center items-center py-24">
               <div className="animate-spin h-9 w-9 border-4 border-violet-500 border-t-transparent rounded-full" />
+            </div>
+          ) : error ? (
+            <div className="py-24 text-center px-4">
+              <div className="bg-red-50 border border-red-100 rounded-2xl p-8 max-w-md mx-auto">
+                <XCircleIcon className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-red-600 mb-2">Error Loading Data</h3>
+                <p className="text-red-500 mb-6">{error}</p>
+                <button 
+                  onClick={fetchAll}
+                  className="px-6 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition shadow-lg shadow-red-200"
+                >
+                  Try Again
+                </button>
+              </div>
             </div>
           ) : filtered.length === 0 ? (
             <div className="py-24 text-center">

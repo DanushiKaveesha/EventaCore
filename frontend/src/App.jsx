@@ -41,13 +41,15 @@ import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 
 function App() {
+  console.log("App.jsx: Rendering");
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isHomePage = location.pathname === '/';
 
   return (
     <div className={`flex flex-col min-h-screen ${isAdminRoute ? 'bg-[#F8FAFC]' : 'bg-[#F9FAFB]'}`}>
       {!isAdminRoute && <Header />}
-      <main className={`flex-grow w-full ${isAdminRoute ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
+      <main className="flex-grow w-full">
         <Routes>
           {/* Base Platform Routes (from firstMerge) */}
           <Route path="/" element={<Home />} />
@@ -77,6 +79,7 @@ function App() {
           <Route path="/admin/events" element={<AdminEvents />} />
           <Route path="/admin/payments" element={<AdminPaymentsPortal />} />
           <Route path="/admin/payments/events" element={<AdminEventPayments />} />
+          <Route path="/admin/payments/memberships" element={<AdminPayments />} />
           <Route path="/admin/payments/clubs" element={<AdminClubPayments />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/clubs" element={<AdminClubs />} />
@@ -86,7 +89,6 @@ function App() {
           <Route path="/admin/clubs-gallery" element={<Clubs />} />
           <Route path="/admin/clubs/:id" element={<AdminClubDetails />} />
           <Route path="/admin/requests" element={<AdminRequests />} />
-          <Route path="/admin/payments" element={<AdminPayments />} />
           <Route path="/admin/event-requests" element={<AdminEventRequests />} />
         </Routes>
       </main>

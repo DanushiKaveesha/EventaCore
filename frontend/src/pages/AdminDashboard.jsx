@@ -78,8 +78,8 @@ const AdminDashboard = () => {
     };
 
     const filteredEvents = events.filter(event =>
-        event.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.location?.toLowerCase().includes(searchTerm.toLowerCase())
+        (event.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (event.location || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // Analytics Mock Data (Trend of events)
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 flex">
+        <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
             <AdminSidebar activeOverride="dashboard" />
 
             {/* Main content area */}

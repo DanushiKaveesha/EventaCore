@@ -228,9 +228,9 @@ const Clubs = () => {
                         <div className="flex items-center space-x-3">
                           <div className="w-9 h-9 rounded-xl bg-gray-100 shrink-0 overflow-hidden border border-gray-200">
                             {club.image ? (
-                              <img 
-                                src={club.image.startsWith('http') ? club.image : `http://localhost:5000/${club.image.replace(/\\/g, '/')}`} 
-                                alt={club.name} 
+                              <img
+                                src={club.image.startsWith('http') ? club.image : `http://localhost:5000/${club.image.replace(/\\/g, '/')}`}
+                                alt={club.name}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
                                   e.target.onerror = null;
@@ -331,7 +331,7 @@ const Clubs = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
           <div className="bg-white w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden border border-gray-100 animate-scaleIn">
             <div className="bg-gradient-to-r from-purple-600 to-indigo-700 p-8 text-white relative">
-              <button 
+              <button
                 onClick={() => setIsEventModalOpen(false)}
                 className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors"
               >
@@ -341,7 +341,7 @@ const Clubs = () => {
               <h2 className="text-3xl font-extrabold tracking-tight">Add Club Event</h2>
               <p className="text-purple-100 text-sm mt-2 font-medium opacity-90">Organize a new activity for {selectedClub?.name}</p>
             </div>
-            
+
             <form onSubmit={handleEventSubmit} className="p-8 space-y-5">
               <div>
                 <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Event Title</label>
@@ -349,7 +349,7 @@ const Clubs = () => {
                   type="text"
                   required
                   value={eventFormData.name}
-                  onChange={(e) => setEventFormData({...eventFormData, name: e.target.value})}
+                  onChange={(e) => setEventFormData({ ...eventFormData, name: e.target.value })}
                   className="w-full px-5 py-3.5 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold text-gray-800 placeholder-gray-400"
                   placeholder="e.g. Weekly Workshop, Annual Meetup"
                 />
@@ -363,7 +363,7 @@ const Clubs = () => {
                     required
                     min={new Date().toISOString().split('T')[0]}
                     value={eventFormData.date}
-                    onChange={(e) => setEventFormData({...eventFormData, date: e.target.value})}
+                    onChange={(e) => setEventFormData({ ...eventFormData, date: e.target.value })}
                     className="w-full px-5 py-3.5 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold text-gray-800"
                   />
                 </div>
@@ -372,7 +372,7 @@ const Clubs = () => {
                   <input
                     type="text"
                     value={eventFormData.location}
-                    onChange={(e) => setEventFormData({...eventFormData, location: e.target.value})}
+                    onChange={(e) => setEventFormData({ ...eventFormData, location: e.target.value })}
                     className="w-full px-5 py-3.5 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold text-gray-800 placeholder-gray-400"
                     placeholder="e.g. Room 301"
                   />
@@ -385,7 +385,7 @@ const Clubs = () => {
                   required
                   rows="3"
                   value={eventFormData.description}
-                  onChange={(e) => setEventFormData({...eventFormData, description: e.target.value})}
+                  onChange={(e) => setEventFormData({ ...eventFormData, description: e.target.value })}
                   className="w-full px-5 py-3.5 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold text-gray-800 placeholder-gray-400 resize-none"
                   placeholder="What's happening in this event?"
                 />
@@ -396,8 +396,8 @@ const Clubs = () => {
                   type="submit"
                   disabled={isSubmittingEvent}
                   className={`w-full py-4 rounded-2xl font-black text-white shadow-xl shadow-purple-200 transition-all active:scale-[0.98]
-                    ${isSubmittingEvent 
-                      ? 'bg-purple-300 cursor-not-allowed' 
+                    ${isSubmittingEvent
+                      ? 'bg-purple-300 cursor-not-allowed'
                       : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 hover:shadow-purple-300'
                     }`}
                 >

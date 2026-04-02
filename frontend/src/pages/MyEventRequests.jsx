@@ -9,8 +9,10 @@ import {
     InboxIcon
 } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 const MyEventRequests = () => {
+    const { user } = useAuth();
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -21,7 +23,7 @@ const MyEventRequests = () => {
 
     const fetchMyRequests = async () => {
         try {
-            const data = await getMyEventRequests();
+            const data = await getMyEventRequests(user?._id);
             setRequests(data);
         } catch (err) {
             setError(err);

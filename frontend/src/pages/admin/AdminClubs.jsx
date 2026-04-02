@@ -139,7 +139,7 @@ const AdminClubs = () => {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
       <AdminSidebar activeOverride="clubs" />
 
       {/* Main scrollable area */}
@@ -305,7 +305,15 @@ const AdminClubs = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           {club.image ? (
-                            <img src={club.image.startsWith('http') ? club.image : `http://localhost:5000/${club.image.replace(/\\/g, '/')}`} className="w-12 h-12 rounded-xl object-cover border border-slate-100 shrink-0 shadow-sm" alt="" />
+                            <img 
+                              src={club.image.startsWith('http') ? club.image : `http://localhost:5000/${club.image.replace(/\\/g, '/')}`} 
+                              className="w-12 h-12 rounded-xl object-cover border border-slate-100 shrink-0 shadow-sm" 
+                              alt="" 
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                              }}
+                            />
                           ) : (
                             <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
                               <BuildingOfficeIcon className="w-5 h-5 text-slate-400" />

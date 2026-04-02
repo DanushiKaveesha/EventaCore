@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClubById } from '../services/clubService';
 import { registerForEvent } from '../services/eventRegistrationService';
+import { getClubById } from '../services/clubService';
+import { useAuth } from '../hooks/useAuth';
 import {
     UserCircleIcon,
     EnvelopeIcon,
@@ -14,19 +15,21 @@ import {
 const EventRegistration = () => {
     const { clubId, eventId } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     const [club, setClub] = useState(null);
     const [targetEvent, setTargetEvent] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const [formData, setFormData] = useState({
-        studentName: 'John Doe',
-        studentId: 'ST12345',
-        email: 'john@student.university.edu',
+        studentName: user?.studentName || '',
+        studentId: user?.studentId || '',
+        email: user?.email || '',
         message: ''
     });
     const [submitting, setSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null);
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         getClubById(clubId)
@@ -39,14 +42,44 @@ const EventRegistration = () => {
             .finally(() => setLoading(false));
     }, [clubId, eventId]);
 
+    const validateForm = () => {
+        const newErrors = {};
+
+        if (!formData.studentName.trim() || formData.studentName.length < 3 || !/^[a-zA-Z\s]+$/.test(formData.studentName)) {
+            newErrors.studentName = 'Please enter a valid full name (letters only)';
+        }
+
+        if (!formData.studentId.trim() || formData.studentId.length < 5) {
+            newErrors.studentId = 'Please enter a valid Student ID';
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.email.trim() || !emailRegex.test(formData.email)) {
+            newErrors.email = 'Please enter a valid email address';
+        }
+
+        if (!formData.message.trim()) {
+            newErrors.message = 'Please provide any requirements or enter "None"';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+
         setSubmitting(true);
         setSubmitStatus({ type: 'processing', message: 'Securing your spot...' });
 
         try {
             await registerForEvent({
                 ...formData,
+                user: user?._id,
                 clubId: clubId,
                 eventId: eventId,
                 eventName: targetEvent.name
@@ -54,7 +87,7 @@ const EventRegistration = () => {
 
             setSubmitStatus({ type: 'success', message: 'You have successfully RSVPd!' });
             setTimeout(() => {
-                window.location.href = 'http://localhost:5174/my-events';
+                navigate('/my-events');
             }, 2500);
         } catch (err) {
             setSubmitStatus({ type: 'error', message: err || 'Registration failed. Please try again.' });
@@ -133,21 +166,27 @@ const EventRegistration = () => {
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Full Name</label>
                                     <input
                                         type="text"
-                                        required
-                                        className="w-full px-6 py-4 bg-slate-50 border border-transparent rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-slate-300"
+                                        className={`w-full px-6 py-4 bg-slate-50 border ${errors.studentName ? 'border-red-500 ring-1 ring-red-500' : 'border-transparent'} rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-slate-300`}
                                         value={formData.studentName}
-                                        onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, studentName: e.target.value });
+                                            if (errors.studentName) setErrors({ ...errors, studentName: null });
+                                        }}
                                     />
+                                    {errors.studentName && <p className="text-red-500 text-xs font-semibold ml-2 mt-1">{errors.studentName}</p>}
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Student ID</label>
                                     <input
                                         type="text"
-                                        required
-                                        className="w-full px-6 py-4 bg-slate-50 border border-transparent rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-slate-300"
+                                        className={`w-full px-6 py-4 bg-slate-50 border ${errors.studentId ? 'border-red-500 ring-1 ring-red-500' : 'border-transparent'} rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-slate-300`}
                                         value={formData.studentId}
-                                        onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, studentId: e.target.value });
+                                            if (errors.studentId) setErrors({ ...errors, studentId: null });
+                                        }}
                                     />
+                                    {errors.studentId && <p className="text-red-500 text-xs font-semibold ml-2 mt-1">{errors.studentId}</p>}
                                 </div>
                                 <div className="space-y-2 sm:col-span-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">University Email</label>
@@ -155,12 +194,15 @@ const EventRegistration = () => {
                                         <EnvelopeIcon className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                         <input
                                             type="email"
-                                            required
-                                            className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-transparent rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-slate-300"
+                                            className={`w-full pl-14 pr-6 py-4 bg-slate-50 border ${errors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-transparent'} rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-slate-300`}
                                             value={formData.email}
-                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, email: e.target.value });
+                                                if (errors.email) setErrors({ ...errors, email: null });
+                                            }}
                                         />
                                     </div>
+                                    {errors.email && <p className="text-red-500 text-xs font-semibold ml-2 mt-1">{errors.email}</p>}
                                 </div>
                             </div>
                         </div>
@@ -177,13 +219,16 @@ const EventRegistration = () => {
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Any dietary requirements or questions?</label>
                                 <textarea
-                                    required
                                     rows="4"
-                                    className="w-full px-6 py-4 bg-slate-50 border border-transparent rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-50 transition-all placeholder:text-slate-300 resize-none leading-relaxed"
+                                    className={`w-full px-6 py-4 bg-slate-50 border ${errors.message ? 'border-red-500 ring-1 ring-red-500' : 'border-transparent'} rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-50 transition-all placeholder:text-slate-300 resize-none leading-relaxed`}
                                     value={formData.message}
-                                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, message: e.target.value });
+                                        if (errors.message) setErrors({ ...errors, message: null });
+                                    }}
                                     placeholder="I'm excited to attend! I have a vegetarian diet..."
                                 />
+                                {errors.message && <p className="text-red-500 text-xs font-semibold ml-2 mt-1">{errors.message}</p>}
                             </div>
                         </div>
 

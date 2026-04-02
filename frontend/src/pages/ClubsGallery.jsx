@@ -15,12 +15,12 @@ import {
 } from '@heroicons/react/24/outline';
 
 const categoryColors = {
-  Academic:          { bg: 'bg-blue-500',   text: 'text-blue-600',   light: 'bg-blue-50',   border: 'border-blue-100' },
-  Sports:            { bg: 'bg-green-500',  text: 'text-green-600',  light: 'bg-green-50',  border: 'border-green-100' },
-  Arts:              { bg: 'bg-pink-500',   text: 'text-pink-600',   light: 'bg-pink-50',   border: 'border-pink-100' },
-  'Community Service':{ bg: 'bg-orange-500', text: 'text-orange-600', light: 'bg-orange-50', border: 'border-orange-100' },
-  Technology:        { bg: 'bg-purple-500', text: 'text-purple-600', light: 'bg-purple-50', border: 'border-purple-100' },
-  Other:             { bg: 'bg-gray-500',   text: 'text-gray-600',   light: 'bg-gray-50',   border: 'border-gray-100' },
+  Academic: { bg: 'bg-blue-500', text: 'text-blue-600', light: 'bg-blue-50', border: 'border-blue-100' },
+  Sports: { bg: 'bg-green-500', text: 'text-green-600', light: 'bg-green-50', border: 'border-green-100' },
+  Arts: { bg: 'bg-pink-500', text: 'text-pink-600', light: 'bg-pink-50', border: 'border-pink-100' },
+  'Community Service': { bg: 'bg-orange-500', text: 'text-orange-600', light: 'bg-orange-50', border: 'border-orange-100' },
+  Technology: { bg: 'bg-purple-500', text: 'text-purple-600', light: 'bg-purple-50', border: 'border-purple-100' },
+  Other: { bg: 'bg-gray-500', text: 'text-gray-600', light: 'bg-gray-50', border: 'border-gray-100' },
 };
 
 const categoryEmoji = {
@@ -38,7 +38,7 @@ const fallbackImages = [
 
 const ClubCard = ({ club, index, isBookmarked, onToggleBookmark }) => {
   const colors = categoryColors[club.category] || categoryColors.Other;
-  const emoji  = categoryEmoji[club.category]  || '🎯';
+  const emoji = categoryEmoji[club.category] || '🎯';
   const imgSrc = club.image
     ? (club.image.startsWith('http') ? club.image : `http://localhost:5000/${club.image.replace(/\\/g, '/')}`)
     : fallbackImages[index % fallbackImages.length];
@@ -62,7 +62,7 @@ const ClubCard = ({ club, index, isBookmarked, onToggleBookmark }) => {
         </span>
 
         {/* Bookmark Button */}
-        <button 
+        <button
           onClick={(e) => { e.preventDefault(); onToggleBookmark(club._id); }}
           className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:scale-110 transition-transform z-10 border border-slate-100/50"
         >
@@ -138,31 +138,38 @@ const ClubCard = ({ club, index, isBookmarked, onToggleBookmark }) => {
 };
 
 const ClubsGallery = () => {
-  const [clubs, setClubs]       = useState([]);
+  const [clubs, setClubs] = useState([]);
   const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
-  const [loading, setLoading]   = useState(true);
-  const [search, setSearch]     = useState('');
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
   useEffect(() => {
     Promise.all([getAllClubs(), getMyBookmarks()])
       .then(([clubsData, bookmarksData]) => {
-        setClubs(clubsData);
-        setBookmarkedIds(new Set(bookmarksData.map(b => b.clubId._id || b.clubId)));
+        setClubs(clubsData || []);
+        // Safely extract bookmarked IDs, filtering out any bookmarks with invalid/null clubId
+        const validBookmarkIds = (bookmarksData || [])
+          .filter(b => b && b.clubId)
+          .map(b => b.clubId._id || b.clubId);
+        setBookmarkedIds(new Set(validBookmarkIds));
       })
-      .catch(console.error)
+      .catch(err => {
+        console.error("Error fetching clubs or bookmarks:", err);
+        setClubs([]); // Ensure clubs is at least an empty array on error
+      })
       .finally(() => setLoading(false));
   }, []);
 
   const handleToggleBookmark = async (clubId) => {
     try {
-        const result = await toggleBookmark(clubId);
-        const newSet = new Set(bookmarkedIds);
-        if (result.bookmarked) newSet.add(clubId);
-        else newSet.delete(clubId);
-        setBookmarkedIds(newSet);
+      const result = await toggleBookmark(clubId);
+      const newSet = new Set(bookmarkedIds);
+      if (result.bookmarked) newSet.add(clubId);
+      else newSet.delete(clubId);
+      setBookmarkedIds(newSet);
     } catch (error) {
-        console.error("Failed to toggle bookmark", error);
+      console.error("Failed to toggle bookmark", error);
     }
   };
 
@@ -186,7 +193,7 @@ const ClubsGallery = () => {
           <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-purple-300 rounded-full blur-3xl" />
         </div>
         <div className="relative z-10 max-w-3xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight drop-shadow-lg">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-4 tracking-tight drop-shadow-lg">
             Explore Clubs
           </h1>
           <p className="text-blue-100 text-lg md:text-xl leading-relaxed mb-8 font-medium">
@@ -212,7 +219,7 @@ const ClubsGallery = () => {
       </div>
 
       {/* ── Category Filter ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-5 relative z-20">
+      <div className="w-full px-4 sm:px-10 lg:px-20 xl:px-32 -mt-5 relative z-20">
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 px-6 py-4 flex items-center space-x-3 overflow-x-auto scrollbar-hide">
           {allCategories.map((cat) => {
             const colors = categoryColors[cat];
@@ -221,13 +228,12 @@ const ClubsGallery = () => {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 shrink-0 ${
-                  isActive
+                className={`flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 shrink-0 ${isActive
                     ? cat === 'All'
                       ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
                       : `${colors.bg} text-white shadow-md`
                     : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 {cat !== 'All' && <span>{categoryEmoji[cat]}</span>}
                 <span>{cat}</span>
@@ -241,7 +247,7 @@ const ClubsGallery = () => {
       </div>
 
       {/* ── Cards Grid ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      <div className="w-full px-4 sm:px-10 lg:px-20 xl:px-32 py-12">
         {loading ? (
           <div className="flex justify-center py-24">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
@@ -253,12 +259,12 @@ const ClubsGallery = () => {
             <p className="text-gray-400 mt-1 text-sm">Try a different search or category</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
             {filtered.map((club, i) => (
-              <ClubCard 
-                key={club._id} 
-                club={club} 
-                index={i} 
+              <ClubCard
+                key={club._id}
+                club={club}
+                index={i}
                 isBookmarked={bookmarkedIds.has(club._id)}
                 onToggleBookmark={handleToggleBookmark}
               />

@@ -7,11 +7,13 @@ import {
     ClockIcon,
     CheckCircleIcon,
     XCircleIcon,
-    InformationCircleIcon,
     XMarkIcon
 } from '@heroicons/react/24/outline';
+import { useAuth } from '../hooks/useAuth';
+import { Link } from 'react-router-dom';
 
 const MyRequests = () => {
+    const { user } = useAuth();
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingRequest, setEditingRequest] = useState(null);
@@ -23,7 +25,7 @@ const MyRequests = () => {
 
     const fetchRequests = async () => {
         try {
-            const data = await getMyRequests();
+            const data = await getMyRequests(user?._id);
             setRequests(data);
         } catch (error) {
             console.error(error);
@@ -105,8 +107,8 @@ const MyRequests = () => {
                         const StatusIcon = theme.icon;
 
                         return (
-                            <div 
-                                key={request._id} 
+                            <div
+                                key={request._id}
                                 className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-100 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-8"
                                 style={{ animationDelay: `${idx * 100}ms` }}
                             >
@@ -124,7 +126,7 @@ const MyRequests = () => {
                                             </p>
                                         </div>
                                     </div>
-                                    
+
                                     {request.status === 'pending' && (
                                         <div className="flex gap-2">
                                             <button
@@ -199,7 +201,7 @@ const MyRequests = () => {
                             <h3 className="text-2xl font-black tracking-tight">Edit Application</h3>
                             <p className="text-slate-400 text-xs font-medium mt-1 uppercase tracking-widest">Update your message to {editingRequest.clubId?.name}</p>
                         </div>
-                        
+
                         <div className="p-8 space-y-6">
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Your Message</label>
@@ -211,7 +213,7 @@ const MyRequests = () => {
                                     onChange={(e) => setEditMessage(e.target.value)}
                                 />
                             </div>
-                            
+
                             <button
                                 onClick={handleUpdate}
                                 className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 transition-all"

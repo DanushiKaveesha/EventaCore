@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logoImg from '../../assets/logo.png.jpeg';
-import { 
-  HomeIcon, 
-  UserGroupIcon, 
+import {
+  HomeIcon,
+  UserGroupIcon,
   CalendarIcon,
   UserCircleIcon,
   ClipboardDocumentListIcon,
@@ -20,7 +20,7 @@ import { useAuth } from '../../hooks/useAuth';
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
-  
+
   const location = useLocation();
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const Header = () => {
     <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          
+
           {/* Logo Section */}
           <Link to="/" className="flex items-center space-x-2 group shrink-0">
             <img src={logoImg} alt="EventaCore Logo" className="h-10 w-10 sm:h-12 sm:w-12 object-contain rounded drop-shadow-sm group-hover:scale-105 transition-transform" />
@@ -44,6 +44,10 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
+            <Link to="/" className="text-gray-600 hover:text-[#7C3AED] font-semibold transition flex items-center space-x-1">
+              <HomeIcon className="h-5 w-5" />
+              <span>Home</span>
+            </Link>
             <Link to="/events" className="text-gray-600 hover:text-[#7C3AED] font-semibold transition flex items-center space-x-1">
               <CalendarIcon className="h-5 w-5" />
               <span>Events</span>
@@ -52,7 +56,7 @@ const Header = () => {
               <UserGroupIcon className="h-5 w-5" />
               <span>Explore Clubs</span>
             </Link>
-            
+
             <div className="h-6 w-px bg-gray-200"></div>
 
             {/* My Personal Dashboard Dropdown */}
@@ -63,7 +67,7 @@ const Header = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path>
                 </svg>
               </button>
-              
+
               <div className="absolute top-full right-1/2 translate-x-1/2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-50 overflow-hidden">
                 <div className="p-2 space-y-1">
                   <Link to="/my-requests" className="flex items-center space-x-3 p-3 hover:bg-slate-50 rounded-xl transition-colors">
@@ -85,7 +89,7 @@ const Header = () => {
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Event Registrations</p>
                     </div>
                   </Link>
-                  
+
                   {user && (
                     <Link to="/my-bookings" className="flex items-center space-x-3 p-3 hover:bg-slate-50 rounded-xl transition-colors">
                       <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
@@ -171,6 +175,9 @@ const Header = () => {
       {/* Mobile Menu Panel */}
       <div className={`lg:hidden ${mobileMenuOpen ? 'block' : 'hidden'} bg-white border-t border-gray-100 absolute w-full shadow-2xl`}>
         <div className="px-4 py-6 space-y-2">
+          <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 rounded-xl font-medium hover:bg-gray-50 text-gray-700">
+            <div className="flex items-center space-x-3"><HomeIcon className="h-6 w-6 text-gray-400" /><span>Home</span></div>
+          </Link>
           <Link to="/events" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 rounded-xl font-medium hover:bg-gray-50 text-gray-700">
             <div className="flex items-center space-x-3"><CalendarIcon className="h-6 w-6 text-gray-400" /><span>Events</span></div>
           </Link>

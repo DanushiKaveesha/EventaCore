@@ -32,37 +32,44 @@ const AdminStats = ({ events = [] }) => {
   };
 
   return (
-    <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-8 flex flex-col md:flex-row items-center">
-      <div className="md:w-1/2 mb-6 md:mb-0">
-        <h3 className="text-2xl font-black text-gray-900 tracking-tight">Status Distribution</h3>
-        <p className="text-gray-400 font-bold text-sm uppercase tracking-widest mt-1">Live platform overview</p>
+    <div className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-white p-10 flex flex-col md:flex-row items-center relative overflow-hidden group">
+      <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -ml-32 -mt-32 group-hover:bg-blue-500/10 transition-colors" />
+      
+      <div className="md:w-1/2 mb-10 md:mb-0 relative z-10">
+        <h3 className="text-3xl font-black text-gray-900 tracking-tight leading-none mb-2">Status Distribution</h3>
+        <p className="text-gray-400 font-black text-[10px] uppercase tracking-[4px]">Live Platform Overview</p>
         
-        <div className="mt-8 space-y-4">
+        <div className="mt-10 space-y-3">
           {statusData.map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 border border-gray-100">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                <span className="text-sm font-bold text-gray-600 uppercase tracking-wider">{item.name}</span>
+            <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50/50 border border-gray-100/50 hover:bg-white hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="w-4 h-4 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: item.color }}></div>
+                <span className="text-xs font-black text-gray-600 uppercase tracking-widest">{item.name}</span>
               </div>
-              <span className="text-lg font-black text-gray-900">{item.value}</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black text-gray-900">{item.value}</span>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight">Units</span>
+              </div>
             </div>
           ))}
           {statusData.length === 0 && (
-            <p className="text-gray-400 italic text-sm">No data available yet...</p>
+            <div className="py-10 text-center bg-gray-50/30 rounded-3xl border border-dashed border-gray-200">
+              <p className="text-xs font-black text-gray-300 uppercase tracking-widest tracking-widest">No Active Data</p>
+            </div>
           )}
         </div>
       </div>
       
-      <div className="md:w-1/2 h-[300px] w-full">
+      <div className="md:w-1/2 h-[320px] w-full relative z-10">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={statusData}
               cx="50%"
               cy="50%"
-              innerRadius={70}
-              outerRadius={100}
-              paddingAngle={8}
+              innerRadius={80}
+              outerRadius={110}
+              paddingAngle={10}
               dataKey="value"
               stroke="none"
             >
@@ -73,6 +80,11 @@ const AdminStats = ({ events = [] }) => {
             <Tooltip content={<CustomTooltip />} />
           </PieChart>
         </ResponsiveContainer>
+        {/* Center Text */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Global</p>
+          <p className="text-3xl font-black text-gray-900">{events.length}</p>
+        </div>
       </div>
     </div>
   );
