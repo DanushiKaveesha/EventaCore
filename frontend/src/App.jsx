@@ -12,6 +12,7 @@ import EditAccount from './pages/EditAccount';
 import SecuritySettings from './pages/SecuritySettings';
 import ForgotPassword from './pages/ForgotPassword';
 import CalendarView from './pages/CalendarView';
+import Notifications from './pages/Notifications';
 import AdminOverview from './pages/admin/AdminOverview';
 import AdminUsers from './pages/admin/AdminUsers';
 import { refreshCurrentUserSession } from './utils/getCurrentUser';
@@ -92,6 +93,15 @@ function App() {
         element={
           <ProtectedRoute>
             <CalendarView />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <Notifications />
           </ProtectedRoute>
         }
       />

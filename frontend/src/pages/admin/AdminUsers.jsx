@@ -8,7 +8,10 @@ import {
   PhoneIcon,
   ShieldCheckIcon,
   CalendarDaysIcon,
-  ChevronUpDownIcon
+  ChevronUpDownIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  XMarkIcon,
+  PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
 import { getCurrentUser } from '../../utils/getCurrentUser';
 
@@ -21,6 +24,9 @@ const AdminUsers = () => {
   const [updatingUserId, setUpdatingUserId] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [messagingUserId, setMessagingUserId] = useState(null);
+  const [adminMessage, setAdminMessage] = useState('');
+  const [isMessageSending, setIsMessageSending] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -101,6 +107,36 @@ const AdminUsers = () => {
       setTimeout(() => setError(''), 4000);
     } finally {
       setUpdatingUserId('');
+    }
+  };
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!adminMessage.trim()) return;
+    try {
+      setIsMessageSending(true);
+      setError('');
+      setSuccessMessage('');
+      
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      await axios.post(
+        'http://localhost:5000/api/notifications/send',
+        { userId: messagingUserId, message: adminMessage },
+        {
+          headers: {
+            Authorization: `Bearer ${userInfo?.token}`,
+          },
+        }
+      );
+      setSuccessMessage('Message sent successfully to user.');
+      setTimeout(() => setSuccessMessage(''), 3000);
+      setMessagingUserId(null);
+      setAdminMessage('');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send message.');
+      setTimeout(() => setError(''), 4000);
+    } finally {
+      setIsMessageSending(false);
     }
   };
 
@@ -275,16 +311,28 @@ const AdminUsers = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <select
-                          value={user.status || 'active'}
-                          onChange={(e) => handleStatusChange(user._id, e.target.value)}
-                          disabled={updatingUserId === user._id}
-                          className="text-sm font-bold text-gray-700 bg-white border border-gray-200 shadow-sm rounded-lg px-3 py-1.5 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 hover:bg-gray-50 outline-none transition cursor-pointer disabled:opacity-50 disabled:cursor-wait"
-                        >
-                          <option value="active" className="font-semibold text-gray-900">Active</option>
-                          <option value="suspended" className="font-semibold text-gray-900">Suspend</option>
-                          <option value="deactivated" className="font-semibold text-red-600">Deactivate</option>
-                        </select>
+                        <div className="flex items-center justify-end gap-3">
+                          <button
+                            onClick={() => {
+                              setMessagingUserId(user._id);
+                              setAdminMessage('');
+                            }}
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-indigo-600 transition-colors p-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg shadow-sm"
+                            title="Message User"
+                          >
+                            <ChatBubbleOvalLeftEllipsisIcon className="w-5 h-5" />
+                          </button>
+                          <select
+                            value={user.status || 'active'}
+                            onChange={(e) => handleStatusChange(user._id, e.target.value)}
+                            disabled={updatingUserId === user._id}
+                            className="text-sm font-bold text-gray-700 bg-white border border-gray-200 shadow-sm rounded-lg px-3 py-1.5 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 hover:bg-gray-50 outline-none transition cursor-pointer disabled:opacity-50 disabled:cursor-wait"
+                          >
+                            <option value="active" className="font-semibold text-gray-900">Active</option>
+                            <option value="suspended" className="font-semibold text-gray-900">Suspend</option>
+                            <option value="deactivated" className="font-semibold text-red-600">Deactivate</option>
+                          </select>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -294,6 +342,69 @@ const AdminUsers = () => {
           )}
         </div>
       </div>
+
+      {/* Message Modal */}
+      {messagingUserId && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm transition-opacity content-start animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-gray-50/50">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <ChatBubbleOvalLeftEllipsisIcon className="w-5 h-5 text-indigo-500" />
+                Send Notification
+              </h3>
+              <button 
+                onClick={() => setMessagingUserId(null)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200 transition-colors"
+                title="Cancel"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSendMessage} className="p-5">
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Message Content
+                </label>
+                <textarea
+                  value={adminMessage}
+                  onChange={(e) => setAdminMessage(e.target.value)}
+                  placeholder="Type a broadcast message or direct notification..."
+                  rows="4"
+                  className="w-full text-sm font-medium text-gray-800 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100 transition-all resize-none shadow-sm"
+                  required
+                ></textarea>
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setMessagingUserId(null)}
+                  className="px-4 py-2 text-sm font-bold text-gray-600 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isMessageSending || !adminMessage.trim()}
+                  className="px-4 py-2 text-sm font-bold text-white bg-indigo-600 border border-transparent rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isMessageSending ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <PaperAirplaneIcon className="w-4 h-4" />
+                      Send Message
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

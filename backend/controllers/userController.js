@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Notification from '../models/Notification.js';
 import bcrypt from 'bcryptjs';
 
 // Admin endpoint to manually create a new user bypassing self-registration
@@ -156,6 +157,13 @@ const updateUserProfile = async (req, res) => {
     if (req.body.password) {
       const salt = await bcrypt.genSalt(10);
       user.passwordHash = await bcrypt.hash(req.body.password, salt);
+
+      Notification.create({
+        user: user._id,
+        message: 'Your password was recently changed. If you did not authorize this, please contact support immediately.',
+      }).catch((err) => {
+        console.error('Failed to create password change notification:', err);
+      });
     }
 
     const updatedUser = await user.save();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import {
@@ -8,13 +8,50 @@ import {
   ShieldCheckIcon,
   BellIcon,
   Cog6ToothIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import { getCurrentUser } from '../utils/getCurrentUser';
 
 // Main user dashboard rendering fast-action cards depending on permissions
 const Dashboard = () => {
   const user = getCurrentUser();
+  const [notifications, setNotifications] = useState([]);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+  useEffect(() => {
+    if (user?.token) {
+      fetchNotifications();
+    }
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/notifications', {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch notifications', err);
+    }
+  };
+
+  const deleteNotification = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/notifications/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      if (res.ok) {
+        setNotifications((prev) => prev.filter((n) => n._id !== id));
+      }
+    } catch (err) {
+      console.error('Failed to delete notification', err);
+    }
+  };
 
   const profileImage =
     user?.profileImageURL && user.profileImageURL.startsWith('/uploads')
@@ -74,11 +111,52 @@ const Dashboard = () => {
               <span className="font-bold text-2xl text-slate-900 tracking-tight hidden sm:block">EventraCore</span>
             </Link>
             
-            <div className="flex items-center gap-2 sm:gap-4">
-              <Link to="/notifications" className="p-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-indigo-600 transition relative">
+            <div className="flex items-center gap-2 sm:gap-4 relative">
+              <button 
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} 
+                className="p-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-indigo-600 transition relative"
+              >
                 <BellIcon className="w-6 h-6" />
-                <span className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-              </Link>
+                {notifications.length > 0 && (
+                  <span className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                )}
+              </button>
+
+              {/* Notifications Dropdown */}
+              {isNotificationsOpen && (
+                <div className="absolute top-12 right-2 sm:right-12 w-80 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                  <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 className="font-bold text-slate-800">Notifications</h3>
+                    <span className="text-xs font-semibold text-indigo-600 bg-indigo-100 py-0.5 px-2 rounded-full">
+                      {notifications.length} New
+                    </span>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-6 text-center text-slate-500 text-sm">
+                        No new notifications.
+                      </div>
+                    ) : (
+                      notifications.map((notif) => (
+                        <div key={notif._id} className="p-4 border-b border-slate-100 hover:bg-slate-50 transition relative group">
+                          <p className="text-sm text-slate-700 pr-6">{notif.message}</p>
+                          <span className="text-xs text-slate-400 mt-1 block">
+                            {new Date(notif.createdAt).toLocaleDateString()}
+                          </span>
+                          <button
+                            onClick={() => deleteNotification(notif._id)}
+                            className="absolute top-4 right-4 text-slate-300 hover:text-red-500"
+                            title="Delete"
+                          >
+                            <XMarkIcon className="w-5 h-5" />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+
               <Link to="/settings" className="p-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-indigo-600 transition">
                 <Cog6ToothIcon className="w-6 h-6" />
               </Link>

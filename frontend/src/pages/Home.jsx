@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import {
@@ -9,10 +9,41 @@ import {
   SparklesIcon,
   GlobeAltIcon,
   UserCircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
+import { getSriLankanHolidays } from '../utils/sriLankanHolidays';
 
 const Home = () => {
   let user = null;
+
+  // Calendar logic
+  const today = new Date();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+  
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
+  };
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  
+  const calendarDays = [];
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    calendarDays.push(null);
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    calendarDays.push(i);
+  }
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
 
   try {
     const storedUser =
@@ -341,6 +372,72 @@ const Home = () => {
           )}
         </div>
       </section>
+
+      {/* 5. FOOTER & CALENDAR */}
+      <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 py-12 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 opacity-50"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-8 items-center relative z-10">
+          <div className="text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
+              <img src={logo} alt="EventraCore Logo" className="w-8 h-8 opacity-80" />
+              <h3 className="text-3xl font-extrabold text-white tracking-tight drop-shadow-sm">EventraCore</h3>
+            </div>
+            <p className="text-sm max-w-md mx-auto md:mx-0 mb-6 text-slate-500 leading-relaxed font-medium">
+              The Next Generation Campus Experience. Streamlining events, users, and communities for universities across Sri Lanka.
+            </p>
+            <p className="text-xs text-slate-600 font-semibold tracking-wider uppercase">
+              &copy; {currentYear} EventraCore. All rights reserved.
+            </p>
+          </div>
+          
+          <div className="flex justify-center md:justify-end">
+            <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl p-5 border border-slate-700/50 w-72 shadow-2xl hover:shadow-[0_0_30px_rgba(79,70,229,0.15)] transition-shadow duration-300">
+              <div className="flex justify-between items-center mb-4 border-b border-slate-700/50 pb-3">
+                <span className="text-sm font-extrabold text-white tracking-widest uppercase flex items-center gap-2">
+                  <button onClick={goToPreviousMonth} className="p-1 hover:bg-slate-700 rounded transition-colors" title="Previous Month">
+                    <ChevronLeftIcon className="w-4 h-4 text-slate-400 hover:text-white" />
+                  </button>
+                  {monthNames[currentMonth]} {currentYear}
+                  <button onClick={goToNextMonth} className="p-1 hover:bg-slate-700 rounded transition-colors" title="Next Month">
+                    <ChevronRightIcon className="w-4 h-4 text-slate-400 hover:text-white" />
+                  </button>
+                </span>
+              </div>
+              <div className="grid grid-cols-7 gap-1 text-center mb-2">
+                {dayNames.map(d => (
+                  <div key={d} className="text-[10px] font-bold text-slate-500">{d}</div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-1.5 text-center">
+                {calendarDays.map((day, idx) => {
+                  if (!day) return <div key={`empty-${idx}`} className="h-7"></div>;
+                  
+                  const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+                  
+                  const monthHolidays = getSriLankanHolidays(currentYear, currentMonth);
+                  const holidayName = monthHolidays[day];
+                  const isHoliday = !!holidayName;
+                  
+                  return (
+                    <div 
+                      key={`day-${day}`} 
+                      className={`h-7 w-7 mx-auto flex items-center justify-center rounded-lg text-xs font-bold cursor-default transition-all duration-200
+                        ${isToday 
+                          ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)] transform scale-110 relative z-10' 
+                          : isHoliday 
+                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 font-extrabold' 
+                            : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}
+                      title={isHoliday ? holidayName : ''}
+                    >
+                      {day}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

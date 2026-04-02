@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Notification from '../models/Notification.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import {
@@ -68,8 +69,12 @@ const registerUser = async (req, res) => {
       Promise.all([
         sendWelcomeEmail(newUser.email, newUser.username),
         sendNewUserNotification(newUser),
+        Notification.create({
+          user: newUser._id,
+          message: `Welcome, ${newUser.firstName}! We're glad you're here. Let's get started.`,
+        }),
       ]).catch((err) => {
-        console.error('Failed to send registration emails:', err);
+        console.error('Failed to send registration emails or notifications:', err);
       });
 
       res.status(201).json({
@@ -114,6 +119,13 @@ const loginUser = async (req, res) => {
           .status(403)
           .json({ message: 'Your account has been deactivated.' });
       }
+
+      Notification.create({
+        user: user._id,
+        message: `Welcome back, ${user.firstName}! We're glad to see you again.`,
+      }).catch((err) => {
+        console.error('Failed to create welcome back notification:', err);
+      });
 
       res.json({
         _id: user._id,
@@ -184,6 +196,13 @@ const resetPassword = async (req, res) => {
     user.passwordResetCode = undefined;
     user.passwordResetExpires = undefined;
     await user.save();
+
+    Notification.create({
+      user: user._id,
+      message: 'Your password has been successfully reset. If this was not you, please contact support immediately.',
+    }).catch((err) => {
+      console.error('Failed to create password reset notification:', err);
+    });
 
     res.json({ message: 'Password reset successful.' });
   } catch (error) {
