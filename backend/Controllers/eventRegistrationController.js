@@ -26,7 +26,12 @@ exports.getAdminEventRequests = async (req, res) => {
 
 exports.getMyEventRequests = async (req, res) => {
     try {
-        const requests = await EventRegistration.find().populate('clubId', 'name image');
+        const { userId } = req.query;
+        let query = {};
+        if (userId) {
+            query.user = userId;
+        }
+        const requests = await EventRegistration.find(query).populate('clubId', 'name image');
         res.status(200).json(requests);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -41,7 +46,7 @@ exports.updateEventRequestStatus = async (req, res) => {
             req.body,
             { new: true, runValidators: true }
         );
-        
+
         if (!updatedRequest) return res.status(404).json({ message: "Registration not found" });
 
 

@@ -7,7 +7,7 @@ const path = require("path");
 exports.requestMembership = async (req, res) => {
     try {
         const membershipData = { ...req.body };
-        
+
         if (req.file) {
             membershipData.paymentSlip = path.relative(
                 path.join(__dirname, '..'),
@@ -26,12 +26,15 @@ exports.requestMembership = async (req, res) => {
     }
 };
 
-// Get My Requests (Placeholder identifier)
+// Get My Requests (Filtered by User ID)
 exports.getMyRequests = async (req, res) => {
     try {
-        // In a real app, we'd filter by req.user.id
-        // For now, let's assume the frontend sends a studentId or we return all for simplicity
-        const requests = await Membership.find().populate('clubId', 'name image');
+        const { userId } = req.query;
+        let query = {};
+        if (userId) {
+            query.user = userId;
+        }
+        const requests = await Membership.find(query).populate('clubId', 'name image');
         res.status(200).json(requests);
     } catch (error) {
         res.status(500).json({ message: error.message });
