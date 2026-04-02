@@ -1,215 +1,158 @@
-import User from '../models/User.js';
-import Notification from '../models/Notification.js';
-import bcrypt from 'bcryptjs';
+const User = require("../Models/User");
+const bcrypt = require("bcryptjs");
 
-// Admin endpoint to manually create a new user bypassing self-registration
-const createUser = async (req, res) => {
-  try {
-    const {
-      username,
-      email,
-      passwordHash,
-      role,
-      firstName,
-      lastName,
-      contactNumber,
-      address,
-      profileImageURL,
-      status,
-    } = req.body;
-
-    const newUser = await User.create({
-      username,
-      email,
-      passwordHash,
-      role,
-      firstName,
-      lastName,
-      contactNumber,
-      address,
-      profileImageURL,
-      status,
-    });
-
-    res.status(201).json(newUser);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Admin endpoint to fetch a list of all registered users
+// ─── GET ALL USERS (Admin) ────────────────────────────────────────────────────
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find()
-      .select(
-        '_id username email role firstName lastName contactNumber profileImageURL status createdAt'
-      )
-      .sort({ createdAt: -1 });
-
-    res.json(users);
+    const users = await User.find().select("-password").sort({ createdAt: -1 });
+    res.status(200).json(users);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
+// ─── GET SINGLE USER ──────────────────────────────────────────────────────────
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-passwordHash');
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json(user);
+    const user = await User.findById(req.params.userId).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.status(200).json(user);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
+// ─── CREATE USER (Register) ───────────────────────────────────────────────────
+const createUser = async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email and password are required." });
+    }
+
+    const existing = await User.findOne({ email: email.toLowerCase() });
+    if (existing) {
+      return res.status(409).json({ message: "A user with this email already exists." });
+    }
+
+    const newUser = new User({ name, email, password, role: role || "Student" });
+    const saved = await newUser.save();
+
+    const { password: _, ...userWithoutPassword } = saved.toObject();
+    res.status(201).json(userWithoutPassword);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ─── UPDATE USER ──────────────────────────────────────────────────────────────
 const updateUser = async (req, res) => {
   try {
-    const updatedData = { ...req.body };
+    const { name, email, role, isActive } = req.body;
 
-    if (updatedData.password) {
-      const salt = await bcrypt.genSalt(10);
-      updatedData.passwordHash = await bcrypt.hash(updatedData.password, salt);
-      delete updatedData.password;
-    }
+    const user = await User.findById(req.params.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, updatedData, {
-      new: true,
-      runValidators: true,
-    }).select('-passwordHash');
+    if (name !== undefined)     user.name = name;
+    if (email !== undefined)    user.email = email.toLowerCase();
+    if (role !== undefined)     user.role = role;
+    if (isActive !== undefined) user.isActive = isActive;
 
-    if (!updatedUser) return res.status(404).json({ message: 'User not found' });
-
-    res.json(updatedUser);
+    const updated = await user.save();
+    const { password: _, ...userWithoutPassword } = updated.toObject();
+    res.status(200).json(userWithoutPassword);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-// Admin endpoint to dynamically activate, suspend, or deactivate a user
-const updateUserStatus = async (req, res) => {
+// ─── CHANGE PASSWORD ──────────────────────────────────────────────────────────
+const changePassword = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.params.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!['active', 'suspended', 'deactivated'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status value.' });
-    }
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) return res.status(401).json({ message: "Current password is incorrect." });
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true, runValidators: true }
-    ).select(
-      '_id username email role firstName lastName contactNumber profileImageURL status createdAt'
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.json(updatedUser);
+    user.password = newPassword;
+    await user.save();
+    res.status(200).json({ message: "Password updated successfully." });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
+// ─── TOGGLE ACTIVE STATUS (Admin) ────────────────────────────────────────────
+const toggleUserStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.isActive = !user.isActive;
+    await user.save();
+    res.status(200).json({ message: `User ${user.isActive ? "activated" : "deactivated"} successfully.`, isActive: user.isActive });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ─── UPDATE ROLE (Admin) ─────────────────────────────────────────────────────
+const updateUserRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    const validRoles = ["Student", "Organizer", "Admin"];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ message: `Invalid role. Must be one of: ${validRoles.join(", ")}` });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { role },
+      { new: true, select: "-password" }
+    );
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ─── DELETE USER (Admin) ─────────────────────────────────────────────────────
 const deleteUser = async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
-    if (!deletedUser) return res.status(404).json({ message: 'User not found' });
-    res.json({ message: 'User deleted successfully' });
+    const user = await User.findByIdAndDelete(req.params.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.status(200).json({ message: "User deleted successfully." });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-// Fetch the currently authenticated user's profile data
-const getUserProfile = async (req, res) => {
+// ─── USER STATS (Admin Dashboard) ────────────────────────────────────────────
+const getUserStats = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-passwordHash');
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.json(user);
+    const total = await User.countDocuments();
+    const active = await User.countDocuments({ isActive: true });
+    const byRole = await User.aggregate([
+      { $group: { _id: "$role", count: { $sum: 1 } } }
+    ]);
+    res.status(200).json({ total, active, inactive: total - active, byRole });
   } catch (err) {
-    console.error('Get User Profile Error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-// Allow the authenticated user to update their own profile details
-const updateUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    user.firstName = req.body.firstName ?? user.firstName;
-    user.lastName = req.body.lastName ?? user.lastName;
-    user.dob = req.body.dob ?? user.dob;
-    user.contactNumber = req.body.contactNumber ?? user.contactNumber;
-    user.address = req.body.address ?? user.address;
-    user.profileImageURL = req.body.profileImageURL ?? user.profileImageURL;
-
-    if (req.body.password) {
-      const salt = await bcrypt.genSalt(10);
-      user.passwordHash = await bcrypt.hash(req.body.password, salt);
-
-      Notification.create({
-        user: user._id,
-        message: 'Your password was recently changed. If you did not authorize this, please contact support immediately.',
-      }).catch((err) => {
-        console.error('Failed to create password change notification:', err);
-      });
-    }
-
-    const updatedUser = await user.save();
-
-    res.json({
-      _id: updatedUser._id,
-      username: updatedUser.username,
-      email: updatedUser.email,
-      role: updatedUser.role,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      dob: updatedUser.dob,
-      contactNumber: updatedUser.contactNumber,
-      address: updatedUser.address,
-      profileImageURL: updatedUser.profileImageURL,
-      status: updatedUser.status,
-    });
-  } catch (err) {
-    console.error('Update User Profile Error:', err);
-    res.status(500).json({ error: err.message });
-  }
-};
-
-const deleteOwnProfile = async (req, res) => {
-  try {
-    const deletedUser = await User.findByIdAndDelete(req.user._id);
-
-    if (!deletedUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.json({ message: 'Your account has been removed permanently.' });
-  } catch (err) {
-    console.error('Delete Own Profile Error:', err);
-    res.status(500).json({ error: err.message });
-  }
-};
-
-export default {
-  createUser,
+module.exports = {
   getAllUsers,
   getUserById,
+  createUser,
   updateUser,
-  updateUserStatus,
+  changePassword,
+  toggleUserStatus,
+  updateUserRole,
   deleteUser,
-  getUserProfile,
-  updateUserProfile,
-  deleteOwnProfile,
+  getUserStats,
 };
