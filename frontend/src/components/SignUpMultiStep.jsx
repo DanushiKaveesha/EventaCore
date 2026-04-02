@@ -7,6 +7,7 @@ import {
   ArrowRightIcon,
   PhotoIcon,
 } from '@heroicons/react/24/outline';
+import { setCurrentUser } from '../utils/getCurrentUser';
 
 const srilankaData = {
   Central: ['Kandy', 'Matale', 'Nuwara Eliya'],
@@ -318,7 +319,7 @@ export default function SignUpMultiStep() {
         registrationData
       );
 
-      localStorage.setItem('userInfo', JSON.stringify(data));
+      setCurrentUser(data);
       setMessage('Account created successfully! Redirecting to dashboard...');
 
       setTimeout(() => {
