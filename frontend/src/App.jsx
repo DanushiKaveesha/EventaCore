@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import Home from './pages/Home';
 import Login from './components/Login';
 import SignUpMultiStep from './components/SignUpMultiStep';
@@ -15,6 +16,7 @@ import CalendarView from './pages/CalendarView';
 import Notifications from './pages/Notifications';
 import AdminOverview from './pages/admin/AdminOverview';
 import AdminUsers from './pages/admin/AdminUsers';
+import CompleteProfile from './pages/CompleteProfile';
 import { refreshCurrentUserSession } from './utils/getCurrentUser';
 
 // Main application router and global session activity tracker
@@ -38,8 +40,9 @@ function App() {
   }, []);
 
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'dummy_client_id'}>
+      <Routes>
+        <Route path="/" element={<Home />} />
 
       <Route
         path="/login"
@@ -142,8 +145,18 @@ function App() {
         }
       />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route
+          path="/complete-profile"
+          element={
+            <ProtectedRoute>
+              <CompleteProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </GoogleOAuthProvider>
   );
 }
 

@@ -4,9 +4,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import {
   CalendarIcon,
-  ArrowRightIcon,
   PhotoIcon,
+  ArrowRightIcon,
 } from '@heroicons/react/24/outline';
+import { GoogleLogin } from '@react-oauth/google';
 import { setCurrentUser } from '../utils/getCurrentUser';
 
 const srilankaData = {
@@ -332,6 +333,33 @@ export default function SignUpMultiStep() {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const { data } = await axios.post(
+        'http://localhost:5000/api/auth/google',
+        { credential: credentialResponse.credential }
+      );
+
+      setCurrentUser(data);
+      setMessage('Account linked securely! Redirecting...');
+
+      setTimeout(() => {
+        if (!data.dob || !data.contactNumber || !data.address) {
+          navigate('/complete-profile');
+        } else {
+          navigate('/dashboard');
+        }
+      }, 1500);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Google authentication failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-950 via-indigo-900 to-purple-900 relative overflow-hidden">
       <div className="absolute inset-0 opacity-20 pointer-events-none">
@@ -418,6 +446,33 @@ export default function SignUpMultiStep() {
                     onChange={handleImageChange}
                     className="hidden"
                   />
+                </div>
+
+                <div className="mb-6 flex flex-col items-center justify-center space-y-4">
+                  <div className="relative w-full">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-gray-500 font-bold uppercase tracking-wider text-[10px]">Fast Signup</span>
+                    </div>
+                  </div>
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => setError('Google authentication failed.')}
+                    theme="filled_blue"
+                    shape="pill"
+                    text="signup_with"
+                    size="large"
+                  />
+                  <div className="relative w-full pt-2">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-gray-400 font-medium">Or manually register below</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">

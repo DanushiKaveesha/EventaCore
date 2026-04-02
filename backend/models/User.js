@@ -3,7 +3,9 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true },
   email: { type: String, unique: true, required: true },
-  passwordHash: { type: String, required: true },
+  passwordHash: { type: String }, // Optional for OAuth
+  authProvider: { type: String, enum: ['local', 'google'], default: 'local' },
+  googleId: { type: String, sparse: true, unique: true },
   role: {
     type: String,
     enum: ['admin', 'coach', 'technician', 'customer','coaching_manager' ,'order_manager', 'ground_manager', 'service_manager', 'delivery_staff'],

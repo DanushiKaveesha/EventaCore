@@ -9,10 +9,13 @@ import {
   resetPassword,
   sendEmailVerification,
   verifyEmailCode,
+  googleLogin,
 } from '../controllers/authController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.post('/google', googleLogin);
 router.get('/session-info', getServerSessionInfo);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);

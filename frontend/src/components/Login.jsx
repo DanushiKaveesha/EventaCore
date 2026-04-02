@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { CalendarIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { GoogleLogin } from '@react-oauth/google';
 import { setCurrentUser } from '../utils/getCurrentUser';
 
 export default function Login() {
@@ -44,6 +45,32 @@ export default function Login() {
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const { data } = await axios.post(
+        'http://localhost:5000/api/auth/google',
+        { credential: credentialResponse.credential }
+      );
+
+      setCurrentUser(data);
+
+      if (data.role === 'admin') {
+        navigate('/admin');
+      } else if (!data.dob || !data.contactNumber || !data.address) {
+        navigate('/complete-profile');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Google authentication failed.');
     } finally {
       setLoading(false);
     }
@@ -163,6 +190,27 @@ export default function Login() {
                 {loading ? 'Signing In...' : 'Sign In'}
                 {!loading && <ArrowRightIcon className="w-5 h-5" />}
               </button>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500 font-medium">Or continue with</span>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError('Google authentication failed.')}
+                  useOneTap
+                  theme="filled_blue"
+                  shape="pill"
+                  size="large"
+                />
+              </div>
+
             </form>
 
             <p className="mt-7 text-center text-sm text-gray-500">

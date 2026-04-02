@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import Notification from '../models/Notification.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import {
   sendWelcomeEmail,
   sendNewUserNotification,
@@ -276,6 +277,84 @@ const verifyEmailCode = async (req, res) => {
   }
 };
 
+const googleLogin = async (req, res) => {
+  const { credential } = req.body;
+
+  if (!credential) {
+    return res.status(400).json({ message: 'Missing Google credential.' });
+  }
+
+  try {
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+
+    const { email, given_name, family_name, picture, sub } = payload;
+
+    let user = await User.findOne({ email });
+
+    // If user already exists, just log them in
+    if (user) {
+      if (user.status === 'suspended') {
+        return res.status(403).json({ message: 'Your account has been suspended.' });
+      }
+      if (user.status === 'deactivated') {
+        return res.status(403).json({ message: 'Your account has been deactivated.' });
+      }
+      
+      // Update googleId and authProvider if they exist but don't have it set
+      if (!user.googleId) {
+        user.googleId = sub;
+        user.authProvider = 'google';
+        await user.save();
+      }
+    } else {
+      // Create new user based on Google profile
+      const username = email.split('@')[0] + Math.floor(Math.random() * 1000);
+      user = new User({
+        email,
+        username,
+        firstName: given_name,
+        lastName: family_name,
+        profileImageURL: picture,
+        authProvider: 'google',
+        googleId: sub,
+        role: 'customer',
+        status: 'active',
+      });
+      await user.save();
+      
+      Notification.create({
+        user: user._id,
+        message: `Welcome, ${user.firstName}! We're glad you're here via Google.`,
+      }).catch((err) => console.error(err));
+    }
+
+    res.json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      dob: user.dob,
+      contactNumber: user.contactNumber,
+      address: user.address,
+      profileImageURL: user.profileImageURL,
+      authProvider: user.authProvider,
+      serverSessionId,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    console.error('Google login error:', error);
+    res.status(500).json({ message: 'Error verifying Google account.' });
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -284,4 +363,5 @@ export {
   resetPassword,
   sendEmailVerification,
   verifyEmailCode,
+  googleLogin,
 };
