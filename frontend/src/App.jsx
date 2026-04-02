@@ -40,18 +40,17 @@ import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 
+// Main application router and global session activity tracker
 function App() {
-  console.log("App.jsx: Rendering");
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const isHomePage = location.pathname === '/';
 
   return (
     <div className={`flex flex-col min-h-screen ${isAdminRoute ? 'bg-[#F8FAFC]' : 'bg-[#F9FAFB]'}`}>
       {!isAdminRoute && <Header />}
       <main className="flex-grow w-full">
         <Routes>
-          {/* Base Platform Routes (from firstMerge) */}
+          {/* Base Platform Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
@@ -61,7 +60,7 @@ function App() {
           <Route path="/event/:id" element={<EventDetails />} />
           <Route path="/my-bookings" element={<MyBookings />} />
 
-          {/* Club Membership Routes (our feature branch) */}
+          {/* Club Membership Routes */}
           <Route path="/clubs" element={<ClubsGallery />} />
           <Route path="/clubs/:id" element={<ClubDetails />} />
           <Route path="/clubs/:id/request" element={<MembershipRequest />} />
@@ -73,9 +72,7 @@ function App() {
           <Route path="/my-bookmarks" element={<MyBookmarks />} />
 
           {/* Unified Admin Routes */}
-          <Route path="/admin" element={<AdminDashboard />} /> 
-          
-          {/* From firstMerge Admin Panel */}
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/events" element={<AdminEvents />} />
           <Route path="/admin/payments" element={<AdminPaymentsPortal />} />
           <Route path="/admin/payments/events" element={<AdminEventPayments />} />
@@ -84,8 +81,6 @@ function App() {
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/clubs" element={<AdminClubs />} />
           <Route path="/admin/memberships" element={<AdminMemberships />} />
-
-          {/* From our feature branch Admin Panel */}
           <Route path="/admin/clubs-gallery" element={<Clubs />} />
           <Route path="/admin/clubs/:id" element={<AdminClubDetails />} />
           <Route path="/admin/requests" element={<AdminRequests />} />

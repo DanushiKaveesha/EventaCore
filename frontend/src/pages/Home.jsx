@@ -64,7 +64,7 @@ const Home = () => {
                 <ArrowRightIcon className="w-5 h-5 ml-2 transform group-hover:translate-x-1.5 transition-transform" />
               </span>
             </Link>
-            <Link to="/events" className="inline-flex items-center justify-center px-10 py-5 text-lg font-bold text-white border-2 border-white/30 rounded-full hover:bg-white/10 hover:border-white/50 backdrop-blur-sm transition-all duration-300">
+            <Link to="/clubs" className="inline-flex items-center justify-center px-10 py-5 text-lg font-bold text-white border-2 border-white/30 rounded-full hover:bg-white/10 hover:border-white/50 backdrop-blur-sm transition-all duration-300">
               <UserGroupIcon className="w-6 h-6 mr-2 opacity-80" />
               Browse Clubs
             </Link>

@@ -16,7 +16,10 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   EnvelopeIcon,
-  FingerPrintIcon
+  FingerPrintIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  XMarkIcon,
+  PaperAirplaneIcon,
 } from '@heroicons/react/24/outline';
 import { SparklesIcon } from '@heroicons/react/24/solid';
 import {
@@ -27,6 +30,7 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
+import axios from 'axios';
 
 const COLORS = ['#8b5cf6', '#3b82f6', '#10b981'];
 
@@ -35,6 +39,13 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
+
+  // Message modal state (from usermanagement branch)
+  const [messagingUserId, setMessagingUserId] = useState(null);
+  const [adminMessage, setAdminMessage] = useState('');
+  const [isMessageSending, setIsMessageSending] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -81,6 +92,36 @@ const AdminUsers = () => {
     }
   };
 
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!adminMessage.trim()) return;
+    try {
+      setIsMessageSending(true);
+      setError('');
+      setSuccessMessage('');
+
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      await axios.post(
+        'http://localhost:5000/api/notifications/send',
+        { userId: messagingUserId, message: adminMessage },
+        {
+          headers: {
+            Authorization: `Bearer ${userInfo?.token}`,
+          },
+        }
+      );
+      setSuccessMessage('Message sent successfully to user.');
+      setTimeout(() => setSuccessMessage(''), 3000);
+      setMessagingUserId(null);
+      setAdminMessage('');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send message.');
+      setTimeout(() => setError(''), 4000);
+    } finally {
+      setIsMessageSending(false);
+    }
+  };
+
   const filtered = users.filter(u => {
     const q = searchTerm.toLowerCase();
     const matchSearch = u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q);
@@ -121,6 +162,18 @@ const AdminUsers = () => {
             Provision User
           </button>
         </div>
+
+        {/* Success/Error messages */}
+        {successMessage && (
+          <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700 shadow-sm">
+            {successMessage}
+          </div>
+        )}
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+            {error}
+          </div>
+        )}
 
         {/* Analytics & Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -195,7 +248,7 @@ const AdminUsers = () => {
             <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by name or email stream..."
+              placeholder="Search by name or email..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-slate-200 shadow-sm text-sm font-medium focus:ring-2 focus:ring-violet-300 outline-none"
@@ -282,13 +335,25 @@ const AdminUsers = () => {
                         </button>
                       </td>
                       <td className="px-6 py-5 text-right pr-10">
-                        <button
-                          onClick={() => handleDelete(user._id, user.name)}
-                          className="w-9 h-9 flex items-center justify-center text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-all border border-red-100/50 ml-auto"
-                          title="Delete User"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => {
+                              setMessagingUserId(user._id);
+                              setAdminMessage('');
+                            }}
+                            className="w-9 h-9 flex items-center justify-center text-blue-500 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all border border-blue-100/50"
+                            title="Send Message"
+                          >
+                            <ChatBubbleOvalLeftEllipsisIcon className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(user._id, user.name)}
+                            className="w-9 h-9 flex items-center justify-center text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-all border border-red-100/50"
+                            title="Delete User"
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -298,6 +363,68 @@ const AdminUsers = () => {
           )}
         </div>
       </div>
+
+      {/* Message Modal (from usermanagement branch) */}
+      {messagingUserId && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-gray-50/50">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <ChatBubbleOvalLeftEllipsisIcon className="w-5 h-5 text-indigo-500" />
+                Send Notification
+              </h3>
+              <button 
+                onClick={() => setMessagingUserId(null)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200 transition-colors"
+                title="Cancel"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSendMessage} className="p-5">
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Message Content
+                </label>
+                <textarea
+                  value={adminMessage}
+                  onChange={(e) => setAdminMessage(e.target.value)}
+                  placeholder="Type a broadcast message or direct notification..."
+                  rows="4"
+                  className="w-full text-sm font-medium text-gray-800 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100 transition-all resize-none shadow-sm"
+                  required
+                ></textarea>
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setMessagingUserId(null)}
+                  className="px-4 py-2 text-sm font-bold text-gray-600 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isMessageSending || !adminMessage.trim()}
+                  className="px-4 py-2 text-sm font-bold text-white bg-indigo-600 border border-transparent rounded-lg shadow-sm hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isMessageSending ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <PaperAirplaneIcon className="w-4 h-4" />
+                      Send Message
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
