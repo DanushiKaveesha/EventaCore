@@ -1,4 +1,6 @@
-import Notification from '../models/Notification.js';
+const Notification = require('../Models/Notification');
+const User = require('../Models/User');
+const { sendAdminCustomEmail } = require('../utils/emailService');
 
 // @desc    Get all notifications for a user
 // @route   GET /api/notifications
@@ -57,6 +59,14 @@ const sendAdminNotification = async (req, res) => {
       type: 'admin',
     });
 
+    // Handle optional email synchronization
+    if (req.body.sendEmail) {
+      const user = await User.findById(userId);
+      if (user && user.email) {
+        await sendAdminCustomEmail(user.email, req.body.subject || 'EventraCore: Administrative Update', message);
+      }
+    }
+
     res.status(201).json(notification);
   } catch (error) {
     console.error('Error sending admin notification:', error);
@@ -64,4 +74,4 @@ const sendAdminNotification = async (req, res) => {
   }
 };
 
-export { getUserNotifications, deleteNotification, sendAdminNotification };
+module.exports = { getUserNotifications, deleteNotification, sendAdminNotification };

@@ -106,14 +106,14 @@ const Dashboard = () => {
       <nav className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-             <Link to="/" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
               <img src={logo} alt="EventraCore Logo" className="w-8 h-8 object-contain" />
               <span className="font-bold text-2xl text-slate-900 tracking-tight hidden sm:block">EventraCore</span>
             </Link>
-            
+
             <div className="flex items-center gap-2 sm:gap-4 relative">
-              <button 
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} 
+              <button
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className="p-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-indigo-600 transition relative"
               >
                 <BellIcon className="w-6 h-6" />
@@ -162,8 +162,8 @@ const Dashboard = () => {
               </Link>
               <div className="h-8 w-px bg-slate-200 mx-1 sm:mx-2 hidden sm:block"></div>
               <Link to="/profile" className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full border border-slate-200 hover:bg-slate-50 transition cursor-pointer">
-                <span className="text-sm font-medium text-slate-700 pl-2 hidden sm:block">{user?.username || 'User'}</span>
-                <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center overflow-hidden">
+                <span className="text-sm font-medium text-slate-700 pl-2 hidden sm:block">{user?.firstName || user?.name || 'User'}</span>
+                <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center overflow-hidden shrink-0">
                   {profileImage ? (
                     <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
@@ -189,13 +189,13 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-             <Link to="/" className="inline-flex items-center justify-center rounded-lg border border-transparent bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition-colors">
-               <HomeIcon className="w-5 h-5 mr-2" />
-               Home Page
-             </Link>
-             <Link to="/profile" className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors">
-               View Profile
-             </Link>
+            <Link to="/" className="inline-flex items-center justify-center rounded-lg border border-transparent bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition-colors">
+              <HomeIcon className="w-5 h-5 mr-2" />
+              Home Page
+            </Link>
+            <Link to="/profile" className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors">
+              View Profile
+            </Link>
           </div>
         </div>
 
@@ -216,7 +216,7 @@ const Dashboard = () => {
                   <ArrowRightIcon className="w-5 h-5 -rotate-45" />
                 </div>
               </div>
-              
+
               <h3 className="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
                 {link.name}
               </h3>

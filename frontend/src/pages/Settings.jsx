@@ -9,17 +9,16 @@ import {
   ArrowLeftIcon,
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
-import { getCurrentUser } from '../utils/getCurrentUser';
+import { useAuth } from '../hooks/useAuth';
 
 const Settings = () => {
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  const { user, logout } = useAuth();
   const [deactivating, setDeactivating] = useState(false);
   const [error, setError] = useState('');
 
   const handleLogout = () => {
-    localStorage.removeItem('userInfo');
-    navigate('/');
+    logout();
   };
 
   const handleDeactivateAccount = async () => {
@@ -35,14 +34,13 @@ const Settings = () => {
 
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
-      await axios.delete('http://localhost:5000/api/users/profile', {
+      await axios.patch('http://localhost:5000/api/users/profile/deactivate', {}, {
         headers: {
           Authorization: `Bearer ${userInfo?.token}`,
         },
       });
 
-      localStorage.removeItem('userInfo');
-      navigate('/');
+      logout();
     } catch (err) {
       setError(
         err.response?.data?.message || 'Failed to deactivate your account.'

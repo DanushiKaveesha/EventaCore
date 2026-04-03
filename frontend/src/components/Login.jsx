@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { CalendarIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { setCurrentUser } from '../utils/getCurrentUser';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -36,6 +38,7 @@ export default function Login() {
       );
 
       setCurrentUser(data);
+      setUser(data);
 
       if (data.role === 'admin') {
         navigate('/admin');
@@ -78,13 +81,13 @@ export default function Login() {
           <div className="bg-white/95 backdrop-blur-xl rounded-[28px] shadow-2xl border border-white/20 p-8 md:p-10">
             <div className="text-center mb-8">
               <div className="inline-flex items-center rounded-full bg-blue-100 px-4 py-1.5 text-sm font-bold text-blue-700 mb-4">
-                Welcome Back
+                Welcome to EventaCore
               </div>
               <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-                Sign in
+                Sign In
               </h1>
-              <p className="mt-3 text-gray-500 text-base">
-                Continue to your EventraCore account.
+              <p className="mt-3 text-gray-500 text-base font-semibold">
+                Access your personalized dashboard.
               </p>
             </div>
 
@@ -94,7 +97,7 @@ export default function Login() {
                   htmlFor="loginIdentifier"
                   className="block text-sm font-semibold text-gray-800 mb-2"
                 >
-                  Email or Username
+                  Username or Email
                 </label>
                 <input
                   id="loginIdentifier"
@@ -102,7 +105,7 @@ export default function Login() {
                   name="loginIdentifier"
                   value={formData.loginIdentifier}
                   onChange={handleChange}
-                  placeholder="Enter your email or username"
+                  placeholder="Enter your username or email"
                   required
                   className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                 />
@@ -154,13 +157,13 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-base font-bold text-white transition ${
+                className={`w-full inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-base font-black text-white transition ${
                   loading
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                    : 'bg-slate-900 hover:bg-indigo-600 shadow-lg hover:shadow-xl'
                 }`}
               >
-                {loading ? 'Signing In...' : 'Sign In'}
+                {loading ? 'Validating Nodes...' : 'Sign In To Console'}
                 {!loading && <ArrowRightIcon className="w-5 h-5" />}
               </button>
             </form>

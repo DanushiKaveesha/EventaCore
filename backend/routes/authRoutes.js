@@ -1,7 +1,7 @@
-import express from 'express';
+const express = require('express');
 const router = express.Router();
 
-import {
+const {
   registerUser,
   loginUser,
   getServerSessionInfo,
@@ -9,7 +9,7 @@ import {
   resetPassword,
   sendEmailVerification,
   verifyEmailCode,
-} from '../controllers/authController.js';
+} = require('../Controllers/authController');
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
@@ -19,4 +19,4 @@ router.post('/reset-password', resetPassword);
 router.post('/send-email-verification', sendEmailVerification);
 router.post('/verify-email-code', verifyEmailCode);
 
-export default router;
+module.exports = router;

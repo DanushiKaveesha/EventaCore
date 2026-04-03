@@ -1,10 +1,29 @@
 const Booking = require("../Models/Booking");
 const Event = require("../Models/Event");
+const User = require("../Models/User");
+const Club = require("../Models/clubModel");
+const EventRegistration = require("../Models/eventRegistrationModel");
 
 // Create a new booking
 const createBooking = async (req, res) => {
   try {
     const { eventId, userId, userName, userEmail, selectedTickets, promotionCode } = req.body;
+
+    // 1. Resolve User Identity for Snapshot
+    let finalUserName = userName;
+    let finalUserEmail = userEmail;
+
+    console.log('[createBooking] Received:', { userId, userName, userEmail });
+
+    if (userId && (!finalUserName || !finalUserEmail)) {
+      const dbUser = await User.findById(userId);
+      if (dbUser) {
+        finalUserName = finalUserName || (dbUser.firstName && dbUser.lastName ? `${dbUser.firstName} ${dbUser.lastName}` : (dbUser.username || dbUser.name));
+        finalUserEmail = finalUserEmail || dbUser.email;
+      }
+    }
+
+    console.log('[createBooking] Resolved:', { finalUserName, finalUserEmail });
 
     // 1. Validate event existence
     const event = await Event.findById(eventId);
@@ -50,8 +69,8 @@ const createBooking = async (req, res) => {
     const newBooking = new Booking({
       event: eventId,
       user: userId || undefined,
-      userName: userName || "Guest User",
-      userEmail: userEmail || "",
+      userName: finalUserName || "Guest User",
+      userEmail: finalUserEmail || "",
       tickets: bookedTickets,
       totalAmount,
       promotionCode,
@@ -60,14 +79,14 @@ const createBooking = async (req, res) => {
     });
 
     if (isFree) {
-        // Deduct ticket quantities immediately for free events
-        for (const item of selectedTickets) {
-            const eventTicket = event.tickets.find((t) => t.type === item.type);
-            if (eventTicket) {
-                eventTicket.quantity -= item.quantity;
-            }
+      // Deduct ticket quantities immediately for free events
+      for (const item of selectedTickets) {
+        const eventTicket = event.tickets.find((t) => t.type === item.type);
+        if (eventTicket) {
+          eventTicket.quantity -= item.quantity;
         }
-        await event.save();
+      }
+      await event.save();
     }
 
     const savedBooking = await newBooking.save();
@@ -96,14 +115,83 @@ const uploadPaymentSlip = async (req, res) => {
   }
 };
 
-// Get user's bookings
+// Get user's Unified Bookings (combined Bookings and Registrations)
 const getMyBookings = async (req, res) => {
   try {
     const { userId } = req.params;
-    const bookings = await Booking.find({ user: userId }).populate("event", "name date location imageUrl");
-    res.status(200).json(bookings);
+
+    // Fetch user details for multi-key lookup
+    const user = await User.findById(userId);
+    const userEmail = user ? user.email : null;
+    const userName = user ? (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : (user.username || user.name)) : null;
+
+    // 1. Fetch from Booking collection
+    // Query by ID OR Email OR Name (to catch orphaned or guest-converted bookings)
+    const bookingQuery = {
+      $or: [{ user: userId }]
+    };
+    if (userEmail) bookingQuery.$or.push({ userEmail: userEmail });
+    if (userName) bookingQuery.$or.push({ userName: userName });
+
+    const standardBookings = await Booking.find(bookingQuery)
+      .populate("event", "name date location imageUrl description")
+      .lean();
+
+    // 2. Fetch from EventRegistration collection
+    const registrationQuery = {
+      $or: [{ user: userId }]
+    };
+    if (userEmail) registrationQuery.$or.push({ email: userEmail });
+
+    const registrations = await EventRegistration.find(registrationQuery)
+      .populate("clubId", "name image events")
+      .lean();
+
+    // 3. Normalize and enrich Registrations
+    const normalizedRegistrations = registrations.map(reg => {
+      // Find embedded event details from club if possible
+      let eventDetails = {
+        name: reg.eventName || "Event Registration",
+        date: reg.createdAt,
+        location: "On-site / Campus",
+        imageUrl: reg.clubId?.image || "",
+      };
+
+      if (reg.clubId && reg.clubId.events) {
+        const embeddedEvent = reg.clubId.events.find(e => e._id.toString() === reg.eventId.toString());
+        if (embeddedEvent) {
+          eventDetails.name = embeddedEvent.name;
+          eventDetails.date = embeddedEvent.date;
+          if (embeddedEvent.location) eventDetails.location = embeddedEvent.location;
+        }
+      }
+
+      return {
+        _id: reg._id,
+        event: eventDetails,
+        tickets: [{ type: "Registration", quantity: 1, price: 0 }],
+        totalAmount: 0,
+        status: reg.status === 'approved' ? 'confirmed' :
+          reg.status === 'rejected' ? 'rejected' : 'pending',
+        isRsvp: true,
+        createdAt: reg.createdAt
+      };
+    });
+
+    // 4. Combine and Deduplicate (by event ID)
+    const combined = [...standardBookings, ...normalizedRegistrations];
+    const seenEvents = new Set();
+    const unified = combined.filter(item => {
+      const eventId = item.event?._id?.toString() || item.event?.name;
+      if (seenEvents.has(eventId)) return false;
+      seenEvents.add(eventId);
+      return true;
+    }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    res.status(200).json(unified);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("getMyBookings error:", err);
+    res.status(500).json({ message: "Unable to retrieve your bookings console: " + err.message });
   }
 };
 
@@ -149,14 +237,37 @@ const updateBookingStatus = async (req, res) => {
   }
 };
 
-// Get all bookings (Admin only) — no user populate to avoid 'Schema not registered' error
+// Get all bookings (Admin only)
 const getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
       .populate("event", "name date location imageUrl")
-      .sort({ createdAt: -1 });
+      .populate("user", "firstName lastName username email name")
+      .sort({ createdAt: -1 })
+      .lean();
 
-    res.status(200).json(bookings);
+    // Enrich each booking with resolved display info for the admin portal
+    const enriched = bookings.map(b => {
+      let displayName = b.userName && b.userName !== 'Guest User' ? b.userName : null;
+      let displayEmail = b.userEmail || null;
+
+      // Fall back to populated user object if snapshot fields are missing
+      if (!displayName && b.user && typeof b.user === 'object') {
+        const u = b.user;
+        displayName = (u.firstName && u.lastName)
+          ? `${u.firstName} ${u.lastName}`
+          : (u.username || u.name || null);
+        displayEmail = displayEmail || u.email || null;
+      }
+
+      return {
+        ...b,
+        displayName: displayName || 'Unknown User',
+        displayEmail: displayEmail || 'No Email',
+      };
+    });
+
+    res.status(200).json(enriched);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

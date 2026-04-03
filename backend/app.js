@@ -15,6 +15,9 @@ const membershipRoutes = require("./Routes/membershipRoutes");
 
 const eventRegistrationRoutes = require("./Routes/eventRegistrationRoutes");
 const bookmarkRoutes = require("./Routes/bookmarkRoutes");
+const authRoutes = require("./Routes/authRoutes");
+const notificationRoutes = require("./Routes/notificationRoutes");
+const uploadRoutes = require("./Routes/uploadRoutes");
 
 const app = express();
 
@@ -42,6 +45,9 @@ app.use("/api/memberships", membershipRoutes);
 
 app.use("/api/event-registrations", eventRegistrationRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // ✅ Cron job
 const cron = require("node-cron");

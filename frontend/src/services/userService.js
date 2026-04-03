@@ -41,3 +41,20 @@ export const getUserStats = async () => {
     const response = await axios.get(`${API_URL}/stats`);
     return response.data;
 };
+
+export const deactivateProfile = async () => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const token = userInfo?.token;
+    if (!token) throw new Error('No authentication token found. Please log in again.');
+    try {
+        const response = await axios.patch(`${API_URL}/profile/deactivate`, {}, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (err) {
+        console.error('Error calling deactivateProfile:', err.response?.data || err.message);
+        throw err;
+    }
+};

@@ -7,24 +7,47 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Mocking an authenticated user for demonstration
-    // In a real app, this would check localStorage or an API for session
-    const mockUser = {
-      _id: "67d94e7732d84d1234567890",
-      name: "John Doe",
-      email: "john@example.com",
-      role: "Student",
+    const fetchUser = () => {
+      try {
+        const userInfo = localStorage.getItem('userInfo');
+        if (userInfo) {
+          setUser(JSON.parse(userInfo));
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        console.error("AuthContext parse error", err);
+        setUser(null);
+      }
+      setLoading(false);
     };
     
-    setUser(mockUser);
-    setLoading(false);
+    fetchUser();
+    
+    // Optional: listen for storage changes across tabs if needed
+    window.addEventListener('storage', fetchUser);
+    return () => window.removeEventListener('storage', fetchUser);
   }, []);
 
+  const logout = () => {
+    localStorage.removeItem('userInfo');
+    setUser(null);
+    window.location.href = '/login';
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, loading }}>
+    <AuthContext.Provider value={{ user, setUser, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = React.useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
 
 export default AuthContext;

@@ -1,300 +1,317 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import AdminSidebar from './admin/AdminSidebar';
-import { getEvents, deleteEvent } from '../services/eventService';
 import {
-    MagnifyingGlassIcon,
-    PencilSquareIcon,
-    TrashIcon,
-    CalendarIcon,
-    MapPinIcon,
-    TicketIcon,
-    UserGroupIcon,
-    ChartBarIcon,
-    EyeIcon,
-    CheckBadgeIcon,
-    ClockIcon,
-    ArrowTrendingUpIcon,
+  UsersIcon,
+  ChartBarIcon,
+  ArrowTrendingUpIcon,
+  CalendarIcon,
+  CreditCardIcon,
+  UserGroupIcon,
+  IdentificationIcon,
+  ShieldCheckIcon,
+  MagnifyingGlassIcon,
+  ExclamationTriangleIcon,
+  PencilSquareIcon,
+  StarIcon,
 } from '@heroicons/react/24/outline';
-import { SparklesIcon } from '@heroicons/react/24/solid';
-import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    BarChart,
-    Bar,
-    Cell
-} from 'recharts';
+import { useAuth } from '../hooks/useAuth';
+import { deactivateProfile } from '../services/userService';
 
 const AdminDashboard = () => {
-    const [events, setEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [stats, setStats] = useState({
-        total: 0,
-        upcoming: 0,
-        ongoing: 0,
-        completed: 0
-    });
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    newThisWeek: 4, // Simulated/Placeholder as per screenshot
+  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchEvents();
-    }, []);
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
-    const fetchEvents = async () => {
-        try {
-            setLoading(true);
-            const data = await getEvents();
-            setEvents(data || []);
-            
-            // Calculate real stats
-            const s = {
-                total: data.length,
-                upcoming: data.filter(e => e.status === 'upcoming').length,
-                ongoing: data.filter(e => e.status === 'ongoing').length,
-                completed: data.filter(e => e.status === 'completed').length
-            };
-            setStats(s);
-        } catch (err) {
-            console.error('Failed to fetch events:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get('http://localhost:5000/api/users/stats');
+      setStats({
+        totalUsers: data.total || 0,
+        activeUsers: data.active || 0,
+        newThisWeek: 4, // Keeping this as a placeholder to match design requirement
+      });
+    } catch (err) {
+      console.error('Failed to fetch user stats:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleDelete = async (id, name) => {
-        if (window.confirm(`Permanently delete "${name}"?`)) {
-            try {
-                await deleteEvent(id);
-                setEvents(events.filter(event => event._id !== id));
-            } catch (err) {
-                alert('Error deleting event: ' + err);
-            }
-        }
-    };
+  const handleDeactivate = async () => {
+    const confirmed = window.confirm("Are you sure you want to deactivate your account? This action will disable your access immediately and log you out.");
+    if (!confirmed) return;
 
-    const filteredEvents = events.filter(event =>
-        (event.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (event.location || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    try {
+      await deactivateProfile();
+      alert("Account deactivated successfully. You will now be logged out.");
+      logout();
+    } catch (err) {
+      console.error("Deactivation failed:", err);
+      // Detailed error reporting
+      const msg = err.response?.data?.message || err.response?.data?.error || err.message || "Failed to deactivate account. Please try again.";
+      alert(msg);
+    }
+  };
 
-    // Analytics Mock Data (Trend of events)
-    const chartData = [
-        { name: 'Jan', count: 4 },
-        { name: 'Feb', count: 7 },
-        { name: 'Mar', count: stats.total || 5 },
-        { name: 'Apr', count: 8 },
-        { name: 'May', count: 12 },
-        { name: 'Jun', count: 15 },
-    ];
+  const modules = [
+    {
+      id: 'users',
+      title: 'Users Management',
+      description: 'Manage user accounts, view detailed tables, and control access permissions.',
+      icon: UsersIcon,
+      status: 'Active Module',
+      color: 'bg-blue-50 text-blue-600',
+      isActive: true,
+      path: '/admin/users',
+    },
+    {
+      id: 'events',
+      title: 'Event Management',
+      description: 'Oversee event operations, schedule activities, and analyze event metrics.',
+      icon: CalendarIcon,
+      status: 'Active Module',
+      color: 'bg-indigo-50 text-indigo-600',
+      isActive: true,
+      path: '/admin/events',
+    },
+    {
+      id: 'payments',
+      title: 'Payment Gateway',
+      description: 'Monitor financial transactions, refunds, and overall revenue streams.',
+      icon: CreditCardIcon,
+      status: 'Active Module',
+      color: 'bg-emerald-50 text-emerald-600',
+      isActive: true,
+      path: '/admin/payments',
+    },
+    {
+      id: 'clubs',
+      title: 'Club Directory',
+      description: 'Manage student clubs, approve societies, and coordinate group leaders.',
+      icon: UserGroupIcon,
+      status: 'Active Module',
+      color: 'bg-violet-50 text-violet-600',
+      isActive: true,
+      path: '/admin/clubs',
+    },
+    {
+      id: 'memberships',
+      title: 'Memberships',
+      description: 'Administer premium memberships, track renewals, and manage perks.',
+      icon: IdentificationIcon,
+      status: 'Active Module',
+      color: 'bg-sky-50 text-sky-600',
+      isActive: true,
+      path: '/admin/memberships',
+    },
+    {
+      id: 'ratings',
+      title: 'Rating Management',
+      description: 'Monitor user feedback, manage event ratings, and analyze sentiment trends.',
+      icon: StarIcon,
+      status: 'Coming Soon',
+      color: 'bg-amber-50 text-amber-600',
+      isActive: true,
+      path: '/admin/ratings',
+    },
+  ];
 
-    return (
-        <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
-            <AdminSidebar activeOverride="dashboard" />
+  const filteredModules = modules.filter(m =>
+    m.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    m.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-            {/* Main content area */}
-            <div className="flex-1 min-w-0 p-5 lg:p-8 space-y-6 overflow-y-auto">
-                
-                {/* Header */}
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div>
-                        <div className="flex items-center gap-1.5 mb-1">
-                            <SparklesIcon className="h-4 w-4 text-violet-500" />
-                            <span className="text-[10px] font-black text-violet-500 uppercase tracking-widest leading-none">Global Control Center</span>
-                        </div>
-                        <h1 className="text-xl lg:text-2xl font-black text-gray-900 tracking-tight leading-tight">Admin Dashboard</h1>
-                        <p className="text-gray-400 text-xs font-medium mt-1">Real-time platform metrics and event synchronization.</p>
-                    </div>
-                    <div className="flex gap-2">
-                        <Link
-                            to="/create-event"
-                            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-black text-[10px] shadow-lg shadow-violet-200 hover:-translate-y-0.5 transition-all uppercase tracking-wider"
-                        >
-                            <CalendarIcon className="h-4 w-4" />
-                            + New Event
-                        </Link>
-                    </div>
-                </div>
+  const adminName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.name || 'Administrator';
 
-                {/* Stat Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Impact</p>
-                            <h3 className="text-2xl font-black text-slate-800">{stats.total}</h3>
-                        </div>
-                        <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
-                            <ChartBarIcon className="w-6 h-6" />
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Upcoming</p>
-                            <h3 className="text-2xl font-black text-slate-800">{stats.upcoming}</h3>
-                        </div>
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                            <ClockIcon className="w-6 h-6" />
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Now</p>
-                            <h3 className="text-2xl font-black text-slate-800">{stats.ongoing}</h3>
-                        </div>
-                        <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                            <ArrowTrendingUpIcon className="w-6 h-6" />
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Success Rate</p>
-                            <h3 className="text-2xl font-black text-slate-800">{stats.completed}</h3>
-                        </div>
-                        <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                            <CheckBadgeIcon className="w-6 h-6" />
-                        </div>
-                    </div>
-                </div>
+  return (
+    <div className="min-h-screen bg-[#F8F9FB] flex flex-col lg:flex-row">
+      <AdminSidebar activeOverride="admin" />
 
-                {/* Main Visualization */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col h-80">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xs font-black text-slate-800 uppercase tracking-widest">Growth Analytics</h2>
-                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">↑ 12.5% vs Last Month</span>
-                        </div>
-                        <div className="flex-1 min-h-0">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={chartData}>
-                                    <defs>
-                                        <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1}/>
-                                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 'bold'}} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 'bold'}} />
-                                    <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                                    <Area type="monotone" dataKey="count" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
 
-                    <div className="bg-slate-900 p-8 rounded-[32px] text-white flex flex-col justify-between relative overflow-hidden ring-1 ring-white/10 group h-80">
-                        <div className="relative z-10">
-                            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mb-6 border border-white/10 group-hover:scale-110 transition-transform">
-                                <SparklesIcon className="w-6 h-6 text-violet-400" />
-                            </div>
-                            <h3 className="text-2xl font-black mb-2 leading-tight">Elite Platform Insights</h3>
-                            <p className="text-slate-400 text-sm font-medium leading-relaxed">Your platform is currently outperforming 85% of similar systems in active event engagement.</p>
-                        </div>
-                        <button className="relative z-10 w-full py-4 bg-violet-600 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-900/50 hover:bg-violet-500 transition-colors">Generate Report</button>
-                        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-48 h-48 bg-violet-600/20 rounded-full blur-3xl pointer-events-none group-hover:scale-150 transition-transform duration-700"></div>
-                    </div>
-                </div>
+        {/* Left Column (Content area) */}
+        <div className="flex-1 p-6 lg:p-10 space-y-10 overflow-y-auto no-scrollbar">
 
-                {/* Recent Events Section */}
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between px-2">
-                        <h2 className="text-xs font-black text-slate-800 uppercase tracking-widest">Active Event Schedule</h2>
-                        <div className="relative">
-                            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                            <input 
-                                type="text" 
-                                placeholder="Sync search..."
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                                className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-300 w-48"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-slate-50 border-b border-slate-100">
-                                    <tr>
-                                        <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Asset Details</th>
-                                        <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Date & Schedule</th>
-                                        <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Location</th>
-                                        <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right pr-8">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-50">
-                                    {loading ? (
-                                        <tr><td colSpan="4" className="py-20 text-center animate-pulse font-black text-slate-300 text-xs tracking-widest uppercase">Initializing Stream...</td></tr>
-                                    ) : filteredEvents.length === 0 ? (
-                                        <tr><td colSpan="4" className="py-20 text-center font-bold text-slate-400 text-sm italic">No records found matching sync criteria.</td></tr>
-                                    ) : (
-                                        filteredEvents.map((event) => (
-                                            <tr key={event._id} className="hover:bg-slate-50/50 transition-colors group">
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                                                            {event.imageUrl ? (
-                                                                <img src={`http://localhost:5000/${event.imageUrl}`} className="w-full h-full object-cover rounded-2xl" alt="" />
-                                                            ) : (
-                                                                <CalendarIcon className="w-5 h-5 text-slate-300" />
-                                                            )}
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-sm font-black text-slate-900 leading-tight mb-1">{event.name}</p>
-                                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${
-                                                                event.status === 'upcoming' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                                                                event.status === 'ongoing' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                                'bg-slate-100 text-slate-500 border-slate-200'
-                                                            }`}>
-                                                                {event.status}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="text-xs font-black text-slate-800 mb-0.5">
-                                                        {new Date(event.date).toLocaleDateString()}
-                                                    </div>
-                                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center">
-                                                        <ClockIcon className="w-3 h-3 mr-1" />
-                                                        {event.time}
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="inline-flex items-center px-3 py-1 bg-slate-100 rounded-lg text-xs font-bold text-slate-600">
-                                                        <MapPinIcon className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
-                                                        <span className="truncate max-w-[150px]">{event.location}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-right pr-8">
-                                                    <div className="flex items-center justify-end gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-                                                        <Link to={`/event/${event._id}`} className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors" title="Inspect Sync">
-                                                            <EyeIcon className="w-4 h-4" />
-                                                        </Link>
-                                                        <Link to={`/edit-event/${event._id}`} className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-600 hover:text-white transition-colors" title="Modify Record">
-                                                            <PencilSquareIcon className="w-4 h-4" />
-                                                        </Link>
-                                                        <button onClick={() => handleDelete(event._id, event.name)} className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors" title="Terminate Entry">
-                                                            <TrashIcon className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
+          {/* Header Section */}
+          <div className="space-y-2">
+            <span className="inline-block px-3 py-1 bg-white rounded-full text-[10px] font-black text-blue-600 shadow-sm border border-gray-100 uppercase tracking-widest">
+              Dashboard Overview
+            </span>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl lg:text-4xl font-black text-[#0f172a] tracking-tight">
+                  Welcome back, {adminName}
+                </h1>
+                <p className="text-gray-400 text-sm font-medium mt-2 max-w-2xl">
+                  Take a glance at your platform's operational metrics and access your management modules.
+                </p>
+              </div>
+              <button
+                onClick={() => navigate('/edit-account')}
+                className="hidden lg:flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-black text-[#0f172a] shadow-sm hover:bg-gray-50 transition-all"
+              >
+                <PencilSquareIcon className="w-4 h-4 text-gray-400" />
+                Settings
+              </button>
             </div>
+          </div>
+
+          {/* Stats Bar */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Total Users */}
+            <div className="bg-white p-7 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between relative overflow-hidden group">
+              <div className="relative z-10">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Total Users</p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-4xl font-black text-[#0f172a]">{stats.totalUsers}</h3>
+                </div>
+                <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-emerald-500">
+                  <ArrowTrendingUpIcon className="w-3.5 h-3.5" />
+                  Stable growth
+                </div>
+              </div>
+              <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100 group-hover:scale-110 transition-transform">
+                <UsersIcon className="w-7 h-7 text-blue-500" />
+              </div>
+            </div>
+
+            {/* Active Users */}
+            <div className="bg-white p-7 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between relative overflow-hidden group">
+              <div className="relative z-10">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Active Users</p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-4xl font-black text-[#0f172a]">{stats.activeUsers}</h3>
+                </div>
+                <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-blue-500">
+                  <ChartBarIcon className="w-3.5 h-3.5" />
+                  Platform-wide engagement
+                </div>
+              </div>
+              <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center shrink-0 border border-purple-100 group-hover:scale-110 transition-transform">
+                <ChartBarIcon className="w-7 h-7 text-purple-500" />
+              </div>
+            </div>
+
+            {/* New This Week */}
+            <div className="bg-white p-7 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between relative overflow-hidden group">
+              <div className="relative z-10">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">New This Week</p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-4xl font-black text-[#0f172a]">+{stats.newThisWeek}</h3>
+                </div>
+                <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-emerald-500">
+                  <ArrowTrendingUpIcon className="w-3.5 h-3.5" />
+                  Rising steadily
+                </div>
+              </div>
+              <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center shrink-0 border border-emerald-100 group-hover:scale-110 transition-transform">
+                <ArrowTrendingUpIcon className="w-7 h-7 text-emerald-500" />
+              </div>
+            </div>
+          </div>
+
+          {/* Platform Modules Section */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-black text-[#0f172a] tracking-tight">Platform Modules</h2>
+                <p className="text-gray-400 text-xs font-medium">Select an administrative area to manage</p>
+              </div>
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Filter modules..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-48 shadow-sm"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredModules.map((module) => (
+                <div
+                  key={module.id}
+                  onClick={() => navigate(module.path)}
+                  className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-100 hover:-translate-y-0.5 transition-all duration-200 group cursor-pointer"
+                >
+                  <div className={`w-14 h-14 ${module.color} rounded-2xl flex items-center justify-center mb-6 shrink-0 border border-gray-100 group-hover:scale-105 transition-transform`}>
+                    <module.icon className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-lg font-black text-[#0f172a] mb-2">{module.title}</h3>
+                  <p className="text-gray-400 text-xs font-medium leading-relaxed mb-6">{module.description}</p>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-blue-50 text-blue-600 border border-blue-100">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                    {module.status}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-    );
+
+        {/* Right Column (Info Card area) */}
+        <div className="w-full lg:w-[280px] p-6 lg:p-8 lg:border-l border-gray-100 bg-white/50 backdrop-blur-sm">
+
+          <div className="bg-[#0f172a] p-6 rounded-[32px] text-white space-y-6 shadow-2xl relative overflow-hidden">
+            {/* Background decorative element */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mt-10 -mr-10"></div>
+
+            <div className="relative z-10 w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 shadow-inner">
+              <ShieldCheckIcon className="w-5 h-5 text-blue-400/80" />
+            </div>
+
+            <div className="relative z-10">
+              <h3 className="text-xl font-black tracking-tight mb-2">System Administrator</h3>
+              <p className="text-slate-400 text-[10px] font-bold leading-relaxed opacity-60">
+                You possess high-level privileges. Please act responsibly.
+              </p>
+            </div>
+
+            <div className="relative z-10 space-y-3.5">
+              <div className="space-y-2">
+                <div className="px-4 py-3 bg-[#1e293b]/40 rounded-xl border border-white/5 group hover:border-white/10 transition-colors">
+                  <p className="text-[7px] font-black text-slate-500 uppercase tracking-widest mb-1">Authenticated As</p>
+                  <p className="text-xs font-black text-white">Admin</p>
+                </div>
+                <div className="px-4 py-3 bg-[#1e293b]/40 rounded-xl border border-white/5 group hover:border-white/10 transition-colors">
+                  <p className="text-[7px] font-black text-slate-500 uppercase tracking-widest mb-1">Email Address</p>
+                  <p className="text-[11px] font-black text-white truncate">{user?.email || 'ishinikavishka@gmail.com'}</p>
+                </div>
+              </div>
+
+              <div className="pt-5 border-t border-white/5">
+                <p className="text-[8px] font-bold text-[#F87171] uppercase tracking-[0.2em] mb-4">Danger Zone</p>
+                <button
+                  onClick={handleDeactivate}
+                  className="w-full py-3.5 bg-[#451225]/15 hover:bg-[#451225]/30 text-[#F87171] rounded-xl font-black text-[10px] transition-all flex items-center justify-center gap-2.5 border border-[#F87171]/15 group"
+                >
+                  <ExclamationTriangleIcon className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
+                  Deactivate Account
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default AdminDashboard;

@@ -1,29 +1,22 @@
-import express from 'express';
-import User from '../models/User.js';
-import userController from '../controllers/userController.js';
-import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
+const express = require('express');
+const User = require('../Models/User');
+const userController = require('../Controllers/UserController');
+const { protect, adminOnly } = require('../Middleware/authMiddleware');
 
 const router = express.Router();
 
-// Logged-in user's profile
+// User Profile Routes
 router.get('/profile', protect, userController.getUserProfile);
 router.put('/profile', protect, userController.updateUserProfile);
-router.delete('/profile', protect, userController.deleteOwnProfile);
+router.patch('/profile/deactivate', protect, userController.deactivateCurrentUser);
+
 
 // Admin user management
-router.get('/', protect, authorizeRoles('admin'), userController.getAllUsers);
-router.put(
-  '/:id/status',
-  protect,
-  authorizeRoles('admin'),
-  userController.updateUserStatus
-);
-router.get('/:id', protect, authorizeRoles('admin'), userController.getUserById);
-router.put('/:id', protect, authorizeRoles('admin'), userController.updateUser);
-router.delete('/:id', protect, authorizeRoles('admin'), userController.deleteUser);
+// --------------------------------------------------------------------------
+// NOTE: Main user CRUD is currently handled by UserRoute.js.
+// If you need the search utilities, they are implemented below:
 
-// Optional utility/search routes for admin use
-router.get('/search/:username', protect, authorizeRoles('admin'), async (req, res) => {
+router.get('/search/:username', protect, adminOnly, async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username }).select(
       '-passwordHash'
@@ -35,7 +28,7 @@ router.get('/search/:username', protect, authorizeRoles('admin'), async (req, re
   }
 });
 
-router.get('/check/:username', protect, authorizeRoles('admin'), async (req, res) => {
+router.get('/check/:username', protect, adminOnly, async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username }).select(
       '-passwordHash'
@@ -47,7 +40,7 @@ router.get('/check/:username', protect, authorizeRoles('admin'), async (req, res
   }
 });
 
-router.post('/find', protect, authorizeRoles('admin'), async (req, res) => {
+router.post('/find', protect, adminOnly, async (req, res) => {
   try {
     const { username } = req.body;
     const user = await User.findOne({ username }).select('-passwordHash');
@@ -61,7 +54,7 @@ router.post('/find', protect, authorizeRoles('admin'), async (req, res) => {
 router.get(
   '/search/name/:name',
   protect,
-  authorizeRoles('admin'),
+  adminOnly,
   async (req, res) => {
     try {
       const users = await User.find({
@@ -69,8 +62,9 @@ router.get(
           { username: { $regex: req.params.name, $options: 'i' } },
           { firstName: { $regex: req.params.name, $options: 'i' } },
           { lastName: { $regex: req.params.name, $options: 'i' } },
+          { name: { $regex: req.params.name, $options: 'i' } }
         ],
-      }).select('-passwordHash');
+      }).select('-passwordHash -password');
       res.json(users);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -78,7 +72,7 @@ router.get(
   }
 );
 
-router.post('/search', protect, authorizeRoles('admin'), async (req, res) => {
+router.post('/search', protect, adminOnly, async (req, res) => {
   try {
     const { name } = req.body;
     const users = await User.find({
@@ -86,15 +80,16 @@ router.post('/search', protect, authorizeRoles('admin'), async (req, res) => {
         { username: { $regex: name, $options: 'i' } },
         { firstName: { $regex: name, $options: 'i' } },
         { lastName: { $regex: name, $options: 'i' } },
+        { name: { $regex: name, $options: 'i' } }
       ],
-    }).select('-passwordHash');
+    }).select('-passwordHash -password');
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-router.get('/test/exists', protect, authorizeRoles('admin'), async (req, res) => {
+router.get('/test/exists', protect, adminOnly, async (req, res) => {
   try {
     const count = await User.countDocuments();
     const allUsers = await User.find().select(
@@ -113,4 +108,4 @@ router.get('/test/exists', protect, authorizeRoles('admin'), async (req, res) =>
   }
 });
 
-export default router;
+module.exports = router;

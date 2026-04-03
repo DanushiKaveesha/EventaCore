@@ -305,10 +305,10 @@ const AdminClubs = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           {club.image ? (
-                            <img 
-                              src={club.image.startsWith('http') ? club.image : `http://localhost:5000/${club.image.replace(/\\/g, '/')}`} 
-                              className="w-12 h-12 rounded-xl object-cover border border-slate-100 shrink-0 shadow-sm" 
-                              alt="" 
+                            <img
+                              src={club.image.startsWith('http') ? club.image : `http://localhost:5000/${club.image.replace(/\\/g, '/')}`}
+                              className="w-12 h-12 rounded-xl object-cover border border-slate-100 shrink-0 shadow-sm"
+                              alt=""
                               onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = 'https://via.placeholder.com/150?text=No+Image';

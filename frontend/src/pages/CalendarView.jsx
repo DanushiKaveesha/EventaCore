@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import {
@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { getCurrentUser } from '../utils/getCurrentUser';
 import { getSriLankanHolidays } from '../utils/sriLankanHolidays';
+import { getEvents } from '../services/eventService';
 
 // Monthly calendar interface integrated with dynamic Sri Lankan holidays
 const CalendarView = () => {
@@ -16,6 +17,23 @@ const CalendarView = () => {
   const user = getCurrentUser();
 
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [events, setEvents] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoadingEvents(true);
+        const data = await getEvents();
+        setEvents(data);
+      } catch (err) {
+        console.error("Failed to fetch events for calendar", err);
+      } finally {
+        setLoadingEvents(false);
+      }
+    };
+    fetchEvents();
+  }, []);
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -135,35 +153,6 @@ const CalendarView = () => {
                  </button>
                </div>
             </div>
-
-            {/* Filters and Actions */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
-              {/* View Dropdown */}
-              <div className="relative w-full sm:w-32">
-                <select className="appearance-none bg-white border border-slate-200 text-slate-700 py-2 pl-4 pr-10 rounded-lg hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm font-bold cursor-pointer transition-colors w-full shadow-sm">
-                  <option>Month</option>
-                  <option>Week</option>
-                  <option>Day</option>
-                </select>
-                <ChevronRightIcon className="h-4 w-4 rotate-90 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
-
-              {/* Event Filter */}
-              <div className="relative w-full sm:w-48">
-                <select className="appearance-none bg-white border border-slate-200 text-slate-700 py-2 pl-4 pr-10 rounded-lg hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm font-bold cursor-pointer transition-colors w-full shadow-sm">
-                  <option>All events</option>
-                  <option>My courses</option>
-                  <option>System events</option>
-                </select>
-                <ChevronRightIcon className="h-4 w-4 rotate-90 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
-
-              {/* Add Button */}
-              <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 px-5 py-2 text-sm font-bold text-white shadow-sm hover:shadow transition-all">
-                <PlusIcon className="w-4 h-4 text-indigo-100" />
-                New Event
-              </button>
-            </div>
           </div>
 
           {/* Core Calendar Grid Structure Frame */}
@@ -199,7 +188,13 @@ const CalendarView = () => {
 
                 {/* Current Month Active Cells */}
                 {days.map((dateNum, idx) => {
-                  const dayEvents = mockEvents.filter(e => e.day === dateNum);
+                  const dayEvents = events.filter(e => {
+                      const eventDate = new Date(e.date);
+                      return eventDate.getDate() === dateNum && 
+                             eventDate.getMonth() === currentMonth && 
+                             eventDate.getFullYear() === currentYear;
+                  });
+
                   const isCurrentDay = isToday(dateNum);
                   const isSunday = (paddingDays.length + idx) % 7 === 6;
                   
@@ -208,41 +203,56 @@ const CalendarView = () => {
                   const isHoliday = !!holidayName;
                   const isRedDay = isSunday || isHoliday;
                   
-                  const holidayColorClass = holidayName 
-                    ? holidayColors[(holidayName.length + dateNum) % holidayColors.length]
-                    : '';
-                  
                   return (
                     <div 
                       key={`curr-${dateNum}`} 
                       className={`min-h-[130px] p-2 sm:p-2.5 border-r border-b border-slate-100 hover:bg-slate-50/80 transition-colors relative group flex flex-col ${isRedDay ? 'bg-rose-50/10' : ''}`}
                     >
-                      <div className="flex justify-center items-start mb-1.5 mt-2">
+                      <div className="flex justify-between items-start mb-1.5 mt-2">
                         <span className={`flex items-center justify-center w-8 h-8 rounded-full text-[15px] font-bold transition-all
                           ${isCurrentDay 
                             ? 'bg-indigo-600 text-white shadow-md' 
                             : isRedDay ? 'text-rose-500 group-hover:bg-rose-50 group-hover:text-rose-600' : 'text-slate-700 group-hover:bg-indigo-50 group-hover:text-indigo-700'}`}>
                           {dateNum}
                         </span>
+                        
+                        {/* Display Small Event Photo */}
+                        {dayEvents.length > 0 && dayEvents[0].imageUrl && (
+                          <div className="relative group/photo">
+                            <img 
+                              src={`http://localhost:5000/${dayEvents[0].imageUrl}`} 
+                              alt={dayEvents[0].name}
+                              className="w-12 h-12 rounded-lg object-cover border-2 border-white shadow-sm hover:scale-110 transition-transform duration-200 cursor-pointer"
+                              title={dayEvents[0].name}
+                              onClick={() => navigate(`/event/${dayEvents[0]._id}`)}
+                            />
+                            {dayEvents.length > 1 && (
+                              <div className="absolute -bottom-1 -right-1 bg-indigo-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">
+                                +{dayEvents.length - 1}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                       
                       <div className="flex flex-col gap-1.5 mt-auto mb-auto">
                         {holidayName && (
                           <div 
-                            className={`text-[11px] px-2 py-1.5 rounded truncate font-bold text-left shadow-sm transition-all hover:shadow hover:-translate-y-px cursor-pointer border-l-[3px] ${holidayColorClass}`}
+                            className={`text-[11px] px-2 py-1.5 rounded truncate font-bold text-left shadow-sm transition-all hover:shadow hover:-translate-y-px cursor-pointer border-l-[3px] bg-rose-50 border-rose-400 text-rose-700`}
                             title={holidayName}
                           >
                             {holidayName}
                           </div>
                         )}
                         {dayEvents.map((evt, evtIdx) => (
-                          <div 
+                          <Link 
                             key={evtIdx} 
-                            className={`text-[11px] px-2 py-1.5 rounded truncate font-bold text-left shadow-sm transition-all hover:shadow hover:-translate-y-px cursor-pointer border-l-[3px] ${evt.color}`}
-                            title={evt.title}
+                            to={`/event/${evt._id}`}
+                            className={`text-[11px] px-2 py-1.5 rounded truncate font-bold text-left shadow-sm transition-all hover:shadow hover:-translate-y-px cursor-pointer border-l-[3px] bg-indigo-50 border-indigo-400 text-indigo-700`}
+                            title={evt.name}
                           >
-                            {evt.title}
-                          </div>
+                            {evt.name}
+                          </Link>
                         ))}
                       </div>
                     </div>

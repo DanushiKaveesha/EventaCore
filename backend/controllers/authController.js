@@ -1,141 +1,164 @@
-import User from '../models/User.js';
-import Notification from '../models/Notification.js';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import {
+const User = require('../Models/User');
+const Notification = require('../Models/Notification');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const {
   sendWelcomeEmail,
   sendNewUserNotification,
   sendPasswordResetCodeEmail,
   sendEmailVerificationCode,
-} from '../utils/emailService.js';
+} = require('../utils/emailService');
 
 const serverSessionId = Date.now().toString();
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
-  });
+  if (!id) {
+    console.error('generateToken Error: ID is required');
+    return null;
+  }
+  
+  const secret = process.env.JWT_SECRET || 'fallback_secret_key'; // Safety fallback
+  
+  try {
+    return jwt.sign({ id: id.toString() }, secret, {
+      expiresIn: '30d',
+    });
+  } catch (err) {
+    console.error('JWT Sign Error:', err);
+    throw err;
+  }
 };
 
 // Handle new user registration and trigger welcome emails
 const registerUser = async (req, res) => {
-  const {
-    firstName,
-    lastName,
-    dob,
-    contactNumber,
-    address,
-    profileImageURL,
-    email,
-    username,
-    password,
+  const { 
+    firstName, 
+    lastName, 
+    username, 
+    email, 
+    password, 
+    dob, 
+    contactNumber, 
+    address, 
+    profileImageURL 
   } = req.body;
 
-  if (!firstName || !lastName || !email || !username || !password) {
-    return res
-      .status(400)
-      .json({ message: 'Please fill out all required fields.' });
+  // Validation: email and password are always required.
+  // We also want name (or firstName) and username.
+  if (!email || !password || (!firstName && !req.body.name) || !username) {
+    return res.status(400).json({ message: 'Please fill out all required fields (Email, Password, Name, and Username).' });
   }
 
   try {
-    const userExists = await User.findOne({
-      $or: [{ email }, { username }],
-    });
+    const userExists = await User.findOne({ email: email.toLowerCase() });
 
     if (userExists) {
-      return res
-        .status(400)
-        .json({ message: 'User with this email or username already exists' });
+      return res.status(400).json({ message: 'User with this email already exists' });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
+    const name = req.body.name || (firstName && lastName ? `${firstName} ${lastName}` : username);
 
     const user = new User({
       firstName,
       lastName,
+      username,
+      name,
+      email,
+      password,
       dob,
       contactNumber,
       address,
-      profileImageURL: profileImageURL || '',
-      email,
-      username,
-      passwordHash,
+      profileImageURL,
+      role: 'Student' // Default to student
     });
 
     const newUser = await user.save();
 
     if (newUser) {
       Promise.all([
-        sendWelcomeEmail(newUser.email, newUser.username),
+        sendWelcomeEmail(newUser.email, newUser.normalizedName),
         sendNewUserNotification(newUser),
         Notification.create({
           user: newUser._id,
-          message: `Welcome, ${newUser.firstName}! We're glad you're here. Let's get started.`,
+          message: `Welcome, ${newUser.normalizedName}! We're glad you're here. Let's get started.`,
         }),
       ]).catch((err) => {
         console.error('Failed to send registration emails or notifications:', err);
       });
 
+      const token = generateToken(newUser._id);
+      
+      if (!token) {
+        return res.status(500).json({ message: 'User created but failed to generate session token. Please try logging in.' });
+      }
+
       res.status(201).json({
         _id: newUser._id,
-        username: newUser.username,
-        email: newUser.email,
-        role: newUser.role,
-        status: newUser.status,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
+        username: newUser.username,
+        name: newUser.normalizedName,
+        email: newUser.email,
+        role: newUser.role,
         profileImageURL: newUser.profileImageURL,
+        isActive: newUser.isActive,
         serverSessionId,
-        token: generateToken(newUser._id),
+        token: token,
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    console.error('Registration Error:', error);
+    res.status(500).json({ message: `Server Error: ${error.message}` });
   }
 };
 
 // Authenticate user credentials and return a JWT token for session management
 const loginUser = async (req, res) => {
   const { loginIdentifier, password } = req.body;
+  
+  if (!loginIdentifier || !password) {
+    return res.status(400).json({ message: 'Login identifier and password are required' });
+  }
 
   try {
-    const user = await User.findOne({
-      $or: [{ email: loginIdentifier }, { username: loginIdentifier }],
+    // 1. Unified Lookup: Search by Username OR Email OR Full Name (case-insensitive)
+    const user = await User.findOne({ 
+      $or: [
+        { username: { $regex: new RegExp(`^${loginIdentifier}$`, 'i') } }, 
+        { email: loginIdentifier.toLowerCase() },
+        { name: { $regex: new RegExp(`^${loginIdentifier}$`, 'i') } }
+      ] 
     });
 
-    if (user && (await bcrypt.compare(password, user.passwordHash))) {
-      if (user.status === 'suspended') {
-        return res
-          .status(403)
-          .json({ message: 'Your account has been suspended.' });
+    if (user && (await user.comparePassword(password))) {
+      // 2. Account Status Check
+      const isCurrentlyActive = user.status ? user.status === 'active' : user.isActive !== false;
+      if (!isCurrentlyActive) {
+        return res.status(403).json({ 
+          message: `This account is currently ${user.status || 'deactivated'}. Please contact support.` 
+        });
       }
 
-      if (user.status === 'deactivated') {
-        return res
-          .status(403)
-          .json({ message: 'Your account has been deactivated.' });
-      }
-
+      // 3. Optional: Personal welcome notification
       Notification.create({
         user: user._id,
-        message: `Welcome back, ${user.firstName}! We're glad to see you again.`,
+        message: `Welcome back, ${user.normalizedName}! We're glad to see you again.`,
       }).catch((err) => {
-        console.error('Failed to create welcome back notification:', err);
+        console.error('Failed to create welcome notification:', err);
       });
 
       res.json({
         _id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        status: user.status,
         firstName: user.firstName,
         lastName: user.lastName,
+        username: user.username,
+        name: user.normalizedName,
+        email: user.email,
+        role: user.role,
         profileImageURL: user.profileImageURL,
+        isActive: user.isActive,
         serverSessionId,
         token: generateToken(user._id),
       });
@@ -143,6 +166,7 @@ const loginUser = async (req, res) => {
       res.status(401).json({ message: 'Invalid credentials' });
     }
   } catch (error) {
+    console.error('Login Error:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -156,7 +180,7 @@ const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -164,8 +188,8 @@ const forgotPassword = async (req, res) => {
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
     const resetCodeExpires = Date.now() + 10 * 60 * 1000;
 
-    user.passwordResetCode = resetCode;
-    user.passwordResetExpires = resetCodeExpires;
+    user.resetPasswordToken = resetCode;
+    user.resetPasswordExpire = resetCodeExpires;
     await user.save();
 
     await sendPasswordResetCodeEmail(user.email, resetCode);
@@ -182,19 +206,19 @@ const resetPassword = async (req, res) => {
 
   try {
     const user = await User.findOne({
-      email,
-      passwordResetCode: code,
-      passwordResetExpires: { $gt: Date.now() },
+      email: email.toLowerCase(),
+      resetPasswordToken: code,
+      resetPasswordExpire: { $gt: Date.now() },
     });
 
     if (!user) {
       return res.status(400).json({ message: 'Invalid or expired reset code.' });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    user.passwordHash = await bcrypt.hash(password, salt);
-    user.passwordResetCode = undefined;
-    user.passwordResetExpires = undefined;
+    // Assign the new password, User pre-save hook handles hashing
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
     await user.save();
 
     Notification.create({
@@ -218,11 +242,9 @@ const sendEmailVerification = async (req, res) => {
   }
 
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: 'User with this email already exists' });
+      return res.status(400).json({ message: 'User with this email already exists' });
     }
 
     const verificationCode = Math.floor(
@@ -255,9 +277,7 @@ const verifyEmailCode = async (req, res) => {
   const { email, code, tempData } = req.body;
 
   if (!email || !code) {
-    return res
-      .status(400)
-      .json({ message: 'Email and verification code are required' });
+    return res.status(400).json({ message: 'Email and verification code are required' });
   }
 
   try {
@@ -276,7 +296,7 @@ const verifyEmailCode = async (req, res) => {
   }
 };
 
-export {
+module.exports = {
   registerUser,
   loginUser,
   getServerSessionInfo,

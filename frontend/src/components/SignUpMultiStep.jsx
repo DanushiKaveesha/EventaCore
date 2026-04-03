@@ -8,6 +8,7 @@ import {
   PhotoIcon,
 } from '@heroicons/react/24/outline';
 import { setCurrentUser } from '../utils/getCurrentUser';
+import { useAuth } from '../hooks/useAuth';
 
 const srilankaData = {
   Central: ['Kandy', 'Matale', 'Nuwara Eliya'],
@@ -24,6 +25,7 @@ const srilankaData = {
 const provinces = Object.keys(srilankaData);
 
 export default function SignUpMultiStep() {
+  const { setUser } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -320,6 +322,7 @@ export default function SignUpMultiStep() {
       );
 
       setCurrentUser(data);
+      setUser(data);
       setMessage('Account created successfully! Redirecting to dashboard...');
 
       setTimeout(() => {

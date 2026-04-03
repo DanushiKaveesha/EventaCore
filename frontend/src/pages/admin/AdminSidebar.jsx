@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import logoImg from '../../assets/logo.png.jpeg';
+import logoImg from '../../assets/logo.png';
 import {
   CalendarIcon,
   CreditCardIcon,
@@ -13,42 +13,37 @@ import {
   CalendarDaysIcon,
   UserCircleIcon,
   Squares2X2Icon,
+  StarIcon,
 } from '@heroicons/react/24/outline';
+import { useAuth } from '../../hooks/useAuth';
 
 const AdminSidebar = ({ activeOverride }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const activeTab = activeOverride || location.pathname.split('/').pop() || 'events';
+  const { user, logout } = useAuth();
+
+  const activeTab = activeOverride || location.pathname.split('/').pop() || 'admin';
 
   const handleLogout = () => {
-    localStorage.removeItem('userInfo');
-    navigate('/');
+    logout();
+    navigate('/login');
   };
 
-  let currentUser = null;
-  try {
-    const storedUser = localStorage.getItem('userInfo');
-    currentUser = storedUser ? JSON.parse(storedUser) : null;
-  } catch (e) {
-    currentUser = null;
-  }
-
   const adminName =
-    `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() ||
-    currentUser?.username ||
-    currentUser?.name ||
+    `${user?.firstName || ''} ${user?.lastName || ''}`.trim() ||
+    user?.username ||
+    user?.name ||
     'Administrator';
 
   const profileImage =
-    currentUser?.profileImageURL && currentUser.profileImageURL.startsWith('/uploads')
-      ? `http://localhost:5000${currentUser.profileImageURL}`
-      : currentUser?.profileImageURL || '';
+    user?.profileImageURL && user.profileImageURL.startsWith('/uploads')
+      ? `http://localhost:5000${user.profileImageURL}`
+      : user?.profileImageURL || '';
 
   const getNavClass = (tabName) =>
-    `whitespace-nowrap lg:w-full flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 ${
-      activeTab === tabName
-        ? 'bg-sky-500 text-white shadow-[0_8px_16px_-4px_rgba(14,165,233,0.4)]'
-        : 'text-slate-400 hover:bg-slate-800 hover:text-white border border-transparent'
+    `whitespace-nowrap lg:w-full flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === tabName
+      ? 'bg-sky-500 text-white shadow-[0_8px_16px_-4px_rgba(14,165,233,0.4)]'
+      : 'text-slate-400 hover:bg-slate-800 hover:text-white border border-transparent'
     }`;
 
   const getIconClass = (tabName) =>
@@ -79,7 +74,7 @@ const AdminSidebar = ({ activeOverride }) => {
             </div>
             <div className="min-w-0">
               <p className="text-white font-bold truncate text-sm">{adminName}</p>
-              <p className="text-slate-400 text-xs truncate">{currentUser?.email || 'admin@eventracore.com'}</p>
+              <p className="text-slate-400 text-xs truncate">{user?.email || 'admin@eventracore.com'}</p>
               <div className="mt-1 inline-flex items-center rounded-full bg-sky-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-sky-300">
                 Administrator
               </div>
@@ -117,12 +112,15 @@ const AdminSidebar = ({ activeOverride }) => {
         <Link to="/admin/event-requests" className={getNavClass('event-requests')}>
           <CalendarDaysIcon className={getIconClass('event-requests')} /> Club Event Management
         </Link>
-        <Link to="/admin/memberships" className={getNavClass('memberships')}>
-          <IdentificationIcon className={getIconClass('memberships')} /> Membership Management
-        </Link>
         <Link to="/admin/users" className={getNavClass('users')}>
           <UsersIcon className={getIconClass('users')} /> Users Management
         </Link>
+        <div className="group relative">
+          <Link to="/admin/ratings" className={getNavClass('ratings')}>
+            <StarIcon className={getIconClass('ratings')} /> Rating Management
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 transition-transform bg-amber-500 text-[8px] font-black leading-none px-1.5 py-1 rounded text-white uppercase tracking-tighter">Soon</span>
+          </Link>
+        </div>
       </nav>
 
       {/* Desktop Bottom Actions */}
