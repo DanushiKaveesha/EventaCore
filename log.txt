@@ -1,0 +1,5 @@
+d326bbe Merge origin/usermanagement into FirstMerge - resolved all conflicts
+e6bcccf New user navigate to the user dashboard
+f1e2e7e feat: add admin message styles, password updates, and footer calendar
+904940f Merge branch 'feature/ishini/Event-bookingManagement' of https://github.com/DanushiKaveesha/EventaCore into feature/ishini/Event-bookingManagement
+1be7997 feat: Add validation

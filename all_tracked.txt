@@ -1,0 +1,10 @@
+backend/config/db.js
+backend/controllers/authController.js
+backend/controllers/notificationController.js
+backend/controllers/userController.js
+backend/utils/emailService.js
+backend/utils/generateToken.js
+frontend/src/components/Login.jsx
+frontend/src/pages/Dashboard.jsx
+frontend/src/utils/getCurrentUser.js
+frontend/src/utils/sriLankanHolidays.js
