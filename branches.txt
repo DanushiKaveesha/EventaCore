@@ -1,0 +1,16 @@
+* FirstMerge
+  feature/ishini/Event-Management
+  feature/ishini/Event-bookingManagement
+  headerFooter
+  main
+  remotes/origin/FirstMerge
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/Rating-Review-Management
+  remotes/origin/feature/danushi/Club-Membership-Management
+  remotes/origin/feature/ishini/Event-Management
+  remotes/origin/feature/ishini/Event-bookingManagement
+  remotes/origin/feature/ishini/Ticket-Booking-Management
+  remotes/origin/firstMerge
+  remotes/origin/headerFooter
+  remotes/origin/main
+  remotes/origin/usermanagement

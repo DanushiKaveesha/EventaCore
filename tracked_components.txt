@@ -1,0 +1,17 @@
+frontend/src/components/Login.jsx
+frontend/src/components/ProtectedRoute.jsx
+frontend/src/components/PublicRoute.jsx
+frontend/src/components/SignUpMultiStep.jsx
+frontend/src/components/admin/AdminBooking.jsx
+frontend/src/components/admin/AdminStats.jsx
+frontend/src/components/bookings/BookingCard.jsx
+frontend/src/components/bookings/BookingForm.jsx
+frontend/src/components/bookings/MyBooking.jsx
+frontend/src/components/bookings/PaymentUpload.jsx
+frontend/src/components/events/CreateEvent.jsx
+frontend/src/components/events/EventCard.jsx
+frontend/src/components/events/EventDetails.jsx
+frontend/src/components/events/EventList.Card.jsx
+frontend/src/components/layout/Footer.jsx
+frontend/src/components/layout/Header.jsx
+frontend/src/components/layout/Layout.jsx
