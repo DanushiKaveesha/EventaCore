@@ -18,6 +18,7 @@ const bookmarkRoutes = require("./Routes/bookmarkRoutes");
 const authRoutes = require("./Routes/authRoutes");
 const notificationRoutes = require("./Routes/notificationRoutes");
 const uploadRoutes = require("./Routes/uploadRoutes");
+const reviewRoutes = require('./Routes/reviewRoutes');
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use("/api/bookmarks", bookmarkRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // ✅ Cron job
 const cron = require("node-cron");

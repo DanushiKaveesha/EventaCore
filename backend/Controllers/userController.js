@@ -1,11 +1,92 @@
 const User = require("../Models/User");
+const Notification = require("../Models/Notification");
 const bcrypt = require("bcryptjs");
 
-// ─── GET ALL USERS (Admin) ────────────────────────────────────────────────────
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-password").sort({ createdAt: -1 });
-    res.status(200).json(users);
+    const users = await User.find().select("-password -passwordHash").sort({ createdAt: -1 });
+
+    const mappedUsers = users.map(user => {
+      const obj = user.toObject();
+      obj.name = obj.firstName && obj.lastName ? `${obj.firstName} ${obj.lastName}` : (obj.username || obj.name || 'Unknown');
+
+      // Ensure status and isActive are synchronized
+      if (!obj.status) {
+        obj.status = obj.isActive ? 'active' : 'deactivated';
+      }
+      obj.isActive = obj.status === 'active';
+      if (obj.role) {
+        obj.role = obj.role.charAt(0).toUpperCase() + obj.role.slice(1).toLowerCase();
+      }
+      return obj;
+    });
+
+    res.status(200).json(mappedUsers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ─── GET LOGGED IN USER PROFILE ────────────────────────────────────────────────
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password -passwordHash");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const obj = user.toObject();
+    obj.name = obj.firstName && obj.lastName ? `${obj.firstName} ${obj.lastName}` : (obj.username || obj.name || 'Unknown');
+
+    res.status(200).json(obj);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ─── UPDATE LOGGED IN USER PROFILE ───────────────────────────────────────────
+const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const { name, firstName, lastName, email, contactNumber, address, dob, profileImageURL, username, password } = req.body;
+
+    if (name !== undefined) user.name = name;
+    if (username !== undefined) user.username = username;
+    
+    let passwordChanged = false;
+    if (password !== undefined && password !== '') {
+      user.password = password;
+      passwordChanged = true;
+    }
+    
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+    if (email !== undefined) user.email = email.toLowerCase();
+    if (contactNumber !== undefined) user.contactNumber = contactNumber;
+    if (address !== undefined) user.address = address;
+    if (dob !== undefined) user.dob = dob;
+    if (profileImageURL !== undefined) user.profileImageURL = profileImageURL;
+
+    const updatedUser = await user.save();
+
+    if (passwordChanged) {
+      try {
+        await Notification.create({
+          user: user._id,
+          message: 'Security Alert: Your account password was successfully changed. If you did not make this change, please contact support immediately.',
+          type: 'system'
+        });
+      } catch (notifErr) {
+        console.error('Failed to create password change notification:', notifErr);
+      }
+    }
+
+    const obj = updatedUser.toObject();
+    delete obj.password;
+    delete obj.passwordHash;
+    obj.name = obj.firstName && obj.lastName ? `${obj.firstName} ${obj.lastName}` : (obj.username || obj.name || 'Unknown');
+
+    res.status(200).json(obj);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -46,14 +127,21 @@ const createUser = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 // ─── UPDATE USER ──────────────────────────────────────────────────────────────
 const updateUser = async (req, res) => {
   try {
     const { name, email, role, isActive } = req.body;
+=======
+const updateUser = async (req, res) => {
+  try {
+    const { name, email, role, isActive, username, contactNumber } = req.body;
+>>>>>>> ThirdMerge
 
     const user = await User.findById(req.params.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
+<<<<<<< HEAD
     if (name !== undefined)     user.name = name;
     if (email !== undefined)    user.email = email.toLowerCase();
     if (role !== undefined)     user.role = role;
@@ -62,6 +150,28 @@ const updateUser = async (req, res) => {
     const updated = await user.save();
     const { password: _, ...userWithoutPassword } = updated.toObject();
     res.status(200).json(userWithoutPassword);
+=======
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email.toLowerCase();
+    if (username !== undefined) user.username = username;
+    if (contactNumber !== undefined) user.contactNumber = contactNumber;
+    if (role !== undefined) user.role = role.toLowerCase(); // Save back in lower case
+
+    // Explicit status handling
+    if (req.body.status !== undefined) {
+      user.status = req.body.status;
+      user.isActive = req.body.status === 'active';
+    } else if (isActive !== undefined) {
+      user.isActive = isActive;
+      user.status = isActive ? 'active' : 'deactivated';
+    }
+
+    const updated = await user.save();
+    const obj = updated.toObject();
+    delete obj.password;
+    delete obj.passwordHash;
+    res.status(200).json(obj);
+>>>>>>> ThirdMerge
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -79,6 +189,20 @@ const changePassword = async (req, res) => {
 
     user.password = newPassword;
     await user.save();
+<<<<<<< HEAD
+=======
+    
+    try {
+      await Notification.create({
+        user: user._id,
+        message: 'Security Alert: Your account password was successfully changed. If you did not make this change, please contact support immediately.',
+        type: 'system'
+      });
+    } catch (notifErr) {
+      console.error('Failed to create password change notification:', notifErr);
+    }
+    
+>>>>>>> ThirdMerge
     res.status(200).json({ message: "Password updated successfully." });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -91,7 +215,16 @@ const toggleUserStatus = async (req, res) => {
     const user = await User.findById(req.params.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
+<<<<<<< HEAD
     user.isActive = !user.isActive;
+=======
+    // Handle both old isActive and new status
+    const isCurrentlyActive = user.status ? user.status === 'active' : user.isActive;
+
+    user.status = isCurrentlyActive ? 'deactivated' : 'active';
+    user.isActive = !isCurrentlyActive;
+
+>>>>>>> ThirdMerge
     await user.save();
     res.status(200).json({ message: `User ${user.isActive ? "activated" : "deactivated"} successfully.`, isActive: user.isActive });
   } catch (err) {
@@ -110,11 +243,23 @@ const updateUserRole = async (req, res) => {
 
     const user = await User.findByIdAndUpdate(
       req.params.userId,
+<<<<<<< HEAD
       { role },
       { new: true, select: "-password" }
     );
     if (!user) return res.status(404).json({ message: "User not found" });
     res.status(200).json(user);
+=======
+      { role: role.toLowerCase() },
+      { new: true, select: "-password -passwordHash" }
+    );
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const obj = user.toObject();
+    obj.role = obj.role.charAt(0).toUpperCase() + obj.role.slice(1).toLowerCase();
+
+    res.status(200).json(obj);
+>>>>>>> ThirdMerge
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -145,9 +290,37 @@ const getUserStats = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 module.exports = {
   getAllUsers,
   getUserById,
+=======
+// ─── DEACTIVATE OWN ACCOUNT ───────────────────────────────────────────────
+const deactivateCurrentUser = async (req, res) => {
+  try {
+    // req.user is populated by the 'protect' middleware
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authorized to perform this action." });
+    }
+
+    const user = await User.findByIdAndDelete(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User account not found." });
+    }
+
+    res.status(200).json({ message: "Your account has been deleted successfully." });
+  } catch (err) {
+    console.error('Account deletion error:', err);
+    res.status(500).json({ message: err.message || "Failed to delete account due to server error." });
+  }
+};
+
+module.exports = {
+  getAllUsers,
+  getUserById,
+  getUserProfile,
+  updateUserProfile,
+>>>>>>> ThirdMerge
   createUser,
   updateUser,
   changePassword,
@@ -155,4 +328,8 @@ module.exports = {
   updateUserRole,
   deleteUser,
   getUserStats,
+<<<<<<< HEAD
+=======
+  deactivateCurrentUser,
+>>>>>>> ThirdMerge
 };

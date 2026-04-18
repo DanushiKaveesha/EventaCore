@@ -36,7 +36,7 @@ import AdminClubPayments from './pages/admin/AdminClubPayments';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminClubs from './pages/admin/AdminClubs';
 import AdminMemberships from './pages/admin/AdminMemberships';
-import AdminRatings from './pages/admin/AdminRatings';
+import AdminReviews from './pages/admin/AdminReviews';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
@@ -122,7 +122,11 @@ function App() {
           <Route path="/admin/clubs/:id" element={<ProtectedRoute adminOnly={true}><AdminClubDetails /></ProtectedRoute>} />
           <Route path="/admin/requests" element={<ProtectedRoute adminOnly={true}><AdminRequests /></ProtectedRoute>} />
           <Route path="/admin/event-requests" element={<ProtectedRoute adminOnly={true}><AdminEventRequests /></ProtectedRoute>} />
+<<<<<<< HEAD
           <Route path="/admin/ratings" element={<ProtectedRoute adminOnly={true}><AdminRatings /></ProtectedRoute>} />
+=======
+          <Route path="/admin/ratings" element={<ProtectedRoute adminOnly={true}><AdminReviews /></ProtectedRoute>} />
+>>>>>>> ThirdMerge
         </Routes>
       </main>
       {!isAdminRoute && !isEditAccountRoute && <Footer />}

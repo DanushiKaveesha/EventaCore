@@ -169,7 +169,6 @@ const updateBookingStatus = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 // Get user's Unified Bookings (combined Bookings and Registrations)
 const getMyBookings = async (req, res) => {
   try {

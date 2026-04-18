@@ -191,6 +191,7 @@ input[type="time"] {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -212,6 +213,105 @@ input[type="time"] {
     background: #94a3b8;
   }
 
+  /* Global Modern Scrollbar */
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 transparent;
+  }
+
+  body::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  body::-webkit-scrollbar-track,
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  body::-webkit-scrollbar-thumb,
+  *::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #38bdf8, #6366f1);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  body::-webkit-scrollbar-thumb:hover,
+  *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #0ea5e9, #4f46e5);
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  body::-webkit-scrollbar-corner,
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Premium Scrollbar Utility */
+  .premium-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 transparent;
+  }
+
+  .premium-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .premium-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .premium-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #38bdf8, #6366f1);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .premium-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #0ea5e9, #4f46e5);
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .premium-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Slim Scrollbar Utility */
+  .slim-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  .slim-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .slim-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .slim-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+  }
+
+  .slim-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  .slim-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+>>>>>>> ThirdMerge
   /* Landing Page Animations */
   @keyframes blob {
     0% { transform: translate(0px, 0px) scale(1); }
@@ -219,6 +319,10 @@ input[type="time"] {
     66% { transform: translate(-20px, 20px) scale(0.9); }
     100% { transform: translate(0px, 0px) scale(1); }
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> ThirdMerge
   .animate-blob {
     animation: blob 7s infinite;
   }
@@ -233,7 +337,15 @@ input[type="time"] {
       transform: translateY(0) scale(1);
     }
   }
+<<<<<<< HEAD
   .animate-fade-in-up {
     animation: fade-in-up 1s ease-out forwards;
   }
 }
+=======
+
+  .animate-fade-in-up {
+    animation: fade-in-up 1s ease-out forwards;
+  }
+}
+>>>>>>> ThirdMerge
