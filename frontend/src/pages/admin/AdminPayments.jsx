@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  BuildingLibraryIcon, 
+import {
+  BuildingLibraryIcon,
   CalendarDaysIcon,
   ArrowRightIcon,
   CreditCardIcon,
@@ -26,9 +26,9 @@ const cards = [
     tag: 'Tickets & Revenue',
     tagBg: 'bg-sky-50 text-sky-600',
     highlights: [
-      { icon: TicketIcon,         label: 'Ticket Sales' },
+      { icon: TicketIcon, label: 'Ticket Sales' },
       { icon: CurrencyDollarIcon, label: 'Refunds' },
-      { icon: CreditCardIcon,     label: 'Revenue' },
+      { icon: CreditCardIcon, label: 'Revenue' },
     ],
   },
   {
@@ -45,9 +45,9 @@ const cards = [
     tag: 'Membership & Fees',
     tagBg: 'bg-violet-50 text-violet-600',
     highlights: [
-      { icon: CreditCardIcon,     label: 'Registration Fees' },
+      { icon: CreditCardIcon, label: 'Registration Fees' },
       { icon: CurrencyDollarIcon, label: 'Dues' },
-      { icon: BuildingLibraryIcon,label: 'Billing' },
+      { icon: BuildingLibraryIcon, label: 'Billing' },
     ],
   },
 ];
@@ -75,7 +75,7 @@ const AdminPaymentsPortal = () => {
               Orchestrate your platform's financial ecosystem. Select a specialized portal below to oversee ticket revenue, membership dues, and organizational billing.
             </p>
           </div>
-          
+
           <div className="hidden xl:flex items-center gap-4 bg-white/50 backdrop-blur-md p-4 rounded-[2rem] border border-white shadow-xl shadow-gray-200/20">
             <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
               <CurrencyDollarIcon className="h-6 w-6 text-emerald-600" />
@@ -146,8 +146,8 @@ const AdminPaymentsPortal = () => {
 
         {/* Global Branding Footnote */}
         <div className="flex items-center gap-3 opacity-30 pt-10 border-t border-gray-200/50 max-w-6xl">
-           <CreditCardIcon className="w-5 h-5 text-gray-900" />
-           <p className="text-[10px] font-black text-gray-900 uppercase tracking-[5px]">EventaCore Payments Infrastructure</p>
+          <CreditCardIcon className="w-5 h-5 text-gray-900" />
+          <p className="text-[10px] font-black text-gray-900 uppercase tracking-[5px]">EventaCore Payments Infrastructure</p>
         </div>
 
       </div>

@@ -127,11 +127,11 @@ const AdminEvents = () => {
           </div>
           <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-white p-8 flex flex-col items-center justify-center text-center relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:opacity-100 transition-opacity opacity-0" />
-            
+
             <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 shadow-inner ring-4 ring-amber-100/30">
               <SparklesIcon className="w-8 h-8 text-amber-500" />
             </div>
-            
+
             <h3 className="text-xl font-black text-gray-900 mb-4 tracking-tight">Pro Admin Tip</h3>
             <ul className="space-y-4 text-xs font-bold text-gray-500 leading-relaxed max-w-[240px]">
               <li className="flex items-center gap-3">
@@ -147,7 +147,7 @@ const AdminEvents = () => {
                 Promoted events often see 2.4x higher RSVP rates.
               </li>
             </ul>
-            
+
             <div className="mt-8 pt-8 border-t border-gray-100 w-full">
               <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest bg-violet-50 px-4 py-2 rounded-full inline-block">
                 View Admin Guides →
@@ -174,9 +174,9 @@ const AdminEvents = () => {
                 <button
                   key={s}
                   onClick={() => setFilterStatus(s)}
-                  className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filterStatus === s 
-                      ? 'bg-violet-600 text-white shadow-lg shadow-violet-200' 
-                      : 'text-gray-400 hover:text-gray-700 hover:bg-white'
+                  className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filterStatus === s
+                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-200'
+                    : 'text-gray-400 hover:text-gray-700 hover:bg-white'
                     }`}
                 >
                   {s}

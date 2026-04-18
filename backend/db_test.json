@@ -1,0 +1,186 @@
+{
+  "users": [
+    {
+      "id": "69c12886e15df8c14f055c90",
+      "name": "Minidu Weerasuriya",
+      "username": "Admin",
+      "firstName": "Minidu"
+    },
+    {
+      "id": "69c12996e15df8c14f055c99",
+      "name": "Dinesh Gamage",
+      "username": "Dinesh",
+      "firstName": "Dinesh"
+    },
+    {
+      "id": "69c1304de15df8c14f055cc7",
+      "name": "David Perera",
+      "username": "David",
+      "firstName": "David"
+    },
+    {
+      "id": "69c165f2e15df8c14f055cd7",
+      "name": "Kingssssss Queen",
+      "username": "King",
+      "firstName": "Kingssssss"
+    },
+    {
+      "id": "69c1bce417e0553f8d05c3b5",
+      "name": "Poosa Nice",
+      "username": "Poosa",
+      "firstName": "Poosa"
+    },
+    {
+      "id": "69c371bfd40c26ecb3dc3b8c",
+      "name": "Joy",
+      "username": "Joy",
+      "firstName": ""
+    },
+    {
+      "id": "69c3959ddd5c382d35bcc325",
+      "name": "Bro Dude",
+      "username": "Bro",
+      "firstName": "Bro"
+    },
+    {
+      "id": "69c3b3c1f23a1859be5ff17f",
+      "name": "dev hgjg",
+      "username": "Test",
+      "firstName": "dev"
+    },
+    {
+      "id": "69c3b91c9064b6d2c7d72f18",
+      "name": "Dev Adithya",
+      "username": "Dev Adithya",
+      "firstName": "Dev"
+    },
+    {
+      "id": "69c3d2069064b6d2c7d72f81",
+      "name": "Adithya Dev",
+      "username": "Adithya Dev",
+      "firstName": "Adithya"
+    },
+    {
+      "id": "69cd1b1402230a33fd08f2f8",
+      "name": "les hiii",
+      "username": "Les",
+      "firstName": "les"
+    },
+    {
+      "id": "69ce069c4d6ed590cb28caa7",
+      "name": "damn bro",
+      "username": "Damn",
+      "firstName": "damn"
+    }
+  ],
+  "notifs": [
+    {
+      "msg": "Welcome, les! We're glad you're here. Let's get started.",
+      "user": "69cd1b1402230a33fd08f2f8"
+    },
+    {
+      "msg": "Welcome back, Minidu! We're glad to see you again.",
+      "user": "69c12886e15df8c14f055c90"
+    },
+    {
+      "msg": "Welcome back, Minidu! We're glad to see you again.",
+      "user": "69c12886e15df8c14f055c90"
+    },
+    {
+      "msg": "Welcome back, Minidu! We're glad to see you again.",
+      "user": "69c12886e15df8c14f055c90"
+    },
+    {
+      "msg": "Welcome back, Minidu! We're glad to see you again.",
+      "user": "69c12886e15df8c14f055c90"
+    },
+    {
+      "msg": "Welcome back, Minidu! We're glad to see you again.",
+      "user": "69c12886e15df8c14f055c90"
+    },
+    {
+      "msg": "hiiiiii",
+      "user": "69c165f2e15df8c14f055cd7"
+    },
+    {
+      "msg": "Welcome back, Kingssssss! We're glad to see you again.",
+      "user": "69c165f2e15df8c14f055cd7"
+    },
+    {
+      "msg": "Your password was recently changed. If you did not authorize this, please contact support immediately.",
+      "user": "69c165f2e15df8c14f055cd7"
+    },
+    {
+      "msg": "Welcome back, Minidu! We're glad to see you again.",
+      "user": "69c12886e15df8c14f055c90"
+    },
+    {
+      "msg": "hi lassana lamayoo",
+      "user": "69c3d2069064b6d2c7d72f81"
+    },
+    {
+      "msg": "Welcome back, Dev! We're glad to see you again.",
+      "user": "69c3b91c9064b6d2c7d72f18"
+    },
+    {
+      "msg": "Welcome back, Minidu! We're glad to see you again.",
+      "user": "69c12886e15df8c14f055c90"
+    },
+    {
+      "msg": "hiii lassana lamayooo",
+      "user": "69cd1b1402230a33fd08f2f8"
+    },
+    {
+      "msg": "Welcome back, les! We're glad to see you again.",
+      "user": "69cd1b1402230a33fd08f2f8"
+    },
+    {
+      "msg": "Welcome back, Minidu! We're glad to see you again.",
+      "user": "69c12886e15df8c14f055c90"
+    },
+    {
+      "msg": "khmd",
+      "user": "69c12996e15df8c14f055c99"
+    },
+    {
+      "msg": "Welcome back, Dinesh! We're glad to see you again.",
+      "user": "69c12996e15df8c14f055c99"
+    },
+    {
+      "msg": "Welcome, damn! We're glad you're here. Let's get started.",
+      "user": "69ce069c4d6ed590cb28caa7"
+    },
+    {
+      "msg": "Welcome back, damn! We're glad to see you again.",
+      "user": "69ce069c4d6ed590cb28caa7"
+    },
+    {
+      "msg": "Welcome back, damn! We're glad to see you again.",
+      "user": "69ce069c4d6ed590cb28caa7"
+    },
+    {
+      "msg": "Welcome back, damn! We're glad to see you again.",
+      "user": "69ce069c4d6ed590cb28caa7"
+    },
+    {
+      "msg": "Welcome back, damn! We're glad to see you again.",
+      "user": "69ce069c4d6ed590cb28caa7"
+    },
+    {
+      "msg": "Welcome back, Minidu! We're glad to see you again.",
+      "user": "69c12886e15df8c14f055c90"
+    },
+    {
+      "msg": "Welcome back, Minidu! We're glad to see you again.",
+      "user": "69c12886e15df8c14f055c90"
+    },
+    {
+      "msg": "Welcome, Minidu! We're glad you're here via Google.",
+      "user": "69ceb92310d8ad726cc957f5"
+    },
+    {
+      "msg": "Welcome back, David! We're glad to see you again.",
+      "user": "69c1304de15df8c14f055cc7"
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 const Membership = require("../Models/membershipModel");
+const Notification = require("../Models/Notification");
+const Club = require("../Models/clubModel");
 
 
 const path = require("path");
@@ -18,7 +20,21 @@ exports.requestMembership = async (req, res) => {
         const membership = new Membership(membershipData);
         const savedMembership = await membership.save();
 
+        let clubName = "the club";
+        if (membershipData.clubId) {
+            const club = await Club.findById(membershipData.clubId);
+            if (club) clubName = club.name;
+        }
 
+        if (membershipData.user) {
+            await Notification.create({
+                user: membershipData.user,
+                message: `You have successfully requested to join ${clubName}.`,
+                actionLink: '/my-requests',
+                actionText: 'View Requests',
+                type: 'system'
+            });
+        }
 
         res.status(201).json(savedMembership);
     } catch (error) {

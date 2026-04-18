@@ -12,6 +12,14 @@ const bookingSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    userName: {
+      type: String,
+      required: false,
+    },
+    userEmail: {
+      type: String,
+      required: false,
+    },
     tickets: [
       {
         type: { type: String, required: true },

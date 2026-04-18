@@ -36,63 +36,96 @@ import AdminClubPayments from './pages/admin/AdminClubPayments';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminClubs from './pages/admin/AdminClubs';
 import AdminMemberships from './pages/admin/AdminMemberships';
+import AdminRatings from './pages/admin/AdminRatings';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 
+// Auth and User Management
+import Login from './components/Login';
+import SignUpMultiStep from './components/SignUpMultiStep';
+import ForgotPassword from './pages/ForgotPassword';
+import Notifications from './pages/Notifications';
+
+// Route Protection
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
+
+// User Profile and Settings
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
+import SecuritySettings from './pages/SecuritySettings';
+import EditAccount from './pages/EditAccount';
+import Dashboard from './pages/Dashboard';
+import CalendarView from './pages/CalendarView';
+
+// Main application router and global session activity tracker
 function App() {
-  console.log("App.jsx: Rendering");
   const location = useLocation();
+  const isDashboardRoute = location.pathname === '/dashboard';
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const isHomePage = location.pathname === '/';
+  const isEditAccountRoute = location.pathname === '/edit-account';
 
   return (
     <div className={`flex flex-col min-h-screen ${isAdminRoute ? 'bg-[#F8FAFC]' : 'bg-[#F9FAFB]'}`}>
-      {!isAdminRoute && <Header />}
+      {!isAdminRoute && !isEditAccountRoute && <Header />}
       <main className="flex-grow w-full">
         <Routes>
-          {/* Base Platform Routes (from firstMerge) */}
+          {/* Base Platform Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
-          <Route path="/create-event" element={<CreateEvent />} />
-          <Route path="/edit-event/:id" element={<EditEvent />} />
+
+          {/* Auth Routes */}
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><SignUpMultiStep /></PublicRoute>} />
+          <Route path="/signup" element={<PublicRoute><SignUpMultiStep /></PublicRoute>} />
+          <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+
+          {/* User Options */}
+          <Route path="/profile" element={<ProtectedRoute userOnly={true}><Profile /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute userOnly={true}><Settings /></ProtectedRoute>} />
+          <Route path="/security" element={<ProtectedRoute userOnly={true}><SecuritySettings /></ProtectedRoute>} />
+          <Route path="/edit-account" element={<ProtectedRoute><EditAccount /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute userOnly={true}><Dashboard /></ProtectedRoute>} />
+          <Route path="/calendar" element={<ProtectedRoute userOnly={true}><CalendarView /></ProtectedRoute>} />
+
+          <Route path="/create-event" element={<ProtectedRoute><CreateEvent /></ProtectedRoute>} />
+          <Route path="/edit-event/:id" element={<ProtectedRoute><EditEvent /></ProtectedRoute>} />
           <Route path="/events" element={<Events />} />
           <Route path="/event/:id" element={<EventDetails />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/my-bookings" element={<ProtectedRoute userOnly={true}><MyBookings /></ProtectedRoute>} />
 
-          {/* Club Membership Routes (our feature branch) */}
+          {/* Club Membership Routes */}
           <Route path="/clubs" element={<ClubsGallery />} />
           <Route path="/clubs/:id" element={<ClubDetails />} />
-          <Route path="/clubs/:id/request" element={<MembershipRequest />} />
-          <Route path="/clubs/:clubId/events/:eventId/register" element={<EventRegistration />} />
-          <Route path="/create-club" element={<CreateClub />} />
-          <Route path="/clubs/:id/edit" element={<EditClub />} />
-          <Route path="/my-requests" element={<MyRequests />} />
-          <Route path="/my-events" element={<MyEventRequests />} />
-          <Route path="/my-bookmarks" element={<MyBookmarks />} />
+          <Route path="/clubs/:id/request" element={<ProtectedRoute userOnly={true}><MembershipRequest /></ProtectedRoute>} />
+          <Route path="/clubs/:clubId/events/:eventId/register" element={<ProtectedRoute userOnly={true}><EventRegistration /></ProtectedRoute>} />
+          <Route path="/create-club" element={<ProtectedRoute><CreateClub /></ProtectedRoute>} />
+          <Route path="/clubs/:id/edit" element={<ProtectedRoute><EditClub /></ProtectedRoute>} />
+          <Route path="/my-requests" element={<ProtectedRoute userOnly={true}><MyRequests /></ProtectedRoute>} />
+          <Route path="/my-events" element={<ProtectedRoute userOnly={true}><MyEventRequests /></ProtectedRoute>} />
+          <Route path="/my-bookmarks" element={<ProtectedRoute userOnly={true}><MyBookmarks /></ProtectedRoute>} />
 
           {/* Unified Admin Routes */}
-          <Route path="/admin" element={<AdminDashboard />} /> 
-          
-          {/* From firstMerge Admin Panel */}
-          <Route path="/admin/events" element={<AdminEvents />} />
-          <Route path="/admin/payments" element={<AdminPaymentsPortal />} />
-          <Route path="/admin/payments/events" element={<AdminEventPayments />} />
-          <Route path="/admin/payments/memberships" element={<AdminPayments />} />
-          <Route path="/admin/payments/clubs" element={<AdminClubPayments />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/clubs" element={<AdminClubs />} />
-          <Route path="/admin/memberships" element={<AdminMemberships />} />
-
-          {/* From our feature branch Admin Panel */}
-          <Route path="/admin/clubs-gallery" element={<Clubs />} />
-          <Route path="/admin/clubs/:id" element={<AdminClubDetails />} />
-          <Route path="/admin/requests" element={<AdminRequests />} />
-          <Route path="/admin/event-requests" element={<AdminEventRequests />} />
+          <Route path="/admin" element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/events" element={<ProtectedRoute adminOnly={true}><AdminEvents /></ProtectedRoute>} />
+          <Route path="/admin/payments" element={<ProtectedRoute adminOnly={true}><AdminPaymentsPortal /></ProtectedRoute>} />
+          <Route path="/admin/payments/events" element={<ProtectedRoute adminOnly={true}><AdminEventPayments /></ProtectedRoute>} />
+          <Route path="/admin/payments/memberships" element={<ProtectedRoute adminOnly={true}><AdminPayments /></ProtectedRoute>} />
+          <Route path="/admin/payments/clubs" element={<ProtectedRoute adminOnly={true}><AdminClubPayments /></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute adminOnly={true}><AdminUsers /></ProtectedRoute>} />
+          <Route path="/admin/clubs" element={<ProtectedRoute adminOnly={true}><AdminClubs /></ProtectedRoute>} />
+          <Route path="/admin/memberships" element={<ProtectedRoute adminOnly={true}><AdminMemberships /></ProtectedRoute>} />
+          <Route path="/admin/clubs-gallery" element={<ProtectedRoute adminOnly={true}><Clubs /></ProtectedRoute>} />
+          <Route path="/admin/clubs/:id" element={<ProtectedRoute adminOnly={true}><AdminClubDetails /></ProtectedRoute>} />
+          <Route path="/admin/requests" element={<ProtectedRoute adminOnly={true}><AdminRequests /></ProtectedRoute>} />
+          <Route path="/admin/event-requests" element={<ProtectedRoute adminOnly={true}><AdminEventRequests /></ProtectedRoute>} />
+          <Route path="/admin/ratings" element={<ProtectedRoute adminOnly={true}><AdminRatings /></ProtectedRoute>} />
         </Routes>
       </main>
-      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && !isEditAccountRoute && <Footer />}
     </div>
   );
 }

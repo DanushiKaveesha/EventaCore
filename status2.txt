@@ -1,0 +1,35 @@
+On branch FirstMerge
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   backend/Controllers/UserController.js
+	modified:   backend/Middleware/authMiddleware.js
+	modified:   backend/Middleware/upload.js
+	modified:   backend/Models/User.js
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	auth_temp.txt
+	backend/uploads/1775154901925-259159911.jpeg
+	backend/uploads/image-1775103332582-982246355.jpeg
+	branches.txt
+	diff.txt
+	final_verify.txt
+	git_status.txt
+	log.txt
+	log_verify.txt
+	missing_files.txt
+	notif_temp.txt
+	push_log.txt
+	remaining_conflicts.txt
+	remote_log.txt
+	status.txt
+	status2.txt
+	unmerged.txt
+	unmerged2.txt
+	user_temp.txt
+	usermanagement_backend.txt
+	usermanagement_frontend.txt
+	usermanagement_only.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
