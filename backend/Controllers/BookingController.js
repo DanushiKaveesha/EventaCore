@@ -128,25 +128,48 @@ const uploadPaymentSlip = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-// Get user's bookings
-const getMyBookings = async (req, res) => {
+// Get single booking details
+const getBookingDetails = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const bookings = await Booking.find({ user: userId }).populate("event", "name date location imageUrl");
-    res.status(200).json(bookings);
+    const { bookingId } = req.params;
+    const booking = await Booking.findById(bookingId).populate("event", "name date location imageUrl");
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    res.status(200).json(booking);
   } catch (err) {
     res.status(500).json({ message: err.message });
-=======
-// Get user's Unified Bookings (combined Bookings and Registrations)
-const getMyBookings = async (req, res) => {
-  try {
-    const { userId } = req.params;
+  }
+};
 
-    // Fetch user details for multi-key lookup
-    const user = await User.findById(userId);
-    const userEmail = user ? user.email : null;
-    const userName = user ? (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : (user.username || user.name)) : null;
+// Update booking status (Admin/Organizer verification)
+const updateBookingStatus = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const { status } = req.body; // 'confirmed' or 'rejected'
+
+    const booking = await Booking.findById(bookingId).populate("event");
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    if (status === "confirmed" && booking.status !== "confirmed") {
+      // Deduct ticket quantities from event
+      const event = await Event.findById(booking.event._id);
+      for (const bookedTicket of booking.tickets) {
+        const eventTicket = event.tickets.find((t) => t.type === bookedTicket.type);
+        if (eventTicket) {
+          eventTicket.quantity -= bookedTicket.quantity;
+        }
+      }
+      await event.save();
+    }
+
+    booking.status = status;
+    const updatedBooking = await booking.save();
+
+    res.status(200).json(updatedBooking);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // Get user's Unified Bookings (combined Bookings and Registrations)
 const getMyBookings = async (req, res) => {
   try {
@@ -223,44 +246,10 @@ const getMyBookings = async (req, res) => {
     res.status(200).json(unified);
   } catch (err) {
     console.error("getMyBookings error:", err);
-    res.status(500).json({ message: "Unable to retrieve your bookings: " + err.message });Id } = req.params;
-    const { status } = req.body; // 'confirmed' or 'rejected'
-
-    const booking = await Booking.findById(bookingId).populate("event");
-    if (!booking) return res.status(404).json({ message: "Booking not found" });
-
-    if (status === "confirmed" && booking.status !== "confirmed") {
-      // Deduct ticket quantities from event
-      const event = await Event.findById(booking.event._id);
-      for (const bookedTicket of booking.tickets) {
-        const eventTicket = event.tickets.find((t) => t.type === bookedTicket.type);
-        if (eventTicket) {
-          eventTicket.quantity -= bookedTicket.quantity;
-        }
-      }
-      await event.save();
-    }
-
-    booking.status = status;
-    const updatedBooking = await booking.save();
-
-    res.status(200).json(updatedBooking);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Unable to retrieve your bookings: " + err.message });
   }
 };
 
-<<<<<<< HEAD
-// Get all bookings (Admin only) — no user populate to avoid 'Schema not registered' error
-=======
-// Get all bookings (Admin only)
->>>>>>> SecondMerge
-const getAllBookings = async (req, res) => {
-  try {
-    const bookings = await Booking.find()
-      .populate("event", "name date location imageUrl")
-<<<<<<< HEAD
-      .sort({ createdAt: -1 });
 // Get all bookings (Admin only)
 const getAllBookings = async (req, res) => {
   try {
@@ -291,6 +280,17 @@ const getAllBookings = async (req, res) => {
       };
     });
 
-    res.status(200).json(enriched);us,
+    res.status(200).json(enriched);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports = {
+  createBooking,
+  uploadPaymentSlip,
+  getMyBookings,
+  getBookingDetails,
+  updateBookingStatus,
   getAllBookings,
 };

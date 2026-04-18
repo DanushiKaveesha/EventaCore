@@ -61,11 +61,7 @@ exports.protect = async (req, res, next) => {
 
 // Admin only
 exports.adminOnly = (req, res, next) => {
-<<<<<<< HEAD
-  if (req.user && req.user.role === 'Admin') {
-=======
   if (req.user && req.user.role && req.user.role.toLowerCase() === 'admin') {
->>>>>>> SecondMerge
     next();
   } else {
     res.status(403).json({ 
@@ -77,16 +73,6 @@ exports.adminOnly = (req, res, next) => {
 
 // Organizer or Admin
 exports.organizerOrAdmin = (req, res, next) => {
-<<<<<<< HEAD
-  if (req.user && (req.user.role === 'Organizer' || req.user.role === 'Admin')) {
-    next();
-  } else {
-    res.status(403).json({ 
-      success: false,
-      message: 'Organizer or Admin access required' 
-    });
-  }
-=======
   if (req.user && req.user.role) {
     const r = req.user.role.toLowerCase();
     if (r === 'organizer' || r === 'admin') {
@@ -97,5 +83,4 @@ exports.organizerOrAdmin = (req, res, next) => {
       success: false,
       message: 'Organizer or Admin access required' 
     });
->>>>>>> SecondMerge
 };
