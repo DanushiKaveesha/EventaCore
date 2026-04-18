@@ -122,11 +122,7 @@ function App() {
           <Route path="/admin/clubs/:id" element={<ProtectedRoute adminOnly={true}><AdminClubDetails /></ProtectedRoute>} />
           <Route path="/admin/requests" element={<ProtectedRoute adminOnly={true}><AdminRequests /></ProtectedRoute>} />
           <Route path="/admin/event-requests" element={<ProtectedRoute adminOnly={true}><AdminEventRequests /></ProtectedRoute>} />
-<<<<<<< HEAD
-          <Route path="/admin/ratings" element={<ProtectedRoute adminOnly={true}><AdminRatings /></ProtectedRoute>} />
-=======
           <Route path="/admin/ratings" element={<ProtectedRoute adminOnly={true}><AdminReviews /></ProtectedRoute>} />
->>>>>>> ThirdMerge
         </Routes>
       </main>
       {!isAdminRoute && !isEditAccountRoute && <Footer />}

@@ -311,7 +311,6 @@ input[type="time"] {
     background: transparent;
   }
 
->>>>>>> ThirdMerge
   /* Landing Page Animations */
   @keyframes blob {
     0% { transform: translate(0px, 0px) scale(1); }
@@ -319,10 +318,7 @@ input[type="time"] {
     66% { transform: translate(-20px, 20px) scale(0.9); }
     100% { transform: translate(0px, 0px) scale(1); }
   }
-<<<<<<< HEAD
-=======
 
->>>>>>> ThirdMerge
   .animate-blob {
     animation: blob 7s infinite;
   }
@@ -337,15 +333,7 @@ input[type="time"] {
       transform: translateY(0) scale(1);
     }
   }
-<<<<<<< HEAD
   .animate-fade-in-up {
     animation: fade-in-up 1s ease-out forwards;
   }
 }
-=======
-
-  .animate-fade-in-up {
-    animation: fade-in-up 1s ease-out forwards;
-  }
-}
->>>>>>> ThirdMerge
