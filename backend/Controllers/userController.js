@@ -131,6 +131,79 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// ─── GET USER PROFILE ─────────────────────────────────────────────────────────
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password -passwordHash");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const obj = user.toObject();
+    obj.name = obj.firstName && obj.lastName ? `${obj.firstName} ${obj.lastName}` : (obj.username || obj.name || 'Unknown');
+
+    res.status(200).json(obj);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ─── UPDATE USER PROFILE ──────────────────────────────────────────────────────
+const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const { name, firstName, lastName, email, contactNumber, address, dob, profileImageURL, username, password } = req.body;
+
+    if (name !== undefined) user.name = name;
+    if (username !== undefined) user.username = username;
+
+    let passwordChanged = false;
+    if (password !== undefined && password !== '') {
+      user.password = password;
+      passwordChanged = true;
+    }
+
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+    if (email !== undefined) user.email = email.toLowerCase();
+    if (contactNumber !== undefined) user.contactNumber = contactNumber;
+    if (address !== undefined) user.address = address;
+    if (dob !== undefined) user.dob = dob;
+    if (profileImageURL !== undefined) user.profileImageURL = profileImageURL;
+
+    const updatedUser = await user.save();
+
+    const obj = updatedUser.toObject();
+    delete obj.password;
+    delete obj.passwordHash;
+    obj.name = obj.firstName && obj.lastName ? `${obj.firstName} ${obj.lastName}` : (obj.username || obj.name || 'Unknown');
+
+    res.status(200).json(obj);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ─── DEACTIVATE OWN ACCOUNT ────────────────────────────────────────────────────
+const deactivateCurrentUser = async (req, res) => {
+  try {
+    // req.user is populated by the 'protect' middleware
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authorized to perform this action." });
+    }
+
+    const user = await User.findByIdAndDelete(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User account not found." });
+    }
+
+    res.status(200).json({ message: "Your account has been deleted successfully." });
+  } catch (err) {
+    console.error('Account deletion error:', err);
+    res.status(500).json({ message: err.message || "Failed to delete account due to server error." });
+  }
+};
+
 // ─── USER STATS (Admin Dashboard) ────────────────────────────────────────────
 const getUserStats = async (req, res) => {
   try {
@@ -148,6 +221,8 @@ const getUserStats = async (req, res) => {
 module.exports = {
   getAllUsers,
   getUserById,
+  getUserProfile,
+  updateUserProfile,
   createUser,
   updateUser,
   changePassword,
@@ -155,4 +230,5 @@ module.exports = {
   updateUserRole,
   deleteUser,
   getUserStats,
+  deactivateCurrentUser,
 };
