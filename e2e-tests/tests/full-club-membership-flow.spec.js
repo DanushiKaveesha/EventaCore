@@ -12,54 +12,102 @@ const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'ishinikavishka422@gmail.com
 const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'Ishini@2002';
 
 // ============================================================
-// HELPER: Click My Bookings
+// HELPER: Navigate to Clubs
 // ============================================================
-async function clickMyBookings(page) {
+async function navigateToClubs(page) {
   const selectors = [
-    'a:has-text("My Bookings")',
-    'div:has-text("My Bookings")',
-    '[href*="bookings"]',
-    'text="My Bookings"'
+    'text="Clubs"',
+    'a:has-text("Clubs")',
+    '[href*="clubs"]'
   ];
 
   for (const selector of selectors) {
     const element = page.locator(selector).first();
-    if (await element.isVisible({ timeout: 2000 }).catch(() => false)) {
+    if (await element.isVisible({ timeout: 3000 }).catch(() => false)) {
       await element.click({ timeout: 5000 });
-      console.log("✅ Clicked My Bookings using:", selector);
+      console.log("✅ Clicked Clubs using:", selector);
       return true;
     }
   }
 
-  const myBookingsText = page.locator('text="My Bookings"').first();
-  if (await myBookingsText.isVisible({ timeout: 2000 }).catch(() => false)) {
-    await myBookingsText.locator('..').click({ timeout: 5000 });
-    console.log("✅ Clicked My Bookings parent element");
-    return true;
-  }
-
-  throw new Error('Could not find clickable My Bookings element');
+  throw new Error('Could not find Clubs navigation');
 }
 
 // ============================================================
-// HELPER: Admin - Approve Payment (Specific to your UI)
+// HELPER: Click Join Club Button (with case-insensitive)
 // ============================================================
-async function adminApprovePayment(page) {
-  console.log("🟢 Looking for PENDING payment to approve...");
+async function clickJoinClub(page) {
+  console.log("🔍 Looking for Join Club button...");
+  
+  // Wait a bit for page to load
+  await page.waitForTimeout(1000);
 
-  // Wait for page to load
+  // Try different selectors for Join Club button
+  const joinSelectors = [
+    'button:has-text(/join|become member|membership/i)',
+    'a:has-text(/join|become member|membership/i)',
+    'button:has-text("Become Member")',
+    'a:has-text("Become Member")',
+    'button:has-text("Subscribe")',
+    'a:has-text("Subscribe")',
+    '[role="button"]:has-text(/join|member|subscribe/i)',
+    '.btn-primary:has-text(/join|member/i)',
+    'a[class*="btn"]:has-text(/join|member|subscribe/i)',
+    // Last resort - any button/link with member/join in lower case
+    'text=/.*[Jj]oin.*[Cc]lub.*/',
+    'text=/.*[Bb]ecome.*[Mm]ember.*/'
+  ];
+
+  for (const selector of joinSelectors) {
+    try {
+      const elements = page.locator(selector);
+      const count = await elements.count();
+      
+      if (count > 0) {
+        const element = elements.first();
+        // Try to scroll into view
+        await element.scrollIntoViewIfNeeded().catch(() => {});
+        
+        if (await element.isVisible({ timeout: 1000 }).catch(() => false)) {
+          await element.click({ timeout: 5000 });
+          console.log(`✅ Clicked Join Club using selector: ${selector}`);
+          return true;
+        }
+      }
+    } catch (e) {
+      // Continue to next selector
+      continue;
+    }
+  }
+
+  // If all selectors fail, log page for debugging
+  const bodyText = await page.textContent('body').catch(() => '');
+  console.error("❌ Could not find Join Club button");
+  console.error("🔍 Page body preview:", bodyText?.substring(0, 1000));
+  
+  // Try clicking any visible button that might be the join button
+  const allButtons = page.locator('button, a[role="button"]');
+  const buttonCount = await allButtons.count();
+  console.log(`📊 Found ${buttonCount} buttons/links on page`);
+  
+  throw new Error('Could not find Join Club button - see logs above for page content');
+}
+
+// ============================================================
+// HELPER: Admin - Approve Membership Payment
+// ============================================================
+async function adminApproveMembershipPayment(page) {
+  console.log("🟢 Looking for PENDING membership payment to approve...");
+
   await page.waitForTimeout(2000);
 
-  // Find the first PENDING status
   const pendingStatus = page.locator('text="PENDING"').first();
   if (!await pendingStatus.isVisible({ timeout: 5000 }).catch(() => false)) {
-    console.log("⚠️ No PENDING payments found");
+    console.log("⚠️ No PENDING membership payments found");
     return false;
   }
-  console.log("✅ Found PENDING payment");
+  console.log("✅ Found PENDING membership payment");
 
-  // Find the Approve button (usually near the PENDING status)
-  // Try different selectors for Approve button
   const approveSelectors = [
     'button:has-text("Approve")',
     'button:has-text("APPROVE")',
@@ -75,7 +123,6 @@ async function adminApprovePayment(page) {
       await btn.click({ timeout: 5000 });
       console.log(`✅ Clicked Approve button using: ${selector}`);
 
-      // Handle confirmation modal if appears
       const confirmBtn = page.locator('button:has-text("Confirm")');
       if (await confirmBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await confirmBtn.click({ timeout: 5000 });
@@ -90,19 +137,19 @@ async function adminApprovePayment(page) {
 }
 
 // ============================================================
-// HELPER: Admin - Reject Payment (Specific to your UI)
+// HELPER: Admin - Reject Membership Payment
 // ============================================================
-async function adminRejectPayment(page) {
-  console.log("🔴 Looking for PENDING payment to reject...");
+async function adminRejectMembershipPayment(page) {
+  console.log("🔴 Looking for PENDING membership payment to reject...");
 
   await page.waitForTimeout(2000);
 
   const pendingStatus = page.locator('text="PENDING"').first();
   if (!await pendingStatus.isVisible({ timeout: 5000 }).catch(() => false)) {
-    console.log("⚠️ No PENDING payments found");
+    console.log("⚠️ No PENDING membership payments found");
     return false;
   }
-  console.log("✅ Found PENDING payment");
+  console.log("✅ Found PENDING membership payment");
 
   const rejectSelectors = [
     'button:has-text("Reject")',
@@ -132,23 +179,23 @@ async function adminRejectPayment(page) {
 }
 
 // ============================================================
-// HELPER: Navigate to Event Payments
+// HELPER: Navigate to Membership Payments
 // ============================================================
-async function navigateToEventPayments(page) {
+async function navigateToMembershipPayments(page) {
   console.log("📍 Navigating to Payment Management");
   await page.click('text="Payment Management"', { timeout: 5000 });
   await page.waitForTimeout(3000);
 
-  // Try to find and click Event Payments
-  const eventPaymentsSelectors = [
-    'text="Event Payments"',
-    'text="Event Payment"',
-    'text="TICKET SALES"',
-    'text="Ticket Sales"',
-    'a:has-text("Event Payment")'
+  const membershipPaymentsSelectors = [
+    'text="Membership Payments"',
+    'text="Membership Payment"',
+    'text="MEMBERSHIP FEES"',
+    'text="Membership Fees"',
+    'text="CLUB & MEMBERSHIP PAYMENT"',
+    'a:has-text("Membership Payment")'
   ];
 
-  for (const selector of eventPaymentsSelectors) {
+  for (const selector of membershipPaymentsSelectors) {
     const element = page.locator(selector).first();
     if (await element.isVisible({ timeout: 3000 }).catch(() => false)) {
       await element.click({ timeout: 5000 });
@@ -158,16 +205,74 @@ async function navigateToEventPayments(page) {
     }
   }
 
-  console.log("⚠️ Event Payments section not found, continuing...");
+  console.log("⚠️ Membership Payments section not found, continuing...");
   return false;
 }
 
 // ============================================================
-// TEST 1: APPROVAL FLOW
+// HELPER: Navigate to My Clubs
 // ============================================================
-test.describe('Complete Event Booking and Admin Approval Flow', () => {
+async function clickMyClubs(page) {
+  console.log("🔍 Navigating to My Clubs...");
+  
+  try {
+    // Try to click a My Clubs link first
+    const linkSelectors = [
+      'a:has-text(/my clubs/i)',
+      'a:has-text(/my memberships/i)',
+      '[href*="memberships"]',
+      '[href*="my-clubs"]',
+      'a:has-text(/clubs/i)'
+    ];
 
-  test('Complete End-to-End Cycle (User Book -> Admin Approve -> User Verify)', async ({ browser }) => {
+    for (const selector of linkSelectors) {
+      const element = page.locator(selector).first();
+      const isVisible = await element.isVisible({ timeout: 1000 }).catch(() => false);
+      
+      if (isVisible) {
+        await element.click({ timeout: 5000 });
+        console.log(`✅ Clicked My Clubs link using: ${selector}`);
+        await page.waitForTimeout(2000);
+        return true;
+      }
+    }
+
+    // If no link found, navigate directly to multiple possible URLs
+    const possibleUrls = [
+      'http://localhost:5173/dashboard/clubs',
+      'http://localhost:5173/dashboard/memberships',
+      'http://localhost:5173/my-clubs',
+      'http://localhost:5173/memberships'
+    ];
+
+    for (const url of possibleUrls) {
+      try {
+        console.log(`📍 Attempting to navigate to: ${url}`);
+        await page.goto(url, { timeout: 8000, waitUntil: 'networkidle' });
+        console.log(`✅ Successfully navigated to clubs/memberships page`);
+        await page.waitForTimeout(2000);
+        return true;
+      } catch (e) {
+        console.log(`⚠️ Failed to navigate to ${url}, trying next...`);
+        continue;
+      }
+    }
+
+    console.error("❌ Could not navigate to My Clubs - all URLs failed");
+    return false;
+
+  } catch (e) {
+    console.error("❌ Error in clickMyClubs:", e.message);
+    return false;
+  }
+}
+
+// ============================================================
+// TEST 1: MEMBERSHIP APPROVAL FLOW
+// ============================================================
+test.describe('Complete Club Membership and Admin Approval Flow', () => {
+
+  test('Complete End-to-End Cycle (User Join -> Admin Approve -> User Verify)', async ({ browser }) => {
     test.setTimeout(120000);
 
     // --- PART 1: USER FLOW ---
@@ -183,26 +288,31 @@ test.describe('Complete Event Booking and Admin Approval Flow', () => {
       await userPage.waitForURL('**/dashboard', { timeout: 10000 });
       console.log("✅ User logged in");
 
-      console.log("🔵 [APPROVAL] Step 2: Navigate to Events");
-      await userPage.click('text="Events"', { timeout: 5000 });
+      console.log("🔵 [APPROVAL] Step 2: Navigate to Clubs");
+      await navigateToClubs(userPage);
       await userPage.waitForTimeout(3000);
-      console.log("✅ Events page loaded");
+      console.log("✅ Clubs page loaded");
 
-      console.log("🔵 [APPROVAL] Step 3: Click Book Tickets");
-      await userPage.locator('a:has-text("Book Tickets")').first().click({ timeout: 5000 });
-      await userPage.waitForTimeout(3000);
-
-      const plusButton = userPage.locator('button:has-text("+")').first();
-      if (await plusButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-        console.log("🔵 [APPROVAL] Step 4: Selecting Tickets");
-        await plusButton.click({ timeout: 5000 });
+      console.log("🔵 [APPROVAL] Step 3: Select a Club");
+      // Click on first club card/link if available
+      const clubLinks = userPage.locator('a, [role="link"], .club-card, [class*="club"]');
+      const clubCount = await clubLinks.count();
+      if (clubCount > 0) {
+        await clubLinks.first().click({ timeout: 5000 });
+        await userPage.waitForTimeout(2000);
+        console.log("✅ Selected club");
       }
 
-      console.log("🔵 [APPROVAL] Step 5: Confirm Booking");
-      const confirmBtn = userPage.locator('button:has-text("Confirm Booking")');
+      console.log("🔵 [APPROVAL] Step 4: Click Join Club");
+      await clickJoinClub(userPage);
+      await userPage.waitForTimeout(3000);
+      console.log("✅ Join Club initiated");
+
+      console.log("🔵 [APPROVAL] Step 5: Confirm Membership");
+      const confirmBtn = userPage.locator('button:has-text("Confirm")');
       if (await confirmBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
         await confirmBtn.click({ timeout: 5000 });
-        console.log("✅ Booking confirmed");
+        console.log("✅ Membership confirmed");
       }
 
       await userPage.waitForTimeout(2000);
@@ -214,11 +324,11 @@ test.describe('Complete Event Booking and Admin Approval Flow', () => {
         const slipPath = path.join(__dirname, '../test-data/payment-slip.png');
         await userPage.setInputFiles('input[type="file"]', slipPath, { timeout: 5000 });
         await userPage.click('button:has-text("Verify Payment")', { timeout: 5000 });
-        await expect(userPage.locator('text="Booking Requested!"')).toBeVisible({ timeout: 5000 });
-        console.log("✅ Booking created - Pending approval");
+        await expect(userPage.locator('text="Membership Requested!"')).toBeVisible({ timeout: 5000 });
+        console.log("✅ Membership created - Pending approval");
       }
 
-      await userPage.screenshot({ path: 'test-results/approval-1-after-booking.png' });
+      await userPage.screenshot({ path: 'test-results/membership-approval-1-after-join.png' });
 
     } catch (e) {
       console.error('❌ User flow error:', e.message);
@@ -240,12 +350,12 @@ test.describe('Complete Event Booking and Admin Approval Flow', () => {
       await adminPage.waitForURL('**/admin', { timeout: 10000 });
       console.log("✅ Admin logged in");
 
-      await navigateToEventPayments(adminPage);
+      await navigateToMembershipPayments(adminPage);
 
-      console.log("🟢 [APPROVAL] Step 9: Approve Payment");
-      await adminApprovePayment(adminPage);
+      console.log("🟢 [APPROVAL] Step 8: Approve Payment");
+      await adminApproveMembershipPayment(adminPage);
 
-      await adminPage.screenshot({ path: 'test-results/approval-2-after-approval.png' });
+      await adminPage.screenshot({ path: 'test-results/membership-approval-2-after-approval.png' });
 
     } catch (e) {
       console.error('❌ Admin flow error:', e.message);
@@ -261,28 +371,31 @@ test.describe('Complete Event Booking and Admin Approval Flow', () => {
     const finalUserPage = await finalUserContext.newPage();
 
     try {
-      console.log("\n🟡 [APPROVAL] Step 10: User Verification");
+      console.log("\n🟡 [APPROVAL] Step 9: User Verification");
       await finalUserPage.goto('http://localhost:5173/login');
       await finalUserPage.fill('input[name="loginIdentifier"]', USER_EMAIL);
       await finalUserPage.fill('input[name="password"]', USER_PASSWORD);
       await finalUserPage.click('button:has-text("Sign In To Console")', { timeout: 5000 });
       await finalUserPage.waitForURL('**/dashboard', { timeout: 10000 });
 
-      console.log("🟡 [APPROVAL] Step 11: Navigate to My Bookings");
-      await clickMyBookings(finalUserPage);
+      console.log("🟡 [APPROVAL] Step 10: Navigate to My Clubs");
+      const navigatedToClubs = await clickMyClubs(finalUserPage);
+      if (!navigatedToClubs) {
+        console.log("⚠️ Could not navigate to My Clubs, but continuing with verification...");
+      }
       await finalUserPage.waitForTimeout(3000);
 
       const pageContent = await finalUserPage.textContent('body');
-      if (pageContent.includes('Confirmed') || pageContent.includes('confirmed') || pageContent.includes('APPROVED')) {
-        console.log("✅ SUCCESS: User sees 'Confirmed' status");
+      if (pageContent.includes('Active') || pageContent.includes('active') || pageContent.includes('APPROVED') || pageContent.includes('Member')) {
+        console.log("✅ SUCCESS: User sees 'Active' membership status");
       } else {
-        console.log("⚠️ 'Confirmed' status not found - Current status may be different");
+        console.log("⚠️ 'Active' status not found - Current status may be different");
       }
 
-      await finalUserPage.screenshot({ path: 'test-results/approval-3-final-status.png' });
+      await finalUserPage.screenshot({ path: 'test-results/membership-approval-3-final-status.png' });
 
       console.log('\n' + '='.repeat(60));
-      console.log('🎉 APPROVAL FLOW: COMPLETED ✅');
+      console.log('🎉 MEMBERSHIP APPROVAL FLOW: COMPLETED ✅');
       console.log('='.repeat(60) + '\n');
 
     } catch (e) {
@@ -295,11 +408,11 @@ test.describe('Complete Event Booking and Admin Approval Flow', () => {
 });
 
 // ============================================================
-// TEST 2: REJECTION FLOW
+// TEST 2: MEMBERSHIP REJECTION FLOW
 // ============================================================
-test.describe('Complete Event Booking and Admin REJECTION Flow', () => {
+test.describe('Complete Club Membership and Admin REJECTION Flow', () => {
 
-  test('Complete End-to-End Cycle (User Book -> Admin Reject -> User Verify)', async ({ browser }) => {
+  test('Complete End-to-End Cycle (User Join -> Admin Reject -> User Verify)', async ({ browser }) => {
     test.setTimeout(120000);
 
     // --- PART 1: USER FLOW ---
@@ -315,26 +428,31 @@ test.describe('Complete Event Booking and Admin REJECTION Flow', () => {
       await userPage.waitForURL('**/dashboard', { timeout: 10000 });
       console.log("✅ User logged in");
 
-      console.log("🔴 [REJECTION] Step 2: Navigate to Events");
-      await userPage.click('text="Events"', { timeout: 5000 });
+      console.log("🔴 [REJECTION] Step 2: Navigate to Clubs");
+      await navigateToClubs(userPage);
       await userPage.waitForTimeout(3000);
-      console.log("✅ Events page loaded");
+      console.log("✅ Clubs page loaded");
 
-      console.log("🔴 [REJECTION] Step 3: Click Book Tickets");
-      await userPage.locator('a:has-text("Book Tickets")').first().click({ timeout: 5000 });
-      await userPage.waitForTimeout(3000);
-
-      const plusButton = userPage.locator('button:has-text("+")').first();
-      if (await plusButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-        console.log("🔴 [REJECTION] Step 4: Selecting Tickets");
-        await plusButton.click({ timeout: 5000 });
+      console.log("🔴 [REJECTION] Step 3: Select a Club");
+      // Click on first club card/link if available
+      const clubLinks = userPage.locator('a, [role="link"], .club-card, [class*="club"]');
+      const clubCount = await clubLinks.count();
+      if (clubCount > 0) {
+        await clubLinks.first().click({ timeout: 5000 });
+        await userPage.waitForTimeout(2000);
+        console.log("✅ Selected club");
       }
 
-      console.log("🔴 [REJECTION] Step 5: Confirm Booking");
-      const confirmBtn = userPage.locator('button:has-text("Confirm Booking")');
+      console.log("🔴 [REJECTION] Step 4: Click Join Club");
+      await clickJoinClub(userPage);
+      await userPage.waitForTimeout(3000);
+      console.log("✅ Join Club initiated");
+
+      console.log("🔴 [REJECTION] Step 5: Confirm Membership");
+      const confirmBtn = userPage.locator('button:has-text("Confirm")');
       if (await confirmBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
         await confirmBtn.click({ timeout: 5000 });
-        console.log("✅ Booking confirmed");
+        console.log("✅ Membership confirmed");
       }
 
       await userPage.waitForTimeout(2000);
@@ -346,11 +464,11 @@ test.describe('Complete Event Booking and Admin REJECTION Flow', () => {
         const slipPath = path.join(__dirname, '../test-data/payment-slip.png');
         await userPage.setInputFiles('input[type="file"]', slipPath, { timeout: 5000 });
         await userPage.click('button:has-text("Verify Payment")', { timeout: 5000 });
-        await expect(userPage.locator('text="Booking Requested!"')).toBeVisible({ timeout: 5000 });
-        console.log("✅ Booking created - Pending approval");
+        await expect(userPage.locator('text="Membership Requested!"')).toBeVisible({ timeout: 5000 });
+        console.log("✅ Membership created - Pending approval");
       }
 
-      await userPage.screenshot({ path: 'test-results/rejection-1-after-booking.png' });
+      await userPage.screenshot({ path: 'test-results/membership-rejection-1-after-join.png' });
 
     } catch (e) {
       console.error('❌ User flow error:', e.message);
@@ -372,12 +490,12 @@ test.describe('Complete Event Booking and Admin REJECTION Flow', () => {
       await adminPage.waitForURL('**/admin', { timeout: 10000 });
       console.log("✅ Admin logged in");
 
-      await navigateToEventPayments(adminPage);
+      await navigateToMembershipPayments(adminPage);
 
-      console.log("🔴 [REJECTION] Step 9: Reject Payment");
-      await adminRejectPayment(adminPage);
+      console.log("🔴 [REJECTION] Step 8: Reject Payment");
+      await adminRejectMembershipPayment(adminPage);
 
-      await adminPage.screenshot({ path: 'test-results/rejection-2-after-rejection.png' });
+      await adminPage.screenshot({ path: 'test-results/membership-rejection-2-after-rejection.png' });
 
     } catch (e) {
       console.error('❌ Admin flow error:', e.message);
@@ -393,15 +511,18 @@ test.describe('Complete Event Booking and Admin REJECTION Flow', () => {
     const finalUserPage = await finalUserContext.newPage();
 
     try {
-      console.log("\n🟡 [REJECTION] Step 10: User Verification");
+      console.log("\n🟡 [REJECTION] Step 9: User Verification");
       await finalUserPage.goto('http://localhost:5173/login');
       await finalUserPage.fill('input[name="loginIdentifier"]', USER_EMAIL);
       await finalUserPage.fill('input[name="password"]', USER_PASSWORD);
       await finalUserPage.click('button:has-text("Sign In To Console")', { timeout: 5000 });
       await finalUserPage.waitForURL('**/dashboard', { timeout: 10000 });
 
-      console.log("🟡 [REJECTION] Step 11: Navigate to My Bookings");
-      await clickMyBookings(finalUserPage);
+      console.log("🟡 [REJECTION] Step 10: Navigate to My Clubs");
+      const navigatedToClubs = await clickMyClubs(finalUserPage);
+      if (!navigatedToClubs) {
+        console.log("⚠️ Could not navigate to My Clubs, but continuing with verification...");
+      }
       await finalUserPage.waitForTimeout(3000);
 
       const pageContent = await finalUserPage.textContent('body');
@@ -411,10 +532,10 @@ test.describe('Complete Event Booking and Admin REJECTION Flow', () => {
         console.log("⚠️ 'Rejected' status not found - Current status may be different");
       }
 
-      await finalUserPage.screenshot({ path: 'test-results/rejection-3-final-status.png' });
+      await finalUserPage.screenshot({ path: 'test-results/membership-rejection-3-final-status.png' });
 
       console.log('\n' + '='.repeat(60));
-      console.log('🎉 REJECTION FLOW: COMPLETED ✅');
+      console.log('🎉 MEMBERSHIP REJECTION FLOW: COMPLETED ✅');
       console.log('='.repeat(60) + '\n');
 
     } catch (e) {

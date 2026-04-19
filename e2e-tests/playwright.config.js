@@ -9,7 +9,7 @@ module.exports = defineConfig({
   retries: 0,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:5174', // Match your frontend Vite port!
+    baseURL: 'http://localhost:5173/login', // Match your frontend Vite port!
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
