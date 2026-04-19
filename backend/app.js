@@ -19,6 +19,7 @@ const authRoutes = require("./Routes/authRoutes");
 const notificationRoutes = require("./Routes/notificationRoutes");
 const uploadRoutes = require("./Routes/uploadRoutes");
 const reviewRoutes = require('./Routes/reviewRoutes');
+const chatRoutes = require("./Routes/chatRoutes");
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use("/api/chat", chatRoutes);
 
 // ✅ Cron job
 const cron = require("node-cron");

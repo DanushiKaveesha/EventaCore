@@ -5,6 +5,7 @@ import { UserGroupIcon, CalendarIcon, UserCircleIcon, ClipboardDocumentListIcon 
 // Layout Imports
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import Chatbot from './components/Chatbot/Chatbot';
 
 // My Branch Imports (Club Memberships & Events)
 import CreateClub from './pages/CreateClub';
@@ -126,6 +127,7 @@ function App() {
         </Routes>
       </main>
       {!isAdminRoute && !isEditAccountRoute && <Footer />}
+      <Chatbot />
     </div>
   );
 }
