@@ -1,0 +1,17 @@
+{
+  "name": "eventa-core-e2e-tests",
+  "version": "1.0.0",
+  "description": "Playwright end-to-end testing suite for MERN Event Management System",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.42.1"
+  }
+}

@@ -1,0 +1,16 @@
+backend/app.js
+backend/package-lock.json
+backend/package.json
+frontend/index.html
+frontend/postcss.config.js
+frontend/src/App.jsx
+frontend/src/assets/logo.png
+frontend/src/assets/logo.png.jpeg
+frontend/src/index.css
+frontend/src/main.jsx
+frontend/src/pages/Home.jsx
+frontend/src/pages/admin/AdminClubs.jsx
+frontend/src/pages/admin/AdminEventPayments.jsx
+frontend/src/pages/admin/AdminEvents.jsx
+frontend/src/pages/admin/AdminSidebar.jsx
+frontend/src/pages/admin/AdminUsers.jsx

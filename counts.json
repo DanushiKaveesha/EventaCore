@@ -1,0 +1,14 @@
+{
+  "database": "eventacore",
+  "collections": {
+    "clubs": 6,
+    "events": 8,
+    "eventregistrations": 7,
+    "bookings": 26,
+    "bookmarks": 5,
+    "memberships": 6,
+    "users": 11,
+    "notifications": 16,
+    "reviewratings": 7
+  }
+}
