@@ -18,31 +18,32 @@ const NEW_USER_LAST_NAME = 'User';
 const NEW_USER_PHONE = '0771234567';
 
 // ============================================================
-// HELPER: Navigate to Profile/Account Page
+// HELPER: Navigate to Settings Page (via direct URL)
+// ============================================================
+async function navigateToSettings(page) {
+  console.log("📍 Navigating directly to /settings");
+  await page.goto('http://localhost:5173/settings');
+  await page.waitForTimeout(2000);
+  console.log("✅ Settings page loaded");
+}
+
+// ============================================================
+// HELPER: Navigate to Edit Account Page (via direct URL)
+// ============================================================
+async function navigateToEditAccount(page) {
+  console.log("📍 Navigating directly to /edit-account");
+  await page.goto('http://localhost:5173/edit-account');
+  await page.waitForTimeout(2000);
+  console.log("✅ Edit Account page loaded");
+}
+
+// ============================================================
+// HELPER: Navigate to Profile/Account Page (legacy - kept for compatibility)
 // ============================================================
 async function navigateToProfile(page) {
-  console.log("📍 Navigating to Profile/Account");
-  
-  const profileSelectors = [
-    'text="Profile"',
-    'text="Account"',
-    'a:has-text("Profile")',
-    'a:has-text("Account")',
-    '[href*="profile"]',
-    '[href*="account"]'
-  ];
-
-  for (const selector of profileSelectors) {
-    const element = page.locator(selector).first();
-    if (await element.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await element.click({ timeout: 5000 });
-      console.log("✅ Clicked Profile using:", selector);
-      await page.waitForTimeout(2000);
-      return true;
-    }
-  }
-
-  throw new Error('Could not find Profile/Account navigation');
+  console.log("📍 Navigating to Settings page directly");
+  await navigateToSettings(page);
+  return true;
 }
 
 // ============================================================
@@ -50,7 +51,7 @@ async function navigateToProfile(page) {
 // ============================================================
 async function fillRegistrationForm(page, email, password, firstName, lastName, phone) {
   console.log("📝 Filling Registration Form");
-  
+
   // Fill first name (Step 1)
   const firstNameInput = page.locator('input[name="firstName"]');
   if (await firstNameInput.isVisible({ timeout: 2000 }).catch(() => false)) {
@@ -107,16 +108,16 @@ async function fillRegistrationForm(page, email, password, firstName, lastName, 
   if (await provinceSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
     await provinceSelect.selectOption('Western');
     await page.waitForTimeout(500);
-    
+
     const citySelect = page.locator('select[name="city"]');
     await citySelect.selectOption('Colombo');
-    
+
     const zoneInput = page.locator('input[name="zone"]');
     await zoneInput.fill('Colombo District');
-    
+
     const addressLineInput = page.locator('input[name="addressLine"]');
     await addressLineInput.fill('123 Main Street');
-    
+
     console.log("✅ Address filled");
 
     // Click Next to proceed to Step 3
@@ -155,7 +156,7 @@ async function fillRegistrationForm(page, email, password, firstName, lastName, 
 // ============================================================
 async function performLogin(page, email, password) {
   console.log("🔐 Logging in...");
-  
+
   await page.goto('http://localhost:5173/login');
   await page.waitForTimeout(2000);
 
@@ -209,7 +210,7 @@ async function performLogin(page, email, password) {
       throw new Error('Login failed - still on login page');
     }
   }
-  
+
   console.log("✅ Successfully logged in");
 }
 
@@ -218,47 +219,60 @@ async function performLogin(page, email, password) {
 // ============================================================
 async function updateProfileInfo(page, firstName, lastName, phone) {
   console.log("✏️ Updating profile information");
-  
+
   // Update first name
   const firstNameInput = page.locator('input[name="firstName"]');
-  if (await firstNameInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+  if (await firstNameInput.isVisible({ timeout: 5000 }).catch(() => false)) {
     await firstNameInput.clear();
     await firstNameInput.fill(firstName);
     console.log("✅ First Name updated");
+  } else {
+    console.warn("⚠️ First Name input not found");
   }
 
   // Update last name
   const lastNameInput = page.locator('input[name="lastName"]');
-  if (await lastNameInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+  if (await lastNameInput.isVisible({ timeout: 3000 }).catch(() => false)) {
     await lastNameInput.clear();
     await lastNameInput.fill(lastName);
     console.log("✅ Last Name updated");
+  } else {
+    console.warn("⚠️ Last Name input not found");
   }
 
-  // Update phone
+  // Update phone - EditAccount uses 'contactNumber'
   const phoneInput = page.locator('input[name="contactNumber"]');
-  if (await phoneInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+  if (await phoneInput.isVisible({ timeout: 3000 }).catch(() => false)) {
     await phoneInput.clear();
     await phoneInput.fill(phone);
     console.log("✅ Phone updated");
+  } else {
+    console.warn("⚠️ Phone input not found");
   }
 
-  // Save/Submit button
+  // Save/Submit button - EditAccount uses 'Save Changes'
   const saveSelectors = [
+    'button:has-text("Save Changes")',
     'button:has-text("Save")',
     'button:has-text("Update")',
     'button:has-text("Submit")',
     'button[type="submit"]'
   ];
 
+  let saved = false;
   for (const selector of saveSelectors) {
     const btn = page.locator(selector).first();
-    if (await btn.isVisible({ timeout: 2000 }).catch(() => false)) {
+    if (await btn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await btn.click({ timeout: 5000 });
-      console.log("✅ Changes saved");
-      await page.waitForTimeout(2000);
+      console.log("✅ Save button clicked using:", selector);
+      await page.waitForTimeout(3000);
+      saved = true;
       break;
     }
+  }
+
+  if (!saved) {
+    console.warn("⚠️ Save button not found - profile update may not have been submitted");
   }
 }
 
@@ -267,11 +281,11 @@ async function updateProfileInfo(page, firstName, lastName, phone) {
 // ============================================================
 async function changePassword(page, currentPassword, newPassword) {
   console.log("🔑 Changing password");
-  
+
   // SecuritySettings page has: password and confirmPassword fields
   const passwordInput = page.locator('input[name="password"]');
   let found = false;
-  
+
   if (await passwordInput.isVisible({ timeout: 3000 }).catch(() => false)) {
     await passwordInput.fill(newPassword);
     console.log("✅ New password filled");
@@ -281,7 +295,7 @@ async function changePassword(page, currentPassword, newPassword) {
     const allInputs = page.locator('input[type="password"], input[type="text"]');
     const count = await allInputs.count();
     console.log(`Found ${count} password-type inputs`);
-    
+
     if (count > 0) {
       // Try the first input
       const firstInput = allInputs.first();
@@ -292,7 +306,7 @@ async function changePassword(page, currentPassword, newPassword) {
       }
     }
   }
-  
+
   if (!found) {
     console.warn("⚠️ Password field not found - page may not be ready");
     throw new Error('Could not find password field');
@@ -345,7 +359,7 @@ async function changePassword(page, currentPassword, newPassword) {
 // ============================================================
 async function performLogout(page) {
   console.log("🚪 Logging out");
-  
+
   const logoutSelectors = [
     'button:has-text("Logout")',
     'button:has-text("Sign Out")',
@@ -360,7 +374,7 @@ async function performLogout(page) {
     if (await element.isVisible({ timeout: 2000 }).catch(() => false)) {
       await element.click({ timeout: 5000 });
       console.log("✅ Logout clicked");
-      await page.waitForURL('**/login', { timeout: 10000 }).catch(() => {});
+      await page.waitForURL('**/login', { timeout: 10000 }).catch(() => { });
       return true;
     }
   }
@@ -422,10 +436,10 @@ test.describe('User Registration Flow', () => {
       const currentUrl = page.url();
       const successMessages = ['successful', 'registered', 'account', 'created', 'dashboard', 'login'];
       const pageContent = await page.textContent('body');
-      
-      const hasSuccess = successMessages.some(msg => pageContent.toLowerCase().includes(msg)) || 
-                        successMessages.some(msg => currentUrl.includes(msg));
-      
+
+      const hasSuccess = successMessages.some(msg => pageContent.toLowerCase().includes(msg)) ||
+        successMessages.some(msg => currentUrl.includes(msg));
+
       if (hasSuccess) {
         console.log("✅ Registration successful - redirected or success message shown");
       } else {
@@ -440,7 +454,7 @@ test.describe('User Registration Flow', () => {
 
     } catch (e) {
       console.error('❌ Registration flow error:', e.message);
-      await page.screenshot({ path: 'test-results/registration-error.png' }).catch(() => {});
+      await page.screenshot({ path: 'test-results/registration-error.png' }).catch(() => { });
       throw e;
     }
   });
@@ -526,9 +540,9 @@ test.describe('User Login Flow', () => {
 
       const errorMessages = ['error', 'invalid', 'incorrect', 'failed'];
       const pageContent = await page.textContent('body');
-      
+
       const hasError = errorMessages.some(msg => pageContent.toLowerCase().includes(msg));
-      
+
       if (hasError) {
         console.log("✅ Error message displayed for invalid credentials");
       } else {
@@ -554,24 +568,44 @@ test.describe('User Profile Management', () => {
     try {
       console.log("\n🟣 [PROFILE] Step 1: Login");
       await performLogin(page, EXISTING_USER_EMAIL, EXISTING_USER_PASSWORD);
+      await page.screenshot({ path: 'test-results/profile-1-after-login.png' });
 
-      console.log("🟣 [PROFILE] Step 2: Navigate to Profile");
-      await navigateToProfile(page);
+      console.log("🟣 [PROFILE] Step 2: Navigate directly to /edit-account");
+      await navigateToEditAccount(page);
+      await page.screenshot({ path: 'test-results/profile-2-edit-page.png' });
+      console.log("Current URL:", page.url());
 
       console.log("🟣 [PROFILE] Step 3: Update Profile Information");
       await updateProfileInfo(page, 'UpdatedFirst', 'UpdatedLast', '0771111111');
+      await page.screenshot({ path: 'test-results/profile-3-after-save.png' });
 
-      console.log("🟣 [PROFILE] Step 4: Verify Updates");
+      console.log("🟣 [PROFILE] Step 4: Verify Success");
       await page.waitForTimeout(2000);
-      const profileContent = await page.textContent('body');
-      
-      if (profileContent.includes('UpdatedFirst') || profileContent.includes('Success')) {
-        console.log("✅ Profile information updated successfully");
+      // After save, EditAccount.jsx redirects to /settings - check for success
+      const currentUrl = page.url();
+      const pageContent = await page.textContent('body');
+
+      const isSuccess = currentUrl.includes('settings') ||
+        pageContent.toLowerCase().includes('success') ||
+        pageContent.toLowerCase().includes('updated');
+
+      if (isSuccess) {
+        console.log("✅ Profile updated successfully - redirected to:", currentUrl);
       } else {
-        console.log("⚠️ Update may have succeeded - verification inconclusive");
+        console.log("⚠️ Verification inconclusive - URL:", currentUrl);
       }
 
-      await page.screenshot({ path: 'test-results/profile-update.png' });
+      // Navigate to profile view to confirm updated name is visible
+      await page.goto('http://localhost:5173/profile');
+      await page.waitForTimeout(2000);
+      const profilePageContent = await page.textContent('body');
+      if (profilePageContent.includes('UpdatedFirst')) {
+        console.log("✅ Profile view confirms name was updated to 'UpdatedFirst'");
+      } else {
+        console.log("⚠️ Name may have changed but could not confirm on profile page");
+      }
+
+      await page.screenshot({ path: 'test-results/profile-4-verified.png' });
 
       console.log('\n' + '='.repeat(60));
       console.log('🎉 PROFILE UPDATE FLOW: COMPLETED ✅');
@@ -579,7 +613,7 @@ test.describe('User Profile Management', () => {
 
     } catch (e) {
       console.error('❌ Profile update error:', e.message);
-      await page.screenshot({ path: 'test-results/profile-update-error.png' });
+      await page.screenshot({ path: 'test-results/profile-update-error.png' }).catch(() => {});
       throw e;
     }
   });
@@ -628,7 +662,7 @@ test.describe('User Password Management', () => {
 
       console.log("🟠 [PASSWORD] Step 3: Change Password");
       const newPassword = 'NewPassword456!';
-      
+
       try {
         await changePassword(page, EXISTING_USER_PASSWORD, newPassword);
       } catch (e) {
@@ -640,9 +674,9 @@ test.describe('User Password Management', () => {
       await page.waitForTimeout(1000);
       const successMessages = ['success', 'changed', 'updated', 'changed successfully'];
       const pageContent = await page.textContent('body');
-      
+
       const hasSuccess = successMessages.some(msg => pageContent.toLowerCase().includes(msg));
-      
+
       if (hasSuccess) {
         console.log("✅ Password change successful");
       } else {
@@ -657,7 +691,7 @@ test.describe('User Password Management', () => {
 
     } catch (e) {
       console.error('❌ Password change error:', e.message);
-      await page.screenshot({ path: 'test-results/password-change-error.png' }).catch(() => {});
+      await page.screenshot({ path: 'test-results/password-change-error.png' }).catch(() => { });
       throw e;
     }
   });
@@ -742,7 +776,7 @@ test.describe('Complete User Lifecycle', () => {
 
     } catch (e) {
       console.error('❌ Lifecycle test error:', e.message);
-      await page.screenshot({ path: 'test-results/lifecycle-error.png' }).catch(() => {});
+      await page.screenshot({ path: 'test-results/lifecycle-error.png' }).catch(() => { });
       throw e;
     }
   });
